@@ -11,5 +11,9 @@
 3. Go to Basic__1 -> worlds , and open test_world.wbt
 
 
+### Install Webots ROS 2 Driver
 
+```sh
+	sudo apt-get install ros-$ROS_DISTRO-webots-ros2
+	```
 
