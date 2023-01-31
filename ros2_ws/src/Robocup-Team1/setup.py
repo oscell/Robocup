@@ -1,7 +1,7 @@
 from setuptools import setup
 
 package_name = 'Robocup-Team1'
-
+# Changes still to be made on the setup file
 setup(
     name=package_name,
     version='0.0.0',
@@ -13,10 +13,10 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='abubakar',
+    maintainer='',
     maintainer_email='ayusuf13@hotmail.co.uk',
     description='TODO: Package description',
-    license='TODO: License declaration',
+    license='Apache License 2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
