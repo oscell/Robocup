@@ -8,15 +8,18 @@
 ```
 
 ### Build the package
+Clone the repository
 ```
 git clone https://github.com/oscell/Robotics-team-design.git
 ```
 
+Move to directory and source ros distro
 ```
 cd Robotics-team-design
 source /opt/ros/foxy/setup.sh
 ```
 
+Build the packadge and run
 ```
 colcon build
 source install/local_setup.sh
