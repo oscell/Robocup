@@ -15,5 +15,19 @@
 
 ```sh
 	sudo apt-get install ros-$ROS_DISTRO-webots-ros2
-	```
+```
 
+## Recomended format
+```
+├── launch
+│   └── robot_launch.py
+├── resource
+│   ├── webots_robot_description.urdf
+│   └── ros2_control_configuration.yml
+├── worlds
+    └── webots_world_file.wbt
+├── webots_ros2_package_example
+│   └── \_\_init__.py
+├── package.xml
+└── setup.py
+```
