@@ -1,0 +1,33 @@
+[0.891s] Invoking command in '/home/oscell/Documents/GitHub/Robotics-team-design/ros2_ws/src/Robocup-Team1': PYTHONPATH=/home/oscell/Documents/GitHub/Robotics-team-design/build/Robocup-Team1/prefix_override:/home/oscell/Documents/GitHub/Robotics-team-design/install/Robocup-Team1/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../../build/Robocup-Team1 build --build-base /home/oscell/Documents/GitHub/Robotics-team-design/build/Robocup-Team1/build install --record /home/oscell/Documents/GitHub/Robotics-team-design/build/Robocup-Team1/install.log --single-version-externally-managed
+[1.111s] running egg_info
+[1.111s] creating ../../../build/Robocup-Team1/Robocup_Team1.egg-info
+[1.112s] writing ../../../build/Robocup-Team1/Robocup_Team1.egg-info/PKG-INFO
+[1.112s] writing dependency_links to ../../../build/Robocup-Team1/Robocup_Team1.egg-info/dependency_links.txt
+[1.112s] writing entry points to ../../../build/Robocup-Team1/Robocup_Team1.egg-info/entry_points.txt
+[1.112s] writing requirements to ../../../build/Robocup-Team1/Robocup_Team1.egg-info/requires.txt
+[1.112s] writing top-level names to ../../../build/Robocup-Team1/Robocup_Team1.egg-info/top_level.txt
+[1.114s] writing manifest file '../../../build/Robocup-Team1/Robocup_Team1.egg-info/SOURCES.txt'
+[1.151s] reading manifest file '../../../build/Robocup-Team1/Robocup_Team1.egg-info/SOURCES.txt'
+[1.154s] writing manifest file '../../../build/Robocup-Team1/Robocup_Team1.egg-info/SOURCES.txt'
+[1.154s] running build
+[1.155s] running build_py
+[1.155s] creating /home/oscell/Documents/GitHub/Robotics-team-design/build/Robocup-Team1/build
+[1.155s] creating /home/oscell/Documents/GitHub/Robotics-team-design/build/Robocup-Team1/build/lib
+[1.155s] creating /home/oscell/Documents/GitHub/Robotics-team-design/build/Robocup-Team1/build/lib/Robocup-Team1
+[1.155s] copying Robocup-Team1/__init__.py -> /home/oscell/Documents/GitHub/Robotics-team-design/build/Robocup-Team1/build/lib/Robocup-Team1
+[1.155s] running install
+[1.155s] running install_lib
+[1.157s] creating /home/oscell/Documents/GitHub/Robotics-team-design/install/Robocup-Team1/lib/python3.8/site-packages/Robocup-Team1
+[1.157s] copying /home/oscell/Documents/GitHub/Robotics-team-design/build/Robocup-Team1/build/lib/Robocup-Team1/__init__.py -> /home/oscell/Documents/GitHub/Robotics-team-design/install/Robocup-Team1/lib/python3.8/site-packages/Robocup-Team1
+[1.158s] byte-compiling /home/oscell/Documents/GitHub/Robotics-team-design/install/Robocup-Team1/lib/python3.8/site-packages/Robocup-Team1/__init__.py to __init__.cpython-38.pyc
+[1.159s] running install_data
+[1.160s] creating /home/oscell/Documents/GitHub/Robotics-team-design/install/Robocup-Team1/share/ament_index
+[1.160s] creating /home/oscell/Documents/GitHub/Robotics-team-design/install/Robocup-Team1/share/ament_index/resource_index
+[1.160s] creating /home/oscell/Documents/GitHub/Robotics-team-design/install/Robocup-Team1/share/ament_index/resource_index/packages
+[1.160s] copying resource/Robocup-Team1 -> /home/oscell/Documents/GitHub/Robotics-team-design/install/Robocup-Team1/share/ament_index/resource_index/packages
+[1.160s] copying package.xml -> /home/oscell/Documents/GitHub/Robotics-team-design/install/Robocup-Team1/share/Robocup-Team1
+[1.160s] running install_egg_info
+[1.161s] Copying ../../../build/Robocup-Team1/Robocup_Team1.egg-info to /home/oscell/Documents/GitHub/Robotics-team-design/install/Robocup-Team1/lib/python3.8/site-packages/Robocup_Team1-0.0.0-py3.8.egg-info
+[1.162s] running install_scripts
+[1.182s] writing list of installed files to '/home/oscell/Documents/GitHub/Robotics-team-design/build/Robocup-Team1/install.log'
+[1.232s] Invoked command in '/home/oscell/Documents/GitHub/Robotics-team-design/ros2_ws/src/Robocup-Team1' returned '0': PYTHONPATH=/home/oscell/Documents/GitHub/Robotics-team-design/build/Robocup-Team1/prefix_override:/home/oscell/Documents/GitHub/Robotics-team-design/install/Robocup-Team1/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../../build/Robocup-Team1 build --build-base /home/oscell/Documents/GitHub/Robotics-team-design/build/Robocup-Team1/build install --record /home/oscell/Documents/GitHub/Robotics-team-design/build/Robocup-Team1/install.log --single-version-externally-managed

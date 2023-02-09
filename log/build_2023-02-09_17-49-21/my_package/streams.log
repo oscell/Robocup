@@ -1,0 +1,44 @@
+[0.868s] Invoking command in '/home/oscell/Documents/GitHub/Robotics-team-design/src/my_package': PYTHONPATH=/home/oscell/Documents/GitHub/Robotics-team-design/build/my_package/prefix_override:/home/oscell/Documents/GitHub/Robotics-team-design/install/my_package/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../build/my_package build --build-base /home/oscell/Documents/GitHub/Robotics-team-design/build/my_package/build install --record /home/oscell/Documents/GitHub/Robotics-team-design/build/my_package/install.log --install-scripts $base/lib/my_package --single-version-externally-managed
+[1.082s] running egg_info
+[1.083s] creating ../../build/my_package/my_package.egg-info
+[1.085s] writing ../../build/my_package/my_package.egg-info/PKG-INFO
+[1.085s] writing dependency_links to ../../build/my_package/my_package.egg-info/dependency_links.txt
+[1.085s] writing entry points to ../../build/my_package/my_package.egg-info/entry_points.txt
+[1.086s] writing requirements to ../../build/my_package/my_package.egg-info/requires.txt
+[1.086s] writing top-level names to ../../build/my_package/my_package.egg-info/top_level.txt
+[1.087s] writing manifest file '../../build/my_package/my_package.egg-info/SOURCES.txt'
+[1.122s] reading manifest file '../../build/my_package/my_package.egg-info/SOURCES.txt'
+[1.123s] writing manifest file '../../build/my_package/my_package.egg-info/SOURCES.txt'
+[1.127s] running build
+[1.127s] running build_py
+[1.127s] creating /home/oscell/Documents/GitHub/Robotics-team-design/build/my_package/build
+[1.129s] creating /home/oscell/Documents/GitHub/Robotics-team-design/build/my_package/build/lib
+[1.129s] creating /home/oscell/Documents/GitHub/Robotics-team-design/build/my_package/build/lib/my_package
+[1.129s] copying my_package/__init__.py -> /home/oscell/Documents/GitHub/Robotics-team-design/build/my_package/build/lib/my_package
+[1.129s] copying my_package/my_robot_driver.py -> /home/oscell/Documents/GitHub/Robotics-team-design/build/my_package/build/lib/my_package
+[1.130s] running install
+[1.130s] running install_lib
+[1.132s] creating /home/oscell/Documents/GitHub/Robotics-team-design/install/my_package/lib/python3.8/site-packages/my_package
+[1.133s] copying /home/oscell/Documents/GitHub/Robotics-team-design/build/my_package/build/lib/my_package/__init__.py -> /home/oscell/Documents/GitHub/Robotics-team-design/install/my_package/lib/python3.8/site-packages/my_package
+[1.133s] copying /home/oscell/Documents/GitHub/Robotics-team-design/build/my_package/build/lib/my_package/my_robot_driver.py -> /home/oscell/Documents/GitHub/Robotics-team-design/install/my_package/lib/python3.8/site-packages/my_package
+[1.133s] byte-compiling /home/oscell/Documents/GitHub/Robotics-team-design/install/my_package/lib/python3.8/site-packages/my_package/__init__.py to __init__.cpython-38.pyc
+[1.134s] byte-compiling /home/oscell/Documents/GitHub/Robotics-team-design/install/my_package/lib/python3.8/site-packages/my_package/my_robot_driver.py to my_robot_driver.cpython-38.pyc
+[1.135s] running install_data
+[1.135s] creating /home/oscell/Documents/GitHub/Robotics-team-design/install/my_package/share/ament_index
+[1.135s] creating /home/oscell/Documents/GitHub/Robotics-team-design/install/my_package/share/ament_index/resource_index
+[1.136s] creating /home/oscell/Documents/GitHub/Robotics-team-design/install/my_package/share/ament_index/resource_index/packages
+[1.136s] copying resource/my_package -> /home/oscell/Documents/GitHub/Robotics-team-design/install/my_package/share/ament_index/resource_index/packages
+[1.137s] creating /home/oscell/Documents/GitHub/Robotics-team-design/install/my_package/share/my_package/launch
+[1.137s] copying launch/robot_launch.py -> /home/oscell/Documents/GitHub/Robotics-team-design/install/my_package/share/my_package/launch
+[1.138s] creating /home/oscell/Documents/GitHub/Robotics-team-design/install/my_package/share/my_package/worlds
+[1.138s] copying worlds/Football.wbt -> /home/oscell/Documents/GitHub/Robotics-team-design/install/my_package/share/my_package/worlds
+[1.138s] creating /home/oscell/Documents/GitHub/Robotics-team-design/install/my_package/share/my_package/resource
+[1.138s] copying resource/my_robot.urdf -> /home/oscell/Documents/GitHub/Robotics-team-design/install/my_package/share/my_package/resource
+[1.138s] copying resource/Pitch_texture.png -> /home/oscell/Documents/GitHub/Robotics-team-design/install/my_package/share/my_package/resource
+[1.138s] copying package.xml -> /home/oscell/Documents/GitHub/Robotics-team-design/install/my_package/share/my_package
+[1.138s] running install_egg_info
+[1.141s] Copying ../../build/my_package/my_package.egg-info to /home/oscell/Documents/GitHub/Robotics-team-design/install/my_package/lib/python3.8/site-packages/my_package-0.0.0-py3.8.egg-info
+[1.141s] running install_scripts
+[1.158s] Installing my_robot_driver script to /home/oscell/Documents/GitHub/Robotics-team-design/install/my_package/lib/my_package
+[1.159s] writing list of installed files to '/home/oscell/Documents/GitHub/Robotics-team-design/build/my_package/install.log'
+[1.190s] Invoked command in '/home/oscell/Documents/GitHub/Robotics-team-design/src/my_package' returned '0': PYTHONPATH=/home/oscell/Documents/GitHub/Robotics-team-design/build/my_package/prefix_override:/home/oscell/Documents/GitHub/Robotics-team-design/install/my_package/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../build/my_package build --build-base /home/oscell/Documents/GitHub/Robotics-team-design/build/my_package/build install --record /home/oscell/Documents/GitHub/Robotics-team-design/build/my_package/install.log --install-scripts $base/lib/my_package --single-version-externally-managed

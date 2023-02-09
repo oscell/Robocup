@@ -1,21 +1,28 @@
 # Robotics-team-design
 ### Github Repository for ENG5325(2023): Robocup Challenge
 
-### Run Simulation in WeBots
-
-1. Open WeBots
-	```sh
-	webots
-	```
-2. Go to File -> Open World ...
-3. Go to Basic__1 -> worlds , and open test_world.wbt
-
-
 ### Install Webots ROS 2 Driver
 
 ```sh
 	sudo apt-get install ros-$ROS_DISTRO-webots-ros2
 ```
+
+### Build the package
+```
+git clone https://github.com/oscell/Robotics-team-design.git
+```
+
+```
+cd Robotics-team-design
+source /opt/ros/foxy/setup.sh
+```
+
+```
+colcon build
+source install/local_setup.sh
+ros2 launch my_package robot_launch.py
+```
+
 
 ## Recomended format
 ```
@@ -30,4 +37,25 @@
 │   └── \_\_init__.py
 ├── package.xml
 └── setup.py
+```
+
+## Package format
+```
+src/
+└── my_package/
+    ├── launch/
+    ├── my_package/
+    │   ├── __init__.py
+    │   └── my_robot_driver.py
+    ├── resource/
+    │   └── my_package
+    ├── test/
+    │   ├── test_copyright.py
+    │   ├── test_flake8.py
+    │   └── test_pep257.py
+    ├── worlds/
+	│	├──Football_Pitch
+    ├── package.xml
+    ├── setup.cfg
+    └── setup.py
 ```
