@@ -6,6 +6,7 @@ classdef simulation
         env
 
         robots
+        gamestate
 
         tVec % Time array
     end
@@ -20,6 +21,7 @@ classdef simulation
 
             obj.tVec = 0:obj.sampletime:totalTime;
             obj.robots = obj.MakeRobots();
+            obj.gamestate = gamestate();
         end
 
         function run(obj)
@@ -45,9 +47,12 @@ classdef simulation
             for i = 1:obj.numRobots
                 text(waypoints(1,i)+0.2,waypoints(2,i)+0.2,string(i))
             end
+
+            obj.drawpitch()
             
             
             hold off
+            set(gca,'visible','off')
         end
 
 
@@ -57,7 +62,28 @@ classdef simulation
             end
         end
 
+        function drawpitch(obj)
+            rectangle('Position',[0 0 11 8]); % Outer pitch
+            rectangle('Position',[1 1 9 6]); % inner pitch
+            rectangle('Position',[1 2.5 1 3]); % left goal area
+            rectangle('Position',[9 2.5 1 3]); % right goal area
+            
+            rectangle('Position',[1 1.5 2 5]); % left goal area
+            rectangle('Position',[8 1.5 2 5]); % right goal area
+            
+            rectangle('Position',[0.4 2.7 0.6 2.6]); % left goal
+            rectangle('Position',[10 2.7 0.6 2.6]); % right goal
 
+            plot(2.5,4,'x','MarkerEdgeColor','black') %Left penalty mark
+            plot(8.5,4,'x','MarkerEdgeColor','black') %right penalty mark
+
+            plot([5.5,5.5],[1,7],'-k'); % Center line
+            
+            
+            rectangle('Position',[4.75 3.25 1.5 1.5],'Curvature',[1 1]) % center circle
+
+        
+        end
 
         function env = MakeEnv(obj,robotRadius,showTrajectory)
             env = MultiRobotEnv(obj.numRobots);
