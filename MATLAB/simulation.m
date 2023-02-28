@@ -5,17 +5,17 @@ classdef simulation
         num_teams
         teams
 
-        robotradius 
+        robotradius
 
         env
-        
+
         robots
         gamestate
 
         tVec % Time array
 
         totaltime
-
+        ball
         ShowEnv
     end
     methods
@@ -28,6 +28,7 @@ classdef simulation
             obj.robotradius = 0.15;
 
             obj.env = obj.MakeEnv(0.15,true);
+            obj.ball= obj.MakeBall();
 
             obj.totaltime = totalTime;
 
@@ -44,9 +45,14 @@ classdef simulation
                 % Update the environment
                 obj = obj.update(idx);
                 if obj.ShowEnv
+                    hold on
                     obj.show();
+                    refreshdata
+                    drawnow
+                    hold off
                 end
-                
+
+
                 xlim([0 11]);   % Without this, axis resizing can slow things down
                 ylim([0 9]);
 
@@ -55,22 +61,19 @@ classdef simulation
         end
 
         function show(obj)
-%             clf(fig)
-%             cla reset;
-             
-            hold on
-            
+            %             clf(fig)
+            %             cla reset;
 
-             obj.env(1:obj.numRobots,[obj.robots.pose]);
-
-            
-            
             hold on
+            obj.env(1:obj.numRobots,[obj.robots.pose]);
+            hold off
+            hold on
+            obj.ball.show()
 
             obj.plot_waypoints()
             obj.drawpitch()
-           
-            
+
+
             hold off
             set(gca,'visible','off')
         end
@@ -79,12 +82,12 @@ classdef simulation
             figure
             hold on
             obj.drawpitch()
+            obj.ball.show()
 
             for i = 1:obj.numRobots
                 obj.robots(i).show()
-                
-%                 obj.plot_waypoints();
-                
+                %                 obj.plot_waypoints();
+
             end
             hold off
             xlim([0 11]);   % Without this, axis resizing can slow things down
@@ -98,12 +101,13 @@ classdef simulation
             for i = 1:obj.numRobots
                 text(waypoints(1,i)+0.2,waypoints(2,i)+0.2,string(i));
             end
-            
-        
+
+
         end
 
 
         function obj = update(obj,idx)
+            obj.ball = obj.ball.update(idx);
             for i = 1:obj.numRobots
                 obj.robots(i) = obj.robots(i).update(idx);
             end
@@ -114,10 +118,10 @@ classdef simulation
             rectangle('Position',[1 1 9 6]); % inner pitch
             rectangle('Position',[1 2.5 1 3]); % left goal area
             rectangle('Position',[9 2.5 1 3]); % right goal area
-            
+
             rectangle('Position',[1 1.5 2 5]); % left goal area
             rectangle('Position',[8 1.5 2 5]); % right goal area
-            
+
             rectangle('Position',[0.4 2.7 0.6 2.6]); % left goal
             rectangle('Position',[10 2.7 0.6 2.6]); % right goal
 
@@ -125,14 +129,14 @@ classdef simulation
             plot(8.5,4,'x','MarkerEdgeColor','black') %right penalty mark
 
             plot([5.5,5.5],[1,7],'-k'); % Center line
-            
-            
+
+
             rectangle('Position',[4.75 3.25 1.5 1.5],'Curvature',[1 1]) % center circle
 
-        
+
         end
 
-        
+
 
         function env = MakeEnv(obj,robotRadius,showTrajectory)
             env = MultiRobotEnv(obj.numRobots);
@@ -141,6 +145,13 @@ classdef simulation
 
         end
 
+        function ball=MakeBall(obj)
+            pose=[5,5];
+            velocity=[0.5,0.5];
+            kvelocity=[5,5];
+            c=0.25;
+            ball=BallDynamics(pose,velocity,kvelocity,c,obj.sampletime,obj.totaltime);
+        end
         function robots = MakeRobots(obj)
             robots = [];
 
@@ -154,16 +165,16 @@ classdef simulation
             red = zeros(1);
 
             teams = [blue,red];
-        
+
         end
 
         function h = circle(obj,x,y,r)
-            
+
             th = 0:pi/50:2*pi;
             xunit = r * cos(th) + x;
             yunit = r * sin(th) + y;
             h = plot(xunit, yunit);
-            
+
         end
 
     end
