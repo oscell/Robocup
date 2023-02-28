@@ -1,14 +1,15 @@
 classdef Nao
     properties
-
+      team
       inipose
       pose
 
-
+      
       vel
       acc
-      class
-      team
+      
+      position_class
+      
      
       detector
       
@@ -30,17 +31,22 @@ classdef Nao
 
       r 
 
+      
+
 
       
     end
     methods
-        function obj = Nao(env,num,dt,totaltime,team)
+        function obj = Nao(env,num,dt,totaltime,team,position)
+            obj.team = team;
+            obj.position_class = obj.get_position_class(position);
+
             obj.inipose = obj.getpose();
             obj.pose = obj.getpose();%[0;0;0];%[rand(1)*11,rand(1)*8,rand(1)]';
             obj.vel = [0,0]';
             obj.acc = [0,0]';
             
-             
+            
 
 
             obj.R = 0.5;
@@ -60,11 +66,13 @@ classdef Nao
 
             obj.dt = dt;
 
+
+
             
             
 
             
-            obj.team = team;
+            
 
             obj.colour=obj.makecolour();
 
@@ -107,7 +115,7 @@ classdef Nao
 
         function colour = makecolour(obj)
             
-            if obj.team == 0 
+            if obj.team == 1 
                 colour = 'blue';
             else
                 colour = 'red';
@@ -116,26 +124,24 @@ classdef Nao
 
         end
         function pose = getpose(obj)
-            disp(obj.team)
-            if obj.team == 1
+            if obj.team == 1 
                 pose = [0;0;0];
             else
-                pose = [10;0;0];
+                pose = [11;0;pi];
             end
         
         end
 
         function waypoints = makeWaypoints(obj)
-            if obj.team == 0
-                disp(obj.team)
+            if obj.team == 1
                 waypoints = [0,0; 2,2; 4,2; 2,4; 0.5,3];
             else
-                waypoints = [11,0; 8,2; 6,2; 7,4; 6,3];
+                waypoints = [6,0; 8,2; 6,2; 7,4; 6,3];
             end
         end
 
         function show(obj)
-            plot(obj.poses(:,1),obj.poses(:,2),"Color",obj.colour) % draw trajectory
+            plot(obj.poses(:,1),obj.poses(:,2),"Color",obj.colour); % draw trajectory
             
             %Draw waypoints
             waypoints = obj.waypoint;
@@ -146,7 +152,20 @@ classdef Nao
             
 
             %Draw robot
-            obj.circle(obj.pose(1),obj.pose(2),obj.R)
+            disp(obj.pose)
+            obj.circle(obj.pose(1),obj.pose(2),obj.R);
+        end
+
+        function position_class = get_position_class(obj,position)
+            if strcmp(position,'Defender')
+                position_class = Defender();
+            elseif strcmp(position,'Goalkeeper')
+                position_class = Goalkeeper();
+            else
+                position_class = Attacker();
+            end
+
+        
         end
         
         function h = circle(obj,x,y,r)

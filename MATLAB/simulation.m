@@ -17,9 +17,11 @@ classdef simulation
         totaltime
         ball
         ShowEnv
+
+        positions
     end
     methods
-        function obj = simulation(num_Robots,dt,totalTime,num_teams,robot_radius,show_env)
+        function obj = simulation(num_Robots,dt,totalTime,num_teams,robot_radius,show_env,Positions)
             obj.numRobots = num_Robots;
             obj.sampletime = dt;
 
@@ -31,75 +33,84 @@ classdef simulation
             obj.ball= obj.MakeBall();
 
             obj.totaltime = totalTime;
+            obj.positions = Positions;
+
 
             obj.tVec = 0:obj.sampletime:totalTime;
             obj.robots = obj.MakeRobots();
             obj.robotradius = robot_radius;
             obj.gamestate = gamestate();
             obj.ShowEnv = show_env;
+
+
         end
 
         function obj = run(obj)
+            figure(2)
             for idx = 2:numel(obj.tVec)
-
                 % Update the environment
                 obj = obj.update(idx);
                 if obj.ShowEnv
-                    hold on
+                    
                     obj.show();
-                    refreshdata
-                    drawnow
-                    hold off
+                    
                 end
+
 
 
                 xlim([0 11]);   % Without this, axis resizing can slow things down
                 ylim([0 9]);
+            end                
 
-
-            end
         end
 
         function show(obj)
-            %             clf(fig)
-            %             cla reset;
 
             hold on
+            
             obj.env(1:obj.numRobots,[obj.robots.pose]);
+            
             hold off
+            
+%             obj.ball.show()
+%             for i = 1:obj.numRobots
+%                 obj.robots(i).show();
+% 
+%             end
+                
             hold on
-            obj.ball.show()
+            obj.plot_waypoints();
+            obj.drawpitch();
+            
 
-            obj.plot_waypoints()
-            obj.drawpitch()
-
-
-            hold off
+            
             set(gca,'visible','off')
+            hold off
         end
 
         function summary(obj)
-            figure
+            figure(3)
             hold on
-            obj.drawpitch()
-            obj.ball.show()
+            obj.drawpitch();
+%             obj.ball.show();
 
             for i = 1:obj.numRobots
-                obj.robots(i).show()
-                %                 obj.plot_waypoints();
+                obj.robots(i).show();
+
 
             end
-            hold off
             xlim([0 11]);   % Without this, axis resizing can slow things down
             ylim([0 9]);
             set(gca,'visible','off')
+            hold off
         end
 
         function plot_waypoints(obj)
             waypoints = [obj.robots.waypoint];
-            plot(waypoints(:,1),waypoints(:,2),'x','MarkerEdgeColor','red','MarkerSize',10,LineWidth=1);
-            for i = 1:obj.numRobots
-                text(waypoints(1,i)+0.2,waypoints(2,i)+0.2,string(i));
+            
+            for ii = 1:2:2*obj.numRobots
+                plot(waypoints(:,ii),waypoints(:,ii+1),'x','MarkerEdgeColor','red','MarkerSize',10,LineWidth=1);
+                text(waypoints(end,ii)+0.2,waypoints(end,ii+1)+0.2,string(round(ii/2)));
             end
 
 
@@ -125,13 +136,13 @@ classdef simulation
             rectangle('Position',[0.4 2.7 0.6 2.6]); % left goal
             rectangle('Position',[10 2.7 0.6 2.6]); % right goal
 
-            plot(2.5,4,'x','MarkerEdgeColor','black') %Left penalty mark
-            plot(8.5,4,'x','MarkerEdgeColor','black') %right penalty mark
+            plot(2.5,4,'x','MarkerEdgeColor','black'); %Left penalty mark
+            plot(8.5,4,'x','MarkerEdgeColor','black'); %right penalty mark
 
             plot([5.5,5.5],[1,7],'-k'); % Center line
 
 
-            rectangle('Position',[4.75 3.25 1.5 1.5],'Curvature',[1 1]) % center circle
+            rectangle('Position',[4.75 3.25 1.5 1.5],'Curvature',[1 1]); % center circle
 
 
         end
@@ -156,13 +167,19 @@ classdef simulation
             robots = [];
 
             for i = 1:obj.numRobots
-                robots = [robots,Nao(obj.env,obj.numRobots,obj.sampletime,obj.totaltime,obj.teams(i))];
+                robots = [robots,Nao(obj.env,obj.numRobots,obj.sampletime,obj.totaltime,obj.teams(i),obj.positions(i))];
             end
         end
 
         function teams = make_teams(obj)
-            blue = ones(1);
-            red = zeros(1);
+            num = obj.numRobots;
+            if mod(obj.numRobots,2) == 1
+                blue = ones(1,num/2+0.5);
+                red = zeros(1,floor(num/2));
+            else
+                blue = ones(1,num/2);
+                red = zeros(1,num/2);
+            end
 
             teams = [blue,red];
 
