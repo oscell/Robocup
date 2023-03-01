@@ -12,12 +12,7 @@ robot_radius = 0.15;
 showEnv = true;
 
 
-Positions = strings(1,3);
-Positions(1,1) = 'Defender';
-Positions(1,2) = 'Goalkeeper';
-Positions(1,3) = 'Attacker';
-
-
+Positions = {'Goalkeeper','Defender','Attacker'};
 
 
 sim = simulation(num_robots,dt,totalTime,num_teams,robot_radius,showEnv,Positions);
@@ -28,5 +23,12 @@ sim = simulation(num_robots,dt,totalTime,num_teams,robot_radius,showEnv,Position
 % sim = sim.run();
 % 
 % sim.summary();
+sim.show()
+sim.robots(2)
 
-sim.robots.position_class
+xlim([0 11]);   % Without this, axis resizing can slow things down
+ylim([0 9]);
+
+
+
+

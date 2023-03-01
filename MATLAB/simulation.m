@@ -65,26 +65,29 @@ classdef simulation
         end
 
         function show(obj)
+            figure(1);
 
             hold on
             
-            obj.env(1:obj.numRobots,[obj.robots.pose]);
+%             obj.env(1:obj.numRobots,[obj.robots.pose]);
             
             hold off
+            hold on
             
-%             obj.ball.show()
-%             for i = 1:obj.numRobots
-%                 obj.robots(i).show();
-% 
-%             end
-                
+            obj.ball.show();
+            for i = 1:obj.numRobots
+                disp(i)
+                obj.robots(i).show();
+
+            end
+            hold off
             hold on
             obj.plot_waypoints();
             obj.drawpitch();
             
 
             
-            set(gca,'visible','off')
+%             set(gca,'visible','off')
             hold off
         end
 
@@ -157,32 +160,52 @@ classdef simulation
         end
 
         function ball=MakeBall(obj)
-            pose=[5,5];
+            pose=[5.5,4];
             velocity=[0.5,0.5];
             kvelocity=[5,5];
             c=0.25;
             ball=BallDynamics(pose,velocity,kvelocity,c,obj.sampletime,obj.totaltime);
         end
+
+
+
         function robots = MakeRobots(obj)
             robots = [];
-
-            for i = 1:obj.numRobots
-                robots = [robots,Nao(obj.env,obj.numRobots,obj.sampletime,obj.totaltime,obj.teams(i),obj.positions(i))];
+            if obj.num_teams == 2
+                counter = 1;
+                for i = 0.5:0.5:obj.numRobots/2
+                    robots = [robots,Nao(obj.env,obj.numRobots,obj.sampletime,obj.totaltime,obj.teams(counter),obj.positions(round(i)))];
+                    counter = counter+1;
+                end
+            else
+                for i = 1:obj.numRobots
+                    if i > numel(obj.positions)
+                        i = numel(obj.positions);
+                    end
+                    robots = [robots,Nao(obj.env,obj.numRobots,obj.sampletime,obj.totaltime,obj.teams(i),obj.positions(i))];
+                end
             end
+
         end
 
         function teams = make_teams(obj)
             num = obj.numRobots;
-            if mod(obj.numRobots,2) == 1
-                blue = ones(1,num/2+0.5);
-                red = zeros(1,floor(num/2));
+
+            if obj.num_teams == 2 && num ~=1
+                if mod(num,2) == 1
+                    blue = ones(1,num/2+0.5);
+                    red = zeros(1,floor(num/2));
+                else
+                    blue = ones(1,num/2);
+                    red = zeros(1,num/2);
+                end
+                teams = [blue,red];
+
             else
-                blue = ones(1,num/2);
-                red = zeros(1,num/2);
+                blue = ones(1,num);
+                teams = blue;
             end
-
-            teams = [blue,red];
-
+            
         end
 
         function h = circle(obj,x,y,r)
@@ -192,6 +215,21 @@ classdef simulation
             yunit = r * sin(th) + y;
             h = plot(xunit, yunit);
 
+        end
+
+        function unique()
+            strings = {'some' 'strings' 'with' 'with' 'duplicate' 'strings' 'strings'};
+            [~, uniqueIdx] =unique(strings); % Find the indices of the unique strings
+            duplicates = strings; % Copy the original into a duplicate array
+            duplicates(uniqueIdx) = []; % remove the unique strings, anything left is a duplicate
+            
+            duplicates = unique(duplicates); % find the unique duplicates
+        end
+
+        function N = num_unique()
+        % This returns the number of unique elements
+            [UniqueC,~,k] = unique(Positions); 
+            N = histc(k,1:numel(UniqueC));
         end
 
     end

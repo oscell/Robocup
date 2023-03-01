@@ -41,8 +41,8 @@ classdef Nao
             obj.team = team;
             obj.position_class = obj.get_position_class(position);
 
-            obj.inipose = obj.getpose();
-            obj.pose = obj.getpose();%[0;0;0];%[rand(1)*11,rand(1)*8,rand(1)]';
+            obj.inipose = obj.position_class.get_pose(team);
+            obj.pose = obj.position_class.get_pose(team);%[0;0;0];%[rand(1)*11,rand(1)*8,rand(1)]';
             obj.vel = [0,0]';
             obj.acc = [0,0]';
             
@@ -123,14 +123,6 @@ classdef Nao
             
 
         end
-        function pose = getpose(obj)
-            if obj.team == 1 
-                pose = [0;0;0];
-            else
-                pose = [11;0;pi];
-            end
-        
-        end
 
         function waypoints = makeWaypoints(obj)
             if obj.team == 1
@@ -152,7 +144,6 @@ classdef Nao
             
 
             %Draw robot
-            disp(obj.pose)
             obj.circle(obj.pose(1),obj.pose(2),obj.R);
         end
 
