@@ -21,13 +21,21 @@ classdef simulation
         positions
     end
     methods
-        function obj = simulation(num_Robots,dt,totalTime,num_teams,robot_radius,show_env,Positions)
-            obj.numRobots = num_Robots;
+        function obj = simulation(dt,totalTime,num_teams,robot_radius,show_env,Positions)
+
+            if num_teams > 2
+                disp('Max number of teams is 2')
+                obj.num_teams = 2;
+            else
+                obj.num_teams = num_teams;
+            end
+
+            obj.numRobots = numel(Positions)*obj.num_teams;
             obj.sampletime = dt;
 
-            obj.num_teams = num_teams;
+            
             obj.teams = obj.make_teams();
-            obj.robotradius = 0.15;
+
 
             obj.env = obj.MakeEnv(0.15,true);
             obj.ball= obj.MakeBall();
@@ -46,16 +54,11 @@ classdef simulation
         end
 
         function obj = run(obj)
-            figure(2)
             for idx = 2:numel(obj.tVec)
                 % Update the environment
                 obj = obj.update(idx);
-                if obj.ShowEnv
+                obj.show(idx);
                     
-                    obj.show();
-                    
-                end
-
 
 
                 xlim([0 11]);   % Without this, axis resizing can slow things down
@@ -64,30 +67,31 @@ classdef simulation
 
         end
 
-        function show(obj)
-            figure(1);
+        function show(obj,idx)
 
             hold on
-            
-%             obj.env(1:obj.numRobots,[obj.robots.pose]);
+            if obj.ShowEnv
+                
+                obj.env(1:obj.numRobots,[obj.robots.pose]);
+                
+            end
             
             hold off
             hold on
             
             obj.ball.show();
             for i = 1:obj.numRobots
-                disp(i)
-                obj.robots(i).show();
+                obj.robots(i).show(idx);
 
             end
             hold off
             hold on
-            obj.plot_waypoints();
+%             obj.plot_waypoints();
             obj.drawpitch();
             
 
             
-%             set(gca,'visible','off')
+            
             hold off
         end
 
@@ -161,9 +165,9 @@ classdef simulation
 
         function ball=MakeBall(obj)
             pose=[5.5,4];
-            velocity=[0.5,0.5];
+            velocity=[4,4];
             kvelocity=[5,5];
-            c=0.25;
+            c=0.1;
             ball=BallDynamics(pose,velocity,kvelocity,c,obj.sampletime,obj.totaltime);
         end
 
@@ -171,18 +175,34 @@ classdef simulation
 
         function robots = MakeRobots(obj)
             robots = [];
+            prev_pos = '';
             if obj.num_teams == 2
-                counter = 1;
-                for i = 0.5:0.5:obj.numRobots/2
-                    robots = [robots,Nao(obj.env,obj.numRobots,obj.sampletime,obj.totaltime,obj.teams(counter),obj.positions(round(i)))];
-                    counter = counter+1;
+                position = [obj.positions,obj.positions];
+
+                for i = 1:obj.numRobots
+                    pos = position(i);
+    
+                    is_repeated = false;
+                    if strcmp(prev_pos,pos)
+                        is_repeated = true;
+                    end
+                    prev_pos = position(i);
+                    robots = [robots,Nao(obj.env,obj.numRobots,obj.sampletime,obj.totaltime,obj.teams(i),position(i),is_repeated)];
                 end
+            
             else
                 for i = 1:obj.numRobots
                     if i > numel(obj.positions)
                         i = numel(obj.positions);
                     end
-                    robots = [robots,Nao(obj.env,obj.numRobots,obj.sampletime,obj.totaltime,obj.teams(i),obj.positions(i))];
+                    pos = obj.positions(i);
+                    is_repeated = false;
+                    if strcmp(prev_pos,pos)
+                        is_repeated = true;
+                    end
+                    prev_pos = obj.positions(i);
+                    robots = [robots,Nao(obj.env,obj.numRobots,obj.sampletime,obj.totaltime,obj.teams(i),obj.positions(i),is_repeated)];
+
                 end
             end
 

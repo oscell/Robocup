@@ -1,0 +1,34 @@
+clear
+clc
+close all
+
+rng(10)
+
+dt = 0.1;
+totalTime = 1;
+num_teams = 1;
+robot_radius = 0.15;
+showEnv = false;
+
+
+Positions = {'Goalkeeper','Attacker','Attacker','Defender','Defender'};
+
+
+sim = simulation(dt,totalTime,num_teams,robot_radius,showEnv,Positions);
+
+figure(1)
+
+% 
+% sim = sim.run();
+% 
+% sim.summary();
+
+
+
+sim.show(1)
+
+
+xlim([0 11]);   % Without this, axis resizing can slow things down
+ylim([0 9]);
+
+sim.robots(1).poses(1,1)

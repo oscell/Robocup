@@ -3,6 +3,7 @@ classdef Nao
       team
       inipose
       pose
+      size
 
       
       vel
@@ -31,13 +32,17 @@ classdef Nao
 
       r 
 
+      is_repeated
+
       
 
 
       
     end
     methods
-        function obj = Nao(env,num,dt,totaltime,team,position)
+        function obj = Nao(env,num,dt,totaltime,team,position,is_repeated)
+            obj.is_repeated = is_repeated;
+
             obj.team = team;
             obj.position_class = obj.get_position_class(position);
 
@@ -48,6 +53,7 @@ classdef Nao
             
             
 
+            
 
             obj.R = 0.5;
             obj.L = 0.5;
@@ -62,6 +68,8 @@ classdef Nao
 
             obj.controller = obj.MakeController();
             obj.poses = zeros(numel(0:dt:totaltime),2);
+            obj.poses(1,:) = obj.inipose(1:2,:);
+
             obj.r = rateControl(1/dt);
 
             obj.dt = dt;
@@ -103,12 +111,15 @@ classdef Nao
                 velocity = bodyToWorld(velB,obj.pose);  % Convert from body to world
                 
                 % Perform forward discrete integration step
-                
+%                 disp(obj.pose + velocity*obj.dt)   
+%                 disp(obj.pose)
+%                 disp(velocity)
+%                 disp(obj.dt)
+
                 obj.pose = obj.pose + velocity*obj.dt;
-                    
+
                 obj.poses(idx,1) = obj.pose(1);
                 obj.poses(idx,2) = obj.pose(2);
-                
                 
                 waitfor(obj.r);
         end
@@ -132,12 +143,12 @@ classdef Nao
             end
         end
 
-        function show(obj)
-            plot(obj.poses(:,1),obj.poses(:,2),"Color",obj.colour); % draw trajectory
+        function show(obj,idx)
+            plot(obj.poses(1:idx,1),obj.poses(1:idx,2),"Color",obj.colour); % draw trajectory
             
             %Draw waypoints
             waypoints = obj.waypoint;
-            plot(waypoints(:,1),waypoints(:,2),'x','MarkerEdgeColor','red','MarkerSize',10,LineWidth=1);
+            plot(waypoints(:,1),waypoints(:,2),'x','MarkerEdgeColor',obj.colour,'MarkerSize',10,LineWidth=1);
             
             text(waypoints(1)+0.2,waypoints(2)+0.2,string(1));
 
@@ -149,11 +160,11 @@ classdef Nao
 
         function position_class = get_position_class(obj,position)
             if strcmp(position,'Defender')
-                position_class = Defender();
+                position_class = Defender(obj.is_repeated);
             elseif strcmp(position,'Goalkeeper')
-                position_class = Goalkeeper();
+                position_class = Goalkeeper(obj.is_repeated);
             else
-                position_class = Attacker();
+                position_class = Attacker(obj.is_repeated);
             end
 
         

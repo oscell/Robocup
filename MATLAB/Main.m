@@ -4,31 +4,40 @@ close all
 
 rng(10)
 
-num_robots = 3;
-dt = 1;
-totalTime = 20;
-num_teams = 2;
+%% Simulation time
+dt = 0.1;
+totalTime = 10;
+
+%% Teams
+num_teams = 1;
 robot_radius = 0.15;
-showEnv = true;
+showEnv = false;
+
+%% Ball dynamics
 
 
-Positions = {'Goalkeeper','Defender','Attacker'};
+Positions = {'Attacker'};
 
 
-sim = simulation(num_robots,dt,totalTime,num_teams,robot_radius,showEnv,Positions);
+sim = simulation(dt,totalTime,num_teams,robot_radius,showEnv,Positions);
+
+% figure(1)
 
 
-
-% % 
 % sim = sim.run();
 % 
 % sim.summary();
-sim.show()
-sim.robots(2)
-
-xlim([0 11]);   % Without this, axis resizing can slow things down
-ylim([0 9]);
 
 
+
+tVec = 0:dt:totalTime;
+
+for idx = 2:numel(tVec)
+    % Update the environment
+    sim = sim.update(idx);
+    figure(2); clf; hold on; grid off; axis([0 11,0 9]); set(gca,'visible','off');
+    sim.show(idx);
+        
+end
 
 
