@@ -53,20 +53,6 @@ classdef simulation
 
         end
 
-        function obj = run(obj)
-            for idx = 2:numel(obj.tVec)
-                % Update the environment
-                obj = obj.update(idx);
-                obj.show(idx);
-                    
-
-
-                xlim([0 11]);   % Without this, axis resizing can slow things down
-                ylim([0 9]);
-            end                
-
-        end
-
         function show(obj,idx)
 
             hold on
@@ -108,7 +94,7 @@ classdef simulation
             end
             xlim([0 11]);   % Without this, axis resizing can slow things down
             ylim([0 9]);
-            set(gca,'visible','off')
+            set(gca,'visible','off');
             hold off
         end
 
@@ -125,36 +111,32 @@ classdef simulation
 
 
         function obj = update(obj,idx)
-            obj.ball = obj.ball.update(idx);
+%             obj.ball = obj.ball.update(idx);
+            obj.ball = obj.ball.update_kick(idx,obj.ball.V,obj.ball.orientation);
+
             for i = 1:obj.numRobots
-                obj.robots(i) = obj.robots(i).update(idx);
+                %controller targeting
+%                 obj.robots(i) = obj.robots(i).update_pursuit(idx);
+
+                %update positions
+%                 disp('in dim update')
+%                 disp(obj.ball.Pose)
+%                 disp(obj.ball.orientation)
+
+                obj.robots(i) = obj.robots(i).update_target(idx,obj.ball.Pose,obj.ball.orientation,obj.ball.V);
             end
         end
 
-        function drawpitch(obj)
-            rectangle('Position',[0 0 11 8]); % Outer pitch
-            rectangle('Position',[1 1 9 6]); % inner pitch
-            rectangle('Position',[1 2.5 1 3]); % left goal area
-            rectangle('Position',[9 2.5 1 3]); % right goal area
 
-            rectangle('Position',[1 1.5 2 5]); % left goal area
-            rectangle('Position',[8 1.5 2 5]); % right goal area
+        function ball=MakeBall(obj)
+%             pose=[5.5,4];
+            pose=[9;0];
 
-            rectangle('Position',[0.4 2.7 0.6 2.6]); % left goal
-            rectangle('Position',[10 2.7 0.6 2.6]); % right goal
-
-            plot(2.5,4,'x','MarkerEdgeColor','black'); %Left penalty mark
-            plot(8.5,4,'x','MarkerEdgeColor','black'); %right penalty mark
-
-            plot([5.5,5.5],[1,7],'-k'); % Center line
-
-
-            rectangle('Position',[4.75 3.25 1.5 1.5],'Curvature',[1 1]); % center circle
-
-
+            velocity=[0;0];
+            kvelocity=[5,5];
+            c=0.1;
+            ball=BallDynamics(pose,velocity,kvelocity,c,obj.sampletime,obj.totaltime);
         end
-
-
 
         function env = MakeEnv(obj,robotRadius,showTrajectory)
             env = MultiRobotEnv(obj.numRobots);
@@ -162,16 +144,6 @@ classdef simulation
             env.showTrajectory = showTrajectory;
 
         end
-
-        function ball=MakeBall(obj)
-            pose=[5.5,4];
-            velocity=[4,4];
-            kvelocity=[5,5];
-            c=0.1;
-            ball=BallDynamics(pose,velocity,kvelocity,c,obj.sampletime,obj.totaltime);
-        end
-
-
 
         function robots = MakeRobots(obj)
             robots = [];
@@ -209,6 +181,8 @@ classdef simulation
         end
 
         function teams = make_teams(obj)
+
+
             num = obj.numRobots;
 
             if obj.num_teams == 2 && num ~=1
@@ -228,6 +202,29 @@ classdef simulation
             
         end
 
+        function drawpitch(obj)
+            rectangle('Position',[0 0 11 8]); % Outer pitch
+            rectangle('Position',[1 1 9 6]); % inner pitch
+            rectangle('Position',[1 2.5 1 3]); % left goal area
+            rectangle('Position',[9 2.5 1 3]); % right goal area
+
+            rectangle('Position',[1 1.5 2 5]); % left goal area
+            rectangle('Position',[8 1.5 2 5]); % right goal area
+
+            rectangle('Position',[0.4 2.7 0.6 2.6]); % left goal
+            rectangle('Position',[10 2.7 0.6 2.6]); % right goal
+
+            plot(2.5,4,'x','MarkerEdgeColor','black'); %Left penalty mark
+            plot(8.5,4,'x','MarkerEdgeColor','black'); %right penalty mark
+
+            plot([5.5,5.5],[1,7],'-k'); % Center line
+
+
+            rectangle('Position',[4.75 3.25 1.5 1.5],'Curvature',[1 1]); % center circle
+
+
+        end
+
         function h = circle(obj,x,y,r)
 
             th = 0:pi/50:2*pi;
@@ -235,21 +232,6 @@ classdef simulation
             yunit = r * sin(th) + y;
             h = plot(xunit, yunit);
 
-        end
-
-        function unique()
-            strings = {'some' 'strings' 'with' 'with' 'duplicate' 'strings' 'strings'};
-            [~, uniqueIdx] =unique(strings); % Find the indices of the unique strings
-            duplicates = strings; % Copy the original into a duplicate array
-            duplicates(uniqueIdx) = []; % remove the unique strings, anything left is a duplicate
-            
-            duplicates = unique(duplicates); % find the unique duplicates
-        end
-
-        function N = num_unique()
-        % This returns the number of unique elements
-            [UniqueC,~,k] = unique(Positions); 
-            N = histc(k,1:numel(UniqueC));
         end
 
     end
