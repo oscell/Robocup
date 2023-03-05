@@ -6,7 +6,7 @@ rng(10)
 
 %% Simulation time
 dt = 0.1;
-totalTime = 10;
+totalTime = 20;
 
 %% Teams
 num_teams = 1;
