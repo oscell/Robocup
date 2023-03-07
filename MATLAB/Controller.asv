@@ -1,0 +1,90 @@
+classdef Controller
+    properties
+        termination
+        
+        R 
+        Rd
+        
+        %Gain
+        N
+        
+        %heading of moving obj and target
+        phi_m
+        phi_t 
+
+        %position of moving obj and target
+        x0_m
+        x0_t
+        
+        %Velocity of object and target
+        V_m
+        V_t
+
+        
+        x_m
+        x_t
+        
+        phi_mdot
+      
+    end
+    methods
+        function obj = Controller(target_orentation,obj_orientation,gain,target_pos,obj_pos)
+            obj.termination = false;
+
+            obj.R = sqrt((obj.x_t(1,1) - obj.x_m(1,1))^2 + (obj.x_t(2,1) - obj.x_m(2,1))^2);
+            obj.Rd = -1;
+
+            obj.N = gain;
+
+            obj.phi_m = obj_orientation;
+            obj.phi_t = target_orentation;
+
+            %position of moving obj
+            obj.x0_m = [0;0];
+            obj.x0_t = [9;0];
+            
+            %Initial conditions
+            obj.V_m = 2;
+            obj.V_t = 1;
+            obj.x_m = x0_m;
+            obj.x_t = x0_t;
+            
+            obj.phi_mdot = 0;
+
+        end
+        function obj = update(obj.idx)
+            termination = false;
+
+            obj.R = sqrt((obj.x_t(1,1) - obj.x_m(1,1))^2 + (obj.x_t(2,1) - obj.x_m(2,1))^2);
+            obj.Rd = -1;
+
+            obj.phi_m = (1/3)*pi;
+
+            %position of moving obj
+            obj.x0_m = [0;0];
+            
+            %Initial conditions
+            obj.V_m = 2;
+            obj.V_t = 1;
+            obj.x_m = x0_m;
+            obj.x_t = x0_t;
+            
+            obj.phi_mdot = 0;
+            
+            while termination == false
+                t = t + dt;
+                if R < 1000
+                    if Rd > 0
+                        termination = true;
+                    end
+                elseif t > 530
+                    termination = true;
+                end
+
+
+        end
+
+
+    end
+
+end
