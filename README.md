@@ -7,9 +7,4 @@
 git pull
 ```
 
-2. go to behavior branch
-```bash
-git checkout Behaviour
-```
-
 open and run `Main.m`
