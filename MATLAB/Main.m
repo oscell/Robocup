@@ -32,6 +32,8 @@ for idx = 2:numel(tVec)
         sim.robots(i) = sim.robots(i).update_target(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
     end
 
+
+
     %% Figure
     
     figure(2); clf; hold on; grid off; axis([-5 16,0 20]); %set(gca,'visible','off');
@@ -43,7 +45,7 @@ for idx = 2:numel(tVec)
     sim.drawpitch();    
     hold off
 end
-
+%% Plot figures
 figure(3); clf; hold on; grid on; axis([0 totalTime,-3 5]);
 % disp(tVec(1:idx))
 % disp(numel(sim.robots(i).poses(1:idx,1)))
@@ -70,3 +72,5 @@ title('angle vs Time')
 xlabel('Time (s)')
 ylabel('Angle (Rad)')
 hold off
+
+sim.ball.Pose
