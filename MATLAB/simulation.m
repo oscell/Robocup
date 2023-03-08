@@ -6,6 +6,7 @@ classdef simulation
         teams
 
         robotradius
+        sensorRange
 
         env
 
@@ -21,7 +22,7 @@ classdef simulation
         positions
     end
     methods
-        function obj = simulation(dt,totalTime,num_teams,robot_radius,show_env,Positions)
+        function obj = simulation(dt,totalTime,num_teams,robot_radius,show_env,Positions,SensorRange)
 
             if num_teams > 2
                 disp('Max number of teams is 2')
@@ -32,7 +33,6 @@ classdef simulation
 
             obj.numRobots = numel(Positions)*obj.num_teams;
             obj.sampletime = dt;
-
             
             obj.teams = obj.make_teams();
 
@@ -43,12 +43,15 @@ classdef simulation
             obj.totaltime = totalTime;
             obj.positions = Positions;
 
-
             obj.tVec = 0:obj.sampletime:totalTime;
-            obj.robots = obj.MakeRobots();
             obj.robotradius = robot_radius;
+            obj.sensorRange = SensorRange;
+            obj.robots = obj.MakeRobots();
+            
             obj.gamestate = gamestate();
             obj.ShowEnv = show_env;
+
+            
 
 
         end
@@ -159,7 +162,7 @@ classdef simulation
                         is_repeated = true;
                     end
                     prev_pos = position(i);
-                    robots = [robots,Nao(obj.env,obj.numRobots,obj.sampletime,obj.totaltime,obj.teams(i),position(i),is_repeated)];
+                    robots = [robots,Nao(obj.env,obj.numRobots,obj.sampletime,obj.totaltime,obj.teams(i),position(i),is_repeated,obj.robotradius,obj.sensorRange)];
                 end
             
             else
