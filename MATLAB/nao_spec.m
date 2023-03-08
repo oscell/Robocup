@@ -22,12 +22,12 @@ maxStepPeriod = 0.6; % (s), maximum step duration
 defaultStepPeriod = 0.5; % (s), default step duration
 minStepPeriod = 0.42; % (s), minimum step duration
 
-v_max = maxStepX / maxStepPeriod;  % maximum velocity
+v_max = maxStepX / maxStepPeriod; % maximum velocity
 v_default = defaultStepX / defaultStepPeriod; % normal velocity 
 v_min = minStepX / minStepPeriod; % minimum velocity
 
 w_max = maxStepTheta_deg / maxStepPeriod; % maximum angular velocity
-w_default = defaultStepTheta_deg / defaultStepPeriod; % default angular velocity
+w_default = defaultStepTheta_deg / defaultStepPeriod % default angular velocity
 w_min = minStepTheta_deg / minStepPeriod; % minimum angular velocity
 
 t_fall = 0.55; % (s), time taken to fall down
