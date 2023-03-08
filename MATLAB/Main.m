@@ -39,14 +39,14 @@ for idx = 2:numel(tVec)
 
     %% Figure
     
-%     figure(2); clf; hold on; grid off; axis([0 11,0 8]); %set(gca,'visible','off');
-%     hold on
-%     sim.ball.show();
-%     for i = 1:sim.numRobots
-%         sim.robots(i).show(idx);
-%     end
-%     sim.drawpitch();    
-%     hold off
+    figure(2); clf; hold on; grid off; axis([0 11,0 8]); %set(gca,'visible','off');
+    hold on
+    sim.ball.show();
+    for i = 1:sim.numRobots
+        sim.robots(i).show(idx);
+    end
+    sim.drawpitch();    
+    hold off
 end
 
 
