@@ -30,7 +30,7 @@ classdef BallDynamics
 
                 obj.orientation = (5/3)*pi - pi;(5/3)*pi - pi;
 %                 obj.V = sqrt(velocity(1,1)^2 + velocity(1,1)^2);
-                obj.V = 1;
+                obj.V = 0.05;
             end 
         end
         

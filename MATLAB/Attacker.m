@@ -2,11 +2,16 @@ classdef Attacker
     properties
         is_repeated
 
+        decisions
+        decision
+
       
     end
     methods
         function obj = Attacker(is_repeated)
             obj.is_repeated = is_repeated;
+
+
 
         end
 
@@ -27,7 +32,9 @@ classdef Attacker
                 
             end
         
-        end 
+        end
+        function Decision = makeDecision(obj)
+        end
 
 
 

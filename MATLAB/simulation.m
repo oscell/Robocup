@@ -129,8 +129,8 @@ classdef simulation
 
 
         function ball=MakeBall(obj)
-%             pose=[5.5,4];
-            pose=[9;0];
+            pose=[5.5,4];
+%             pose=[9;0];
 
             velocity=[0;0];
             kvelocity=[5,5];
