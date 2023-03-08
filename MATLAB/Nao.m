@@ -134,7 +134,7 @@ classdef Nao
         end
 
         function obj = DroneMode(obj,idx,ballPose,ballorientation,ballV)
-            phi_mdot = 0.2;
+            phi_mdot = 0.7;
             phi_m = obj.pose(3,1);
             obj.pose(3,1) = phi_m + phi_mdot;
 
