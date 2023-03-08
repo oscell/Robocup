@@ -6,7 +6,7 @@ rng(10)
 
 %% Simulation time
 dt = 0.05;
-totalTime = 7;
+totalTime = 100;
 tVec = 0:dt:totalTime;
 
 
@@ -27,6 +27,7 @@ for idx = 2:numel(tVec)
     sim.ball = sim.ball.update_kick(idx,sim.ball.V,sim.ball.orientation);
 
     for i = 1:sim.numRobots
+        %% robot state flow goes here
         % If the robot hasnt arrived go to the ball else drone mode
         if sim.robots(i).arrived == false
             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
@@ -106,12 +107,23 @@ end
 % ylabel('Angle (Rad)')
 % hold off
 
+% figure(6); clf; hold on; grid off; axis([0 11,0 8]); %set(gca,'visible','off');
+% hold on
+% sim.ball.show();
+% for i = 1:sim.numRobots
+%     sim.robots(i).show(1);
+% end
+% sim.drawpitch();    
+% hold off
+% saveas(figure(6),'Images\Startstate.png')
 
-    figure(6); clf; hold on; grid off; axis([0 11,0 8]); %set(gca,'visible','off');
-    hold on
-    sim.ball.show();
-    for i = 1:sim.numRobots
-        sim.robots(i).show(idx);
-    end
-    sim.drawpitch();    
-    hold off
+
+figure(7); clf; hold on; grid off; axis([0 11,0 8]); %set(gca,'visible','off');
+hold on
+sim.ball.show();
+for i = 1:sim.numRobots
+    sim.robots(i).show(idx);
+end
+sim.drawpitch();    
+hold off
+saveas(figure(7),'Images\Finalstate.png')

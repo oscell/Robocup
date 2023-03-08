@@ -134,7 +134,7 @@ classdef Nao
         end
 
         function obj = DroneMode(obj,idx,ballPose,ballorientation,ballV)
-            phi_mdot = 0.2;
+            phi_mdot = 0.7;
             phi_m = obj.pose(3,1);
             obj.pose(3,1) = phi_m + phi_mdot;
 
@@ -269,7 +269,6 @@ classdef Nao
             plot([obj.pose(1,1), obj.pose(1,1)+x_mdot(1)*5],[obj.pose(2,1), obj.pose(2,1)+x_mdot(2)*5],Color='r',LineWidth=1)
 
             %Draw sensors
-            obj.range
             %Left
             left = [cos(obj.pose(3)+obj.fov/2); sin(obj.pose(3)+obj.fov/2)];
             plot([obj.pose(1,1), obj.pose(1,1)+left(1)*obj.range],[obj.pose(2,1), obj.pose(2,1)+left(2)*obj.range],Color='g',LineWidth=1,LineStyle='--')
