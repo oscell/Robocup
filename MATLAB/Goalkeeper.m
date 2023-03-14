@@ -1,6 +1,7 @@
 classdef Goalkeeper
     properties
         is_repeated
+        name = "Goalkeeper"
         
     end
     methods
@@ -17,6 +18,7 @@ classdef Goalkeeper
             end
         
         end 
+
 
 
 

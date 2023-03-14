@@ -1,6 +1,7 @@
 classdef Defender
     properties
         is_repeated
+        name = "Defender"
       
     end
     methods
