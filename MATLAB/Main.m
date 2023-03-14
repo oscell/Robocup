@@ -6,7 +6,7 @@ rng(10)
 
 %% Simulation time
 dt = 0.05;
-totalTime = 100;
+totalTime = 8;
 tVec = 0:dt:totalTime;
 
 
@@ -25,7 +25,6 @@ sim = simulation(dt,totalTime,num_teams,robot_radius,showEnv,Positions,sensorRan
 for idx = 2:numel(tVec)
     %% Update
     sim.ball = sim.ball.update_kick(idx,sim.ball.V,sim.ball.orientation);
-
     for i = 1:sim.numRobots
         %% robot state flow goes here
         % If the robot hasnt arrived go to the ball else drone mode
@@ -37,6 +36,8 @@ for idx = 2:numel(tVec)
         else
             sim.robots(i) = sim.robots(i).DroneMode(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
         end
+        sim.robots(i) = sim.robots(i).update(idx);
+
     end
 
 
