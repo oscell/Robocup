@@ -5,8 +5,8 @@ clc
 rng(10)
 
 %% Simulation time
-dt = 0.05;
-totalTime = 8;
+dt = 0.2;
+totalTime = 20;
 tVec = 0:dt:totalTime;
 
 
@@ -30,12 +30,14 @@ for idx = 2:numel(tVec)
         % If the robot hasnt arrived go to the ball else drone mode
         if sim.robots(i).arrived == false
             if sim.robots(i).searchBall(sim.ball.Pose)
-                disp("Robot "+i+" found the ball")
+%                 disp("Robot "+i+" found the ball")
             end
             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
         else
             sim.robots(i) = sim.robots(i).DroneMode(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
         end
+                    % colision check
+        sim.robots(i) = sim.robots(i).checkColision(i,sim.robots);
         sim.robots(i) = sim.robots(i).update(idx);
 
     end

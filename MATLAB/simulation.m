@@ -162,7 +162,7 @@ classdef simulation
                         is_repeated = true;
                     end
                     prev_pos = position(i);
-                    robots = [robots,Nao(obj.env,obj.numRobots,obj.sampletime,obj.totaltime,obj.teams(i),position(i),is_repeated,obj.robotradius,obj.sensorRange)];
+                    robots = [robots,Nao(obj.env,obj.numRobots,obj.sampletime,obj.totaltime,obj.teams(i),position(i),is_repeated,obj.robotradius,obj.sensorRange,i)];
                 end
             
             else

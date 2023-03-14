@@ -5,6 +5,8 @@ classdef Nao
         pose
         radius
 
+        ID
+
         w
         vel
         acc
@@ -25,11 +27,7 @@ classdef Nao
         vels
         angles
 
-        %% Define as differential drive for now
-        % Define Vehicle
-        R                 % Wheel radius [m]
-        L                 % Wheelbase [m]
-        dd
+
 
         colour
 
@@ -42,19 +40,20 @@ classdef Nao
         is_repeated
 
 
-
+        %% states
         arrived
+        isFallen
 
 
 
     end
     methods
-        function obj = Nao(env,num,dt,totaltime,team,position,is_repeated,roboRadius,range)
+        function obj = Nao(env,num,dt,totaltime,team,position,is_repeated,roboRadius,range,ID)
             obj.is_repeated = is_repeated;
             obj.arrived = false;
             obj.team = team;
             obj.position_class = obj.get_position_class(position);
-            
+            obj.ID = ID;
             
             obj.radius = roboRadius;
 
@@ -83,6 +82,8 @@ classdef Nao
             obj.r = rateControl(1/dt);
 
             obj.dt = dt;
+
+            obj.isFallen = false;
 
 
 
@@ -168,12 +169,21 @@ classdef Nao
         end
 
         function obj = update(obj,idx)
+
+
             obj.pose(3,1) = obj.pose(3,1) + obj.w;
 
-            
-            obj.pose(1,1) = obj.pose(1,1) + obj.vel(1,1)*obj.dt;
-            obj.pose(2,1) = obj.pose(2,1) + obj.vel(2,1)*obj.dt;
 
+
+            if obj.isFallen == true
+                obj.pose = obj.pose;
+            else            
+                obj.pose(1,1) = obj.pose(1,1) + obj.vel(1,1)*obj.dt;
+                obj.pose(2,1) = obj.pose(2,1) + obj.vel(2,1)*obj.dt;
+            end
+
+
+            %% Append trajectory
             obj.poses(idx,1) = obj.pose(1);
             obj.poses(idx,2) = obj.pose(2);
 
@@ -181,6 +191,25 @@ classdef Nao
             obj.vels(idx,1) = obj.vel(1,1);
             obj.vels(idx,2) = obj.vel(2,1);
 
+        end
+
+        function obj = checkColision(obj,i,robots)
+            counter = 1;
+            for robot = robots
+                
+
+                if counter ~= i
+                    distance = sqrt((robot.pose(1,1)-obj.pose(1,1))^2 +(robot.pose(2,1)-obj.pose(2,1))^2);
+                    
+                    if distance < obj.radius*2
+
+%                         disp("for robot "+ i+ " range is: "+distance+"from robot: "+counter)
+                        obj.isFallen = true;
+
+                    end
+                end
+                counter = counter + 1;
+            end 
         end
         
         %% Colour based on team
@@ -197,8 +226,11 @@ classdef Nao
 
         %% shows the robot
         function show(obj,idx)
-            
-            plot(obj.poses(1:idx,1),obj.poses(1:idx,2),"Color",obj.colour); % draw trajectory
+            % Show Id
+            text(obj.pose(1,1)+obj.radius,obj.pose(2,1)++obj.radius,string(obj.ID))
+
+            % draw trajectory
+            plot(obj.poses(1:idx,1),obj.poses(1:idx,2),"Color",obj.colour); 
             
             
             obj.circle(obj.pose(1),obj.pose(2),obj.radius);%Draw robot
