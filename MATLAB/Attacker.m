@@ -25,9 +25,9 @@ classdef Attacker
             else
 
                 if obj.is_repeated
-                    pose = [11-4.5;3;0];
+                    pose = [11-4.5;3;pi];
                 else
-                    pose = [11-4.5;8-3;0];
+                    pose = [11-4.5;8-3;pi];
                 end
                 
             end

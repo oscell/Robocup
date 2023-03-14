@@ -27,7 +27,7 @@ v_default = defaultStepX / defaultStepPeriod; % normal velocity
 v_min = minStepX / minStepPeriod; % minimum velocity
 
 w_max = maxStepTheta_deg / maxStepPeriod; % maximum angular velocity
-w_default = (defaultStepTheta_deg / defaultStepPeriod)*(2*pi/(360)) % default angular velocity
+w_default = (defaultStepTheta_deg / defaultStepPeriod)*(2*pi/(360)); % default angular velocity
 w_min = minStepTheta_deg / minStepPeriod; % minimum angular velocity
 
 t_fall = 0.55; % (s), time taken to fall down
