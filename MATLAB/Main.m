@@ -26,17 +26,39 @@ for idx = 2:numel(tVec)
     %% Update
     sim.ball = sim.ball.update_kick(idx,sim.ball.V,sim.ball.orientation);
     for i = 1:sim.numRobots
+        switch sim.robots(i).position_class.name
+            case "Attacker"
+                switch sim.robots(i).team
+                    case 1
+                        switch sim.robots(i).arrived
+                            case false
+                                sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+                                sim.robots(i) = sim.robots(i).update(idx);
+                            case true
+%                                 sim.robots(i) = sim.robots(i).ToPoint(idx,[4.5,9],0,4);
+                        end
+                    case 0
+                        case false
+                                sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+                                sim.robots(i) = sim.robots(i).update(idx);
+                            case true
+%                                 sim.robots(i) = sim.robots(i).ToPoint(idx,[4.5;9],pi,7);
+                end
+
+            case "Defender"
+            case "Goalkeeper"
+        end
         %% robot state flow goes here
         % If the robot hasnt arrived go to the ball else drone mode
-        if sim.robots(i).arrived == false
-            if sim.robots(i).searchBall(sim.ball.Pose)
-                disp("Robot "+i+" found the ball")
-            end
-            sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
-        else
-            sim.robots(i) = sim.robots(i).DroneMode(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
-        end
-        sim.robots(i) = sim.robots(i).update(idx);
+%         if sim.robots(i).arrived == false
+%             if sim.robots(i).searchBall(sim.ball.Pose)
+%                 disp("Robot "+i+" found the ball")
+%             end
+%             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+%         else
+%             sim.robots(i) = sim.robots(i).DroneMode(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+%         end
+%         sim.robots(i) = sim.robots(i).update(idx);
 
     end
 
