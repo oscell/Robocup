@@ -5,17 +5,17 @@ clc
 rng(10)
 
 %% Simulation time
-dt = 0.2;
-totalTime = 20;
+dt = 0.05;
+totalTime = 100;
 tVec = 0:dt:totalTime;
 
 
 %% Teams
-num_teams = 2;
+num_teams = 1;
 robot_radius = 0.15;
 sensorRange = 2;
 showEnv = false;
-Positions = {'Goalkeeper','Attacker','Attacker','Defender','Defender'};
+Positions = {'Goalkeeper'};
 
 
 sim = simulation(dt,totalTime,num_teams,robot_radius,showEnv,Positions,sensorRange);
@@ -26,18 +26,21 @@ for idx = 2:numel(tVec)
     %% Update
     sim.ball = sim.ball.update_kick(idx,sim.ball.V,sim.ball.orientation);
     for i = 1:sim.numRobots
-        %% robot state flow goes here
-        % If the robot hasnt arrived go to the ball else drone mode
-        if sim.robots(i).arrived == false
-            if sim.robots(i).searchBall(sim.ball.Pose)
-%                 disp("Robot "+i+" found the ball")
-            end
-            sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
-        else
-            sim.robots(i) = sim.robots(i).DroneMode(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
-        end
-                    % colision check
-        sim.robots(i) = sim.robots(i).checkColision(i,sim.robots);
+%         %% robot state flow goes here
+%         % If the robot hasnt arrived go to the ball else drone mode
+%         if sim.robots(i).arrived == false
+%             if sim.robots(i).searchBall(sim.ball.Pose)
+% %                 disp("Robot "+i+" found the ball")
+%             end
+%             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+%         else
+%             sim.robots(i) = sim.robots(i).DroneMode(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+%         end
+%                     % colision check
+%         sim.robots(i) = sim.robots(i).checkColision(i,sim.robots);
+%         
+% 
+        sim.robots(i) = sim.robots(i).RRT(idx);
         sim.robots(i) = sim.robots(i).update(idx);
 
     end
@@ -57,7 +60,7 @@ for idx = 2:numel(tVec)
 end
 
 
-
+%% PLOT
 % figure(3); clf; hold on; grid on; axis([0 totalTime,-3 5]);
 % % disp(tVec(1:idx))
 % % disp(numel(sim.robots(i).poses(1:idx,1)))
@@ -85,7 +88,6 @@ end
 % ylabel('Angle (Rad)')
 % hold off
 
-%% Plot figures
 % figure(3); clf; hold on; grid on; axis([0 totalTime,-3 5]);
 % % disp(tVec(1:idx))
 % % disp(numel(sim.robots(i).poses(1:idx,1)))
@@ -124,12 +126,12 @@ end
 % saveas(figure(6),'Images\Startstate.png')
 
 
-figure(7); clf; hold on; grid off; axis([0 11,0 8]); %set(gca,'visible','off');
-hold on
-sim.ball.show();
-for i = 1:sim.numRobots
-    sim.robots(i).show(idx);
-end
-sim.drawpitch();    
-hold off
-saveas(figure(7),'Images\Finalstate.png')
+% figure(7); clf; hold on; grid off; axis([0 11,0 8]); %set(gca,'visible','off');
+% hold on
+% sim.ball.show();
+% for i = 1:sim.numRobots
+%     sim.robots(i).show(idx);
+% end
+% sim.drawpitch();    
+% hold off
+% saveas(figure(7),'Images\Finalstate.png')

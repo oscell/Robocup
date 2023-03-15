@@ -33,7 +33,7 @@ classdef Nao
 
         waypoint
 
-        controller
+
 
         r
 
@@ -45,6 +45,16 @@ classdef Nao
         isFallen
 
 
+        % Start and goalpose for robot(testing)
+        startPose        % Start pose [x y theta]
+        goalPose = [5 5 -pi/2];       % Goal pose [x y theta]
+
+        planner
+        waypoints
+        controller
+        vehicle 
+
+        posess %% same as trajectory but is the transfore(this is purely for testing)
 
     end
     methods
@@ -54,6 +64,8 @@ classdef Nao
             obj.team = team;
             obj.position_class = obj.get_position_class(position);
             obj.ID = ID;
+
+            obj.tVec = 0:dt:totaltime;
             
             obj.radius = roboRadius;
 
@@ -70,8 +82,9 @@ classdef Nao
 
 
             %% Timeseries data
-            obj.poses = zeros(numel(0:dt:totaltime),2);
-            obj.poses(1,:) = obj.inipose(1:2,:);
+            obj.poses = zeros(numel(0:dt:totaltime),3);
+            obj.poses(1,:) = obj.inipose;
+
 
             obj.vels = zeros(numel(0:dt:totaltime),2);
             obj.vels(1,:) = obj.vel(1,:);
@@ -86,10 +99,77 @@ classdef Nao
             obj.isFallen = false;
 
 
+            %Pathplanning
+            obj.startPose = transpose(obj.inipose);
+
+            obj.controller = obj.Make_controller();
 
             obj.colour=obj.makecolour();
 
+            obj.vehicle = obj.Make_vehicle();
+
+
+
         end
+
+        function vehicle = Make_vehicle(obj)
+            %% Define Vehicle
+            wheelRadius = 0.05;     % Wheel radius [m]
+            frontLen = 0.25;        % Distance from CG to front wheels [m]
+            rearLen = 0.25;         % Distance from CG to rear wheels [m]
+            vehicle = FourWheelSteering(wheelRadius,[frontLen rearLen]);
+        end
+
+        function obj = RRT(obj,idx)
+
+            poses = transpose(obj.poses);
+
+            [vRef,wRef] = obj.controller(poses(:,idx-1));
+            [wheelSpeeds,steerAngles] = inverseKinematicsFrontSteer(obj.vehicle,vRef,wRef);
+            wheelSpeeds = wheelSpeeds([1 1]); % Use front wheel speed for both
+            
+            % Compute the velocities
+            velB = forwardKinematics(obj.vehicle,wheelSpeeds,steerAngles);
+            vel = bodyToWorld(velB,poses(:,idx-1));  % Convert from body to world
+
+            obj.vel = vel(1:2);
+            obj.w = vel(3);
+        end
+
+        function controller = Make_controller(obj)
+
+            
+            map = binaryOccupancyMap(11,9,100);
+            inflate(map,0.25); % Inflate the map for planning
+            
+            % State space
+            ss = stateSpaceDubins;
+            ss.MinTurningRadius = 0.75;
+            ss.StateBounds = [map.XWorldLimits; map.YWorldLimits; [-pi pi]];
+            
+            % State validator
+            sv = validatorOccupancyMap(ss);
+            sv.Map = map;
+            sv.ValidationDistance = 0.1;
+            
+            % Path planner
+            planner = plannerRRT(ss,sv);
+            planner.MaxConnectionDistance = 2.5;
+
+            [plannedPath,solInfo] = plan(planner,obj.startPose,obj.goalPose);
+            if plannedPath.NumStates < 1
+                disp('No path found. Please rerun the example');
+            end
+            interpolate(plannedPath,round(2*plannedPath.pathLength)); % Interpolate to approx. 2 waypoints per meter
+            waypoints = plannedPath.States(:,1:2);
+
+            controller = controllerPurePursuit;
+            controller.Waypoints = waypoints;
+            controller.LookaheadDistance = 0.25;
+            controller.DesiredLinearVelocity = 1;
+            controller.MaxAngularVelocity = 3;
+        end
+
 
         function obj = DroneMode(obj,idx,ballPose,ballorientation,ballV)
             obj.w = 0.7;
@@ -150,14 +230,14 @@ classdef Nao
             n = N*y_dot*Vc;
             %             disp(n)
             phi_mdot = n/V_m;
-            x_m = x_m + obj.dt*x_mdot;
+
 
             %             disp(x_m)
             %             disp(-Rd)
             
             obj.vel = x_mdot;
 
-            obj.w = phi_mdot;
+            obj.w = phi_mdot/obj.dt;
 
 
 
@@ -171,7 +251,7 @@ classdef Nao
         function obj = update(obj,idx)
 
 
-            obj.pose(3,1) = obj.pose(3,1) + obj.w;
+            obj.pose(3,1) = obj.pose(3,1) + obj.w*obj.dt;
 
 
 
@@ -186,7 +266,7 @@ classdef Nao
             %% Append trajectory
             obj.poses(idx,1) = obj.pose(1);
             obj.poses(idx,2) = obj.pose(2);
-
+            obj.poses(idx,3) = obj.pose(3,1);
 
             obj.vels(idx,1) = obj.vel(1,1);
             obj.vels(idx,2) = obj.vel(2,1);
@@ -232,10 +312,14 @@ classdef Nao
             % draw trajectory
             plot(obj.poses(1:idx,1),obj.poses(1:idx,2),"Color",obj.colour); 
             
-            
-            obj.circle(obj.pose(1),obj.pose(2),obj.radius);%Draw robot
+            %Draw robot
+            obj.circle(obj.pose(1),obj.pose(2),obj.radius);
 
+            % Wayoints
+%             plot(obj.waypoints(:,1),obj.waypoints(:,2),'Marker','x')
 
+            % Goal pose
+            plot(obj.goalPose(1,1),obj.goalPose(1,2),'Marker','x','Color',obj.colour)
             
             % Direction
             x_mdot = [obj.V*cos(obj.pose(3)); obj.V*sin(obj.pose(3))];
@@ -304,6 +388,9 @@ classdef Nao
             %foundBall = (polar_angle >= angle()            
             
         end
+
+
+
 
 
     end
