@@ -99,15 +99,14 @@ classdef Nao
             obj.isFallen = false;
 
 
-            %Pathplanning
+            %% Pathplanning
             obj.startPose = transpose(obj.inipose);
 
-            obj.controller = obj.Make_controller();
 
             obj.colour=obj.makecolour();
 
             obj.vehicle = obj.Make_vehicle();
-
+            obj = Make_controller(obj);
 
 
         end
@@ -121,6 +120,7 @@ classdef Nao
         end
 
         function obj = RRT(obj,idx)
+            
 
             poses = transpose(obj.poses);
 
@@ -136,11 +136,20 @@ classdef Nao
             obj.w = vel(3);
         end
 
-        function controller = Make_controller(obj)
+        function map = make_map(obj)
+            %Work on thius SADKSRJ Qwkr OQJFLHqeworhfoiuwqehfiuyhiewou
+            %ewuguwrgy
+            %iurwygygureyiugyerutyeruytuireytuerytuyerutyiueytuyertyeruytuerytiuyerytuierytuyeirtyewipofmg
+            %ewjirkertj  wehjlkerht 4wtjlrjt 
+            %ytrygfuipewh
+            map = binaryOccupancyMap(11,9,100);
+        end
 
-            
+        function obj = Make_controller(obj)
+            map = obj.make_map();
             map = binaryOccupancyMap(11,9,100);
             inflate(map,0.25); % Inflate the map for planning
+
             
             % State space
             ss = stateSpaceDubins;
@@ -156,18 +165,20 @@ classdef Nao
             planner = plannerRRT(ss,sv);
             planner.MaxConnectionDistance = 2.5;
 
-            [plannedPath,solInfo] = plan(planner,obj.startPose,obj.goalPose);
+            [plannedPath,solInfo] = plan(planner,transpose(obj.pose),obj.goalPose);
             if plannedPath.NumStates < 1
                 disp('No path found. Please rerun the example');
             end
             interpolate(plannedPath,round(2*plannedPath.pathLength)); % Interpolate to approx. 2 waypoints per meter
-            waypoints = plannedPath.States(:,1:2);
+            obj.waypoints = plannedPath.States(:,1:2);
 
             controller = controllerPurePursuit;
-            controller.Waypoints = waypoints;
+            controller.Waypoints = obj.waypoints;
             controller.LookaheadDistance = 0.25;
             controller.DesiredLinearVelocity = 1;
             controller.MaxAngularVelocity = 3;
+
+            obj.controller = controller;
         end
 
 
@@ -316,7 +327,7 @@ classdef Nao
             obj.circle(obj.pose(1),obj.pose(2),obj.radius);
 
             % Wayoints
-%             plot(obj.waypoints(:,1),obj.waypoints(:,2),'Marker','x')
+            plot(obj.waypoints(:,1),obj.waypoints(:,2),'Marker','x')
 
             % Goal pose
             plot(obj.goalPose(1,1),obj.goalPose(1,2),'Marker','x','Color',obj.colour)

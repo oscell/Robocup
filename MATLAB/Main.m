@@ -5,13 +5,13 @@ clc
 rng(10)
 
 %% Simulation time
-dt = 0.05;
-totalTime = 100;
+dt = 0.01;
+totalTime = 1;
 tVec = 0:dt:totalTime;
 
 
 %% Teams
-num_teams = 1;
+num_teams = 2;
 robot_radius = 0.15;
 sensorRange = 2;
 showEnv = false;
@@ -39,8 +39,15 @@ for idx = 2:numel(tVec)
 %                     % colision check
 %         sim.robots(i) = sim.robots(i).checkColision(i,sim.robots);
 %         
-% 
+
+        %% RRT
+        %% plan a new path every so often to update obstacles
+        if mod(idx,20) == 0
+            disp(idx)
+            sim.robots(i) = sim.robots(i).Make_controller();
+        end
         sim.robots(i) = sim.robots(i).RRT(idx);
+        %% Update
         sim.robots(i) = sim.robots(i).update(idx);
 
     end
