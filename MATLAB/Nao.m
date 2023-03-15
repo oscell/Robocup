@@ -5,7 +5,7 @@ classdef Nao
         pose
         radius
 
-
+        w
         vel
         acc
         V
@@ -54,13 +54,14 @@ classdef Nao
             obj.arrived = false;
             obj.team = team;
             obj.position_class = obj.get_position_class(position);
-
+            
             
             obj.radius = roboRadius;
 
             obj.inipose = obj.position_class.get_pose(team);
             obj.pose = obj.position_class.get_pose(team);%[0;0;0];%[rand(1)*11,rand(1)*8,rand(1)]';
             obj.V = 0.1333;
+            obj.w = 0;
 
             obj.vel = [obj.V*cos(obj.pose(3,1)); obj.V*sin(obj.pose(3,1))]';
             obj.acc = [0,0]';
@@ -68,18 +69,7 @@ classdef Nao
             obj.fov = 0.873;
             obj.range = range;
 
-            obj.R = 0.5;
-            obj.L = 0.5;
-            obj.dd = DifferentialDrive(obj.R,obj.L);
 
-            obj.detector = obj.MakeDetector(env,num);
-
-            obj.waypoint = obj.makeWaypoints();
-
-
-            %             obj.waypoint = [0,0; 2,2; 4,2; 2,4; 0.5,3];%[rand(1)*11,rand(1)*8]';
-
-            obj.controller = obj.MakeController();
             %% Timeseries data
             obj.poses = zeros(numel(0:dt:totaltime),2);
             obj.poses(1,:) = obj.inipose(1:2,:);
@@ -100,48 +90,12 @@ classdef Nao
 
         end
 
-        function detector = MakeDetector(obj,env,num)
-            detector = RobotDetector(env);
-            detector.maxDetections = num;
-            detector.maxRange = 10;
-            detector.fieldOfView = pi/2;
-        end
-
-        function controller = MakeController(obj)
-            controller = controllerPurePursuit;
-            controller.Waypoints = [obj.waypoint];
-            controller.LookaheadDistance = 1;
-            controller.DesiredLinearVelocity = 0.75;
-            controller.MaxAngularVelocity = 3;
-        end
-
-        function obj = update_pursuit(obj,idx)
-
-            [vRef,wRef] = obj.controller(obj.pose);
-            [wL,wR] = inverseKinematics(obj.dd,vRef,wRef);
-
-            [v,w] = forwardKinematics(obj.dd,wL,wR);
-
-            velB = [v;0;w]; % Body velocities [vx;vy;w]
-            velocity = bodyToWorld(velB,obj.pose);  % Convert from body to world
-
-            obj.pose = obj.pose + velocity*obj.dt;
-
-            obj.poses(idx,1) = obj.pose(1);
-            obj.poses(idx,2) = obj.pose(2);
-
-            %             waitfor(obj.r);
-        end
-
         function obj = DroneMode(obj,idx,ballPose,ballorientation,ballV)
-            phi_mdot = 0.7;
-            phi_m = obj.pose(3,1);
-            obj.pose(3,1) = phi_m + phi_mdot;
-
-            obj.poses(idx,1) = obj.pose(1);
-            obj.poses(idx,2) = obj.pose(2);
+            obj.w = 0.7;
+            obj.vel = [0;0];
         end
 
+        %% Targeting algorithm
         function obj = ToPoint(obj,idx,trgt_pose,orientation,V)
 
             N = 0.2; %Gain
@@ -155,6 +109,7 @@ classdef Nao
 
 
             OR = sqrt((x_t(1,1) - x_m(1,1))^2 + (x_t(2,1) - x_m(2,1))^2);
+            
             if OR < 0.5
                 obj.arrived = true;
 
@@ -169,19 +124,10 @@ classdef Nao
                 obj.vels(idx,2) = x_m(1,1);
                 return
             end
-            %             if OR
+
             x_mdot = [V_m*cos(phi_m); V_m*sin(phi_m)];
             x_tdot = [V_t*cos(phi_t); V_t*sin(phi_t)];
 
-
-            %
-            %             disp('Check')
-            %             disp(x_mdot)
-            %             disp(V_m)
-            %             disp(phi_m)
-            %             disp(V_t)
-            %             disp(phi_t)
-            %             disp(x_tdot)
 
             x_dif = x_t - x_m;
 
@@ -207,34 +153,37 @@ classdef Nao
 
             %             disp(x_m)
             %             disp(-Rd)
+            
+            obj.vel = x_mdot;
+
+            obj.w = phi_mdot;
 
 
-            obj.pose(3,1) = phi_m + phi_mdot;
 
 
-            obj.pose(1,1) = x_m(1,1);
-            obj.pose(2,1) = x_m(2,1);
-
-            obj.poses(idx,1) = obj.pose(1);
-            obj.poses(idx,2) = obj.pose(2);
-
-
-            obj.vels(idx,1) = x_m(1,1);
-            obj.vels(idx,2) = x_m(1,1);
-
+            
+            %searchBall(obj,trgt_pose)
 
             %             waitfor(obj.r);
         end
 
         function obj = update(obj,idx)
-            %                 velocity = obj.pursuit();
-            %                 disp(velocity)
-            %                 obj.pose = obj.pose + velocity*obj.dt;
-            %                 Perform forward discrete integration step
-            %
+            obj.pose(3,1) = obj.pose(3,1) + obj.w;
+
+            
+            obj.pose(1,1) = obj.pose(1,1) + obj.vel(1,1)*obj.dt;
+            obj.pose(2,1) = obj.pose(2,1) + obj.vel(2,1)*obj.dt;
+
+            obj.poses(idx,1) = obj.pose(1);
+            obj.poses(idx,2) = obj.pose(2);
+
+
+            obj.vels(idx,1) = obj.vel(1,1);
+            obj.vels(idx,2) = obj.vel(2,1);
 
         end
-
+        
+        %% Colour based on team
         function colour = makecolour(obj)
 
             if obj.team == 1
@@ -246,14 +195,7 @@ classdef Nao
 
         end
 
-        function waypoints = makeWaypoints(obj)
-            if obj.team == 1
-                waypoints = [0,0; 2,2; 4,2; 2,4; 0.5,3];
-            else
-                waypoints = [6,0; 8,2; 6,2; 7,4; 6,3];
-            end
-        end
-
+        %% shows the robot
         function show(obj,idx)
             
             plot(obj.poses(1:idx,1),obj.poses(1:idx,2),"Color",obj.colour); % draw trajectory
@@ -278,7 +220,7 @@ classdef Nao
             
             
         end
-
+        %% set position class of each player
         function position_class = get_position_class(obj,position)
             if strcmp(position,'Defender')
                 position_class = Defender(obj.is_repeated);
@@ -302,6 +244,35 @@ classdef Nao
                 c(:,i) = rotMat*C(:,i);
             end
         end
-    end
 
+        %% Function for searching the ball in front of the nao robot
+        %
+        % Input  {obj: nao object, ball_pose: [2x2 array]}
+        %
+        % Return {foundBall:bool % whether the ball is founded}      
+        function foundBall = searchBall(obj, ball_pose)
+            
+            center_x = obj.pose(1);                                         % Get robot x position
+            center_y = obj.pose(2);                                         % Get robot y position
+            orientation = obj.pose(3);                                      % Get robot orientation
+            ball_x = ball_pose(1,1);                                        % Get ball x position
+            ball_y = ball_pose(2,1);                                        % Get ball y position
+            theta = [obj.pose(3) - obj.fov/2; obj.pose(3) + obj.fov/2];     % Min and max angle of the sector
+%             center = [center_x center_y]
+%             ball = [ball_x ball_y]
+
+            %polar_angle = atan2(ball_y,ball_x);
+            distance = (center_x-ball_x)^2 + (center_y-ball_y)^2;           % Distance between the ball and the robot
+            %angle = atan2(center_y-ball_y,center_x-ball_x)
+            
+            check_min_angle = (orientation >= theta(1));                    % Check if the orientation of the robot is larger than the min angle of sector
+            check_max_angle = (orientation <= theta(2));                    % Check if the orientation of the robot is smaller than the max angle of sector
+            check_radius = (distance <= obj.range^2);                       % Check if distance is smaller than the sensor radius
+            foundBall = check_min_angle && check_max_angle && check_radius; % Reture true if all cases are true
+            %foundBall = (polar_angle >= angle()            
+            
+        end
+
+
+    end
 end

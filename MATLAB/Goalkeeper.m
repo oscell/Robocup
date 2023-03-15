@@ -1,6 +1,7 @@
 classdef Goalkeeper
     properties
         is_repeated
+        name = "Goalkeeper"
         
     end
     methods
@@ -13,10 +14,11 @@ classdef Goalkeeper
                 pose = [1.2;4;0];
 %                 pose = [0;0;(1/3)*pi];
             else
-                pose = [9.8;4;0];
+                pose = [9.8;4;pi];
             end
         
         end 
+
 
 
 
