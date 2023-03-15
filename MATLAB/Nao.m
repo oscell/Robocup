@@ -306,7 +306,7 @@ classdef Nao
 
         % Function for searching the ball in front of the nao robot
         %
-        % Input  {obj: nao object, ball_pose: [2x2 array]}
+        % Input  {obj: self, ball_pose: [2x2 array]}
         %
         % Return {foundBall:bool % whether the ball is founded}      
         function foundBall = searchBall(obj, ball_pose)
@@ -317,18 +317,42 @@ classdef Nao
             ball_x = ball_pose(1,1);                                        % Get ball x position
             ball_y = ball_pose(2,1);                                        % Get ball y position
             theta = [obj.pose(3) - obj.fov/2; obj.pose(3) + obj.fov/2];     % Min and max angle of the sector
-%             center = [center_x center_y]
-%             ball = [ball_x ball_y]
-
-            %polar_angle = atan2(ball_y,ball_x);
+            
             distance = (center_x-ball_x)^2 + (center_y-ball_y)^2;           % Distance between the ball and the robot
-            %angle = atan2(center_y-ball_y,center_x-ball_x)
             
             check_min_angle = (orientation >= theta(1));                    % Check if the orientation of the robot is larger than the min angle of sector
             check_max_angle = (orientation <= theta(2));                    % Check if the orientation of the robot is smaller than the max angle of sector
             check_radius = (distance <= obj.range^2);                       % Check if distance is smaller than the sensor radius
-            foundBall = check_min_angle && check_max_angle && check_radius; % Reture true if all cases are true
-            %foundBall = (polar_angle >= angle()            
+            foundBall = check_min_angle && check_max_angle && check_radius; % Reture true if all cases are true                
+        end
+
+        % Function for searching the ball in front of the nao robot
+        %
+        % Input  {obj: self, robot_idx: Index of searching robot, totalNumRobot: Total number of robots, robots: array of nao robot object}
+        %
+        % Return {foundBall:bool % whether the ball is founded}         
+        function foundRobot = searchRobot(obj,robot_idx,totalNumRobot,robots)
+            
+            foundRobot = false;
+            center_x = obj.pose(1);                                         % Get robot x position
+            center_y = obj.pose(2);                                         % Get robot y position
+            orientation = obj.pose(3);                                      % Get robot orientation
+            theta = [obj.pose(3) - obj.fov/2; obj.pose(3) + obj.fov/2];     % Min and max angle of the sector
+            for i = 1:totalNumRobot
+                if i == robot_idx                                           % Skip robot itself
+                    continue
+                end
+                target_x = robots(i).pose(1);
+                target_y = robots(i).pose(2);
+                distance = (center_x-target_x)^2 + (center_y-target_y)^2;
+                check_min_angle = (orientation >= theta(1));                % Check if the orientation of the robot is larger than the min angle of sector
+                check_max_angle = (orientation <= theta(2));                % Check if the orientation of the robot is smaller than the max angle of sector
+                check_radius = (distance <= obj.range^2);                   % Check if distance is smaller than the sensor radius
+                if check_min_angle && check_max_angle && check_radius           
+                    foundRobot = true;                                      % Set foundRobot to true if robot is found
+                    break;
+                end
+            end   
             
         end
 
