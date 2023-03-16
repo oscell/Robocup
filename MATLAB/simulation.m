@@ -137,8 +137,15 @@ classdef simulation
 
             velocity=[0;0];
             kvelocity=[5,5];
+            pvelocity=[2,2];
+            %Svel=Nao.Shotting(goalpose,obj)
+            %Pvel=Nao.Pass(Dpose,obj)
+            %kvelocity=Svel;
+            %pvelocity=Pvel;
             c=0.1;
-            ball=BallDynamics(pose,velocity,kvelocity,c,obj.sampletime,obj.totaltime);
+            dt=0.05;
+            totalTime = 8
+            ball=BallDynamics(pose,velocity,kvelocity,pvelocity,c,dt,totalTime);
         end
 
         function env = MakeEnv(obj,robotRadius,showTrajectory)

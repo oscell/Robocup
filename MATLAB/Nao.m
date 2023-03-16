@@ -36,15 +36,12 @@ classdef Nao
         waypoint
 
         controller
-
         r
-
         is_repeated
-
-
-
         arrived
-
+        %Shotting and passing
+        Fmax
+        F
 
 
     end
@@ -271,6 +268,18 @@ classdef Nao
             foundBall = check_min_angle && check_max_angle && check_radius; % Reture true if all cases are true
             %foundBall = (polar_angle >= angle()            
             
+        end
+        function Svel=Shotting(goalpose,obj)
+            d=goalpose-obj.pose;
+            Svel=sqrt((2*obj.Fmax*d)/0.45);
+        end
+        function Pvel=Pass(Dpose,obj)
+            d=Dpose-obj.pose;
+            %F=d*0.0565; %for c=0.5
+            %F=d*0.0365; %for c=0.4
+            F=d*0.012; %for c=0.2
+            %F=d*0.006; %for c=0.1
+            Pvel=sqrt((2*obj.F.*d)/0.45);
         end
 
 

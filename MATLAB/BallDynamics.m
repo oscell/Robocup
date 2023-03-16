@@ -3,6 +3,7 @@ classdef BallDynamics
         Pose=[];
         Velocity=[];
         KVelocity=[];
+        PVelocity=[];
         C
 
         orientation
@@ -15,8 +16,8 @@ classdef BallDynamics
         totaltime
     end
     methods
-        function obj=BallDynamics(pose,velocity,kvelocity,c,dt,totalTime)
-            if nargin==6
+        function obj=BallDynamics(pose,velocity,kvelocity,pvelocity,c,dt,totalTime)
+            if nargin==7
                 obj.dt = dt;
                 obj.totaltime = totalTime;
                 obj.poses = zeros(numel(0:dt:totalTime),2);
@@ -26,6 +27,7 @@ classdef BallDynamics
                 obj.Pose = pose;
                 obj.Velocity = velocity;
                 obj.KVelocity = kvelocity;
+                obj.PVelocity= pvelocity;
                 obj.C = c;
 
                 obj.orientation = (5/3)*pi - pi;(5/3)*pi - pi;
@@ -83,10 +85,18 @@ classdef BallDynamics
         function obj=Kick(obj)
             obj.Pose=obj.Pose+obj.KVelocity;
             obj.KVelocity=obj.KVelocity-(obj.C*obj.KVelocity);
-            if obj.Velocity<=0
-                obj.Velocity=0;
+            if obj.KVelocity<=0
+                obj.KVelocity=0;
             end
             pause(0.15);
-        end    
+        end
+        function obj=BPass(obj)
+            obj.Pose=obj.Pose+obj.PVelocity;
+            obj.PVelocity=obj.PVelocity-(obj.C*obj.PVelocity);
+            if obj.PVelocity<=0
+                obj.PVelocity=0;
+            end
+            pause(0.15);
+        end 
     end
 end
