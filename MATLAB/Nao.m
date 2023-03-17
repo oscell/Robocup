@@ -41,10 +41,10 @@ classdef Nao
 
         is_repeated
 
-
-
         arrived
-
+    
+        % Boundary for defender not to play too aggressive
+        boundary_line % integer, x-coordinate
 
 
     end
@@ -326,11 +326,11 @@ classdef Nao
             foundBall = check_min_angle && check_max_angle && check_radius; % Reture true if all cases are true                
         end
 
-        % Function for searching the ball in front of the nao robot
+        % Function for searching any robot in front of the nao robot
         %
         % Input  {obj: self, robot_idx: Index of searching robot, totalNumRobot: Total number of robots, robots: array of nao robot object}
         %
-        % Return {foundBall:bool % whether the ball is founded}         
+        % Return {foundRobot:bool % whether any robot is founded}         
         function foundRobot = searchRobot(obj,robot_idx,totalNumRobot,robots)
             
             foundRobot = false;
