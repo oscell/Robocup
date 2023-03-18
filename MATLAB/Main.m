@@ -25,6 +25,7 @@ for i = 1:sim.numRobots
 end
 
 %% Show the occupancy map and planned path
+figure(1)
 sim.robots(1).show_occupancy()
 
 

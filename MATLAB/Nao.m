@@ -53,7 +53,10 @@ classdef Nao
         controller
         vehicle 
         map
-
+        solInfo
+        ss
+        plannedPath
+        
         posess %% same as trajectory but is the transfore(this is purely for testing)
 
     end
@@ -135,12 +138,24 @@ classdef Nao
             obj.w = vel(3);
         end
 
-        function show_occupancy(obj)
+        function visualizeRRTPath(obj)
+            % Plot the path from start to goal
+            plot(obj.plannedPath.States(:,1),obj.plannedPath.States(:,2),'r--','LineWidth',1.5);
+            % Interpolate each path segment to be smoother and plot it
+            tData = obj.solInfo.TreeData;
+            print('hey')
+            for idx = 3:3:size(tData,1)-2
+                p = navPath(obj.ss,tData(idx:idx+1,:));
+                interpolate(p,10);
+                plot(p.States(:,1),p.States(:,2),':','Color',[0 0.6 0.9]);
+            end
+        end
 
+        function show_occupancy(obj)
             show(obj.map)
             hold on
             obj.show(0,true)
-            hold off
+            obj.visualizeRRTPath()
         end
 
         function obj = make_map(obj,robots)
@@ -190,6 +205,9 @@ classdef Nao
             controller.MaxAngularVelocity = 3;
 
             obj.controller = controller;
+            obj.solInfo = solInfo;
+            obj.ss = ss;
+            obj.plannedPath = plannedPath;
         end
 
 
