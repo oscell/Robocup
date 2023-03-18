@@ -49,10 +49,10 @@ classdef Nao
         startPose        % Start pose [x y theta]
         goalPose = [5 5 -pi/2];       % Goal pose [x y theta]
 
-        planner
         waypoints
         controller
         vehicle 
+        map
 
         posess %% same as trajectory but is the transfore(this is purely for testing)
 
@@ -99,19 +99,13 @@ classdef Nao
             obj.isFallen = false;
 
 
-            %Pathplanning
+            %% Pathplanning
             obj.startPose = transpose(obj.inipose);
 
-%             obj.planner = obj.Make_planner();
-
-%             obj.waypoints = obj.planPath();
-
-            obj.controller = obj.Make_controller();
 
             obj.colour=obj.makecolour();
 
             obj.vehicle = obj.Make_vehicle();
-
 
 
         end
@@ -125,39 +119,10 @@ classdef Nao
         end
 
         function obj = RRT(obj,idx)
-            map = binaryOccupancyMap(11,9,100);
-            inflate(map,0.25); % Inflate the map for planning
             
-            % State space
-            ss = stateSpaceDubins;
-            ss.MinTurningRadius = 0.75;
-            ss.StateBounds = [map.XWorldLimits; map.YWorldLimits; [-pi pi]];
-            
-            % State validator
-            sv = validatorOccupancyMap(ss);
-            sv.Map = map;
-            sv.ValidationDistance = 0.1;
-            
-            % Path planner
-            planner = plannerRRT(ss,sv);
-            planner.MaxConnectionDistance = 2.5;
 
-            [plannedPath,solInfo] = plan(planner,obj.startPose,obj.goalPose);
-            if plannedPath.NumStates < 1
-                disp('No path found. Please rerun the example');
-            end
-            interpolate(plannedPath,round(2*plannedPath.pathLength)); % Interpolate to approx. 2 waypoints per meter
-            waypoints = plannedPath.States(:,1:2);
-
-            controller = controllerPurePursuit;
-            controller.Waypoints = waypoints;
-            controller.LookaheadDistance = 0.25;
-            controller.DesiredLinearVelocity = 1;
-            controller.MaxAngularVelocity = 3;
             poses = transpose(obj.poses);
-            disp(poses(:,idx-1))
 
-            
             [vRef,wRef] = obj.controller(poses(:,idx-1));
             [wheelSpeeds,steerAngles] = inverseKinematicsFrontSteer(obj.vehicle,vRef,wRef);
             wheelSpeeds = wheelSpeeds([1 1]); % Use front wheel speed for both
@@ -165,13 +130,66 @@ classdef Nao
             % Compute the velocities
             velB = forwardKinematics(obj.vehicle,wheelSpeeds,steerAngles);
             vel = bodyToWorld(velB,poses(:,idx-1));  % Convert from body to world
-            disp(vel(3))
 
             obj.vel = vel(1:2);
             obj.w = vel(3);
         end
 
+        function show_occupancy(obj)
+            show(obj.map)
+            hold on
+            obj.show(0)
+            hold off
+        end
 
+        function obj = make_map(obj,robots)
+            %% Makes a new occupancy map with all other robots
+            map = binaryOccupancyMap(11,9,100);
+            for robot = robots
+                if robot.ID ~= obj.ID
+                    map.setOccupancy([robot.pose(1) robot.pose(2)], 1);
+                end
+            end
+            map.inflate(0.25);
+            obj.map = map;
+        end
+
+        function obj = Make_controller(obj,robots)
+            
+            obj = obj.make_map(robots);
+%             map = binaryOccupancyMap(11,9,100);
+%             inflate(map,0.25); % Inflate the map for planning
+
+            
+            % State space
+            ss = stateSpaceDubins;
+            ss.MinTurningRadius = 0.75;
+            ss.StateBounds = [obj.map.XWorldLimits; obj.map.YWorldLimits; [-pi pi]];
+            
+            % State validator
+            sv = validatorOccupancyMap(ss);
+            sv.Map = obj.map;
+            sv.ValidationDistance = 0.1;
+            
+            % Path planner
+            planner = plannerRRT(ss,sv);
+            planner.MaxConnectionDistance = 2.5;
+
+            [plannedPath,solInfo] = plan(planner,transpose(obj.pose),obj.goalPose);
+            if plannedPath.NumStates < 1
+                disp('No path found. Please rerun the example');
+            end
+            interpolate(plannedPath,round(2*plannedPath.pathLength)); % Interpolate to approx. 2 waypoints per meter
+            obj.waypoints = plannedPath.States(:,1:2);
+
+            controller = controllerPurePursuit;
+            controller.Waypoints = obj.waypoints;
+            controller.LookaheadDistance = 0.25;
+            controller.DesiredLinearVelocity = 1;
+            controller.MaxAngularVelocity = 3;
+
+            obj.controller = controller;
+        end
 
 
         function obj = DroneMode(obj,idx,ballPose,ballorientation,ballV)
@@ -233,14 +251,14 @@ classdef Nao
             n = N*y_dot*Vc;
             %             disp(n)
             phi_mdot = n/V_m;
-            x_m = x_m + obj.dt*x_mdot;
+
 
             %             disp(x_m)
             %             disp(-Rd)
             
             obj.vel = x_mdot;
 
-            obj.w = phi_mdot;
+            obj.w = phi_mdot/obj.dt;
 
 
 
@@ -309,8 +327,13 @@ classdef Nao
 
         %% shows the robot
         function show(obj,idx)
+
+             if ~exist('show_waypoints','var')
+                 % third parameter does not exist, so default it to something
+                  show_waypoints = false;
+             end
             % Show Id
-            text(obj.pose(1,1)+obj.radius,obj.pose(2,1)++obj.radius,string(obj.ID))
+            text(obj.pose(1,1)+obj.radius,obj.pose(2,1)+obj.radius,string(obj.ID))
 
             % draw trajectory
             plot(obj.poses(1:idx,1),obj.poses(1:idx,2),"Color",obj.colour); 
@@ -319,7 +342,7 @@ classdef Nao
             obj.circle(obj.pose(1),obj.pose(2),obj.radius);
 
             % Wayoints
-%             plot(obj.waypoints(:,1),obj.waypoints(:,2),'Marker','x')
+            plot(obj.waypoints(:,1),obj.waypoints(:,2),'Marker','x')
 
             % Goal pose
             plot(obj.goalPose(1,1),obj.goalPose(1,2),'Marker','x','Color',obj.colour)

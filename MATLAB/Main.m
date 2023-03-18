@@ -15,46 +15,53 @@ num_teams = 2;
 robot_radius = 0.15;
 sensorRange = 2;
 showEnv = false;
-Positions = {'Goalkeeper'};
+Positions = {'Goalkeeper','Defender','Defender'};
 
 
 sim = simulation(dt,totalTime,num_teams,robot_radius,showEnv,Positions,sensorRange);
 
+for i = 1:sim.numRobots
+        sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
+end
+
+%% Show the occupancy map and planned path
+sim.robots(1).show_occupancy()
+
 
 
 for idx = 2:numel(tVec)
-    %% Update
+    % Update
     sim.ball = sim.ball.update_kick(idx,sim.ball.V,sim.ball.orientation);
     for i = 1:sim.numRobots
-%         %% robot state flow goes here
-%         % If the robot hasnt arrived go to the ball else drone mode
-%         if sim.robots(i).arrived == false
-%             if sim.robots(i).searchBall(sim.ball.Pose)
-% %                 disp("Robot "+i+" found the ball")
-%             end
-%             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
-%         else
-%             sim.robots(i) = sim.robots(i).DroneMode(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
-%         end
-%                     % colision check
-%         sim.robots(i) = sim.robots(i).checkColision(i,sim.robots);
-%         
+        
+        %% robot state flow goes here
+        % If the robot hasnt arrived go to the ball else drone mode
+        if sim.robots(i).arrived == false
+            if sim.robots(i).searchBall(sim.ball.Pose)
+%                 disp("Robot "+i+" found the ball")
+            end
+            sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+        else
+            sim.robots(i) = sim.robots(i).DroneMode(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+        end
+                    % colision check
+        sim.robots(i) = sim.robots(i).checkColision(i,sim.robots);
+        
 
-        %% RRT
-        %% plan a new path every so often to update obstacles
+        % RRT
+        % plan a new path every so often to update obstacles
         if mod(idx,20) == 0
-            disp(idx)
-            sim.robots(i) = sim.robots(i).Make_controller();
+            sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
         end
         sim.robots(i) = sim.robots(i).RRT(idx);
-        %% Update
+        % Update
         sim.robots(i) = sim.robots(i).update(idx);
 
     end
 
 
 
-    %% Figure
+    % Figure
     
     figure(2); clf; hold on; grid off; axis([0 11,0 8]); %set(gca,'visible','off');
     hold on

@@ -49,10 +49,10 @@ classdef Nao
         startPose        % Start pose [x y theta]
         goalPose = [5 5 -pi/2];       % Goal pose [x y theta]
 
-        planner
         waypoints
         controller
         vehicle 
+        map
 
         posess %% same as trajectory but is the transfore(this is purely for testing)
 
@@ -106,7 +106,6 @@ classdef Nao
             obj.colour=obj.makecolour();
 
             obj.vehicle = obj.Make_vehicle();
-            obj = Make_controller(obj);
 
 
         end
@@ -136,29 +135,41 @@ classdef Nao
             obj.w = vel(3);
         end
 
-        function map = make_map(obj)
-            %Work on thius SADKSRJ Qwkr OQJFLHqeworhfoiuwqehfiuyhiewou
-            %ewuguwrgy
-            %iurwygygureyiugyerutyeruytuireytuerytuyerutyiueytuyertyeruytuerytiuyerytuierytuyeirtyewipofmg
-            %ewjirkertj  wehjlkerht 4wtjlrjt 
-            %ytrygfuipewh
-            map = binaryOccupancyMap(11,9,100);
+        function show_occupancy(obj)
+
+            show(obj.map)
+            hold on
+            obj.show(0,true)
+            hold off
         end
 
-        function obj = Make_controller(obj)
-            map = obj.make_map();
+        function obj = make_map(obj,robots)
+            %% Makes a new occupancy map with all other robots
             map = binaryOccupancyMap(11,9,100);
-            inflate(map,0.25); % Inflate the map for planning
+            for robot = robots
+                if robot.ID ~= obj.ID
+                    map.setOccupancy([robot.pose(1) robot.pose(2)], 1);
+                end
+            end
+            map.inflate(0.25);
+            obj.map = map;
+        end
+
+        function obj = Make_controller(obj,robots)
+            
+            obj = obj.make_map(robots);
+%             map = binaryOccupancyMap(11,9,100);
+%             inflate(map,0.25); % Inflate the map for planning
 
             
             % State space
             ss = stateSpaceDubins;
             ss.MinTurningRadius = 0.75;
-            ss.StateBounds = [map.XWorldLimits; map.YWorldLimits; [-pi pi]];
+            ss.StateBounds = [obj.map.XWorldLimits; obj.map.YWorldLimits; [-pi pi]];
             
             % State validator
             sv = validatorOccupancyMap(ss);
-            sv.Map = map;
+            sv.Map = obj.map;
             sv.ValidationDistance = 0.1;
             
             % Path planner
@@ -316,9 +327,14 @@ classdef Nao
         end
 
         %% shows the robot
-        function show(obj,idx)
+        function show(obj,idx,show_waypoints)
+
+             if ~exist('show_waypoints','var')
+                 % third parameter does not exist, so default it to something
+                  show_waypoints = false;
+             end
             % Show Id
-            text(obj.pose(1,1)+obj.radius,obj.pose(2,1)++obj.radius,string(obj.ID))
+            text(obj.pose(1,1)+obj.radius,obj.pose(2,1)+obj.radius,string(obj.ID))
 
             % draw trajectory
             plot(obj.poses(1:idx,1),obj.poses(1:idx,2),"Color",obj.colour); 
@@ -327,7 +343,9 @@ classdef Nao
             obj.circle(obj.pose(1),obj.pose(2),obj.radius);
 
             % Wayoints
-            plot(obj.waypoints(:,1),obj.waypoints(:,2),'Marker','x')
+            if show_waypoints
+                plot(obj.waypoints(:,1),obj.waypoints(:,2),'Marker','x')
+            end
 
             % Goal pose
             plot(obj.goalPose(1,1),obj.goalPose(1,2),'Marker','x','Color',obj.colour)
