@@ -4,7 +4,7 @@ classdef Attacker
 
         decisions
         decision
-
+        name = "Attacker"
       
     end
     methods
