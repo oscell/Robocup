@@ -92,6 +92,9 @@ for idx = 2:numel(tVec)
             if sim.robots(i).searchBall(sim.ball.Pose)
 %                 disp("Robot "+i+" found the ball")
             end
+            if sim.robots(i).searchRobot(i,sim.numRobots,sim.robots)
+                disp("Robot "+i+" sees another robot")
+            end
             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
         else
             sim.robots(i) = sim.robots(i).DroneMode(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
