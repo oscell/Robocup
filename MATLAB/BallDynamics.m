@@ -78,6 +78,7 @@ classdef BallDynamics
 
         function obj=Drible(obj)
             obj.Pose=obj.Pose+obj.Velocity;
+            %obj.Pose=get_pose(obj,team);
             waitfor(obj.r);
         end
         function obj=Kick(obj)
