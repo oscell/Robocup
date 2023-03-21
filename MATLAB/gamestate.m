@@ -19,5 +19,10 @@ classdef gamestate
 
         end
 
+        function state_to_csv(game_state, filename)
+        csvwrite(file_name, game_state);
+        
+        end
+
     end
 end
