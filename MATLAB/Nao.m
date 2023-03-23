@@ -50,7 +50,7 @@ classdef Nao
 
         % Start and goalpose for robot(testing)
         startPose        % Start pose [x y theta]
-        goalPose = [5 5 -pi/2];       % Goal pose [x y theta]
+        goalPose = [1 1 -pi/2];       % Goal pose [x y theta]
 
 
         waypoints
@@ -62,6 +62,10 @@ classdef Nao
         plannedPath
         
         posess %% same as trajectory but is the transfore(this is purely for testing)
+
+
+        % for state flow
+        counter = 0 
 
     end
     methods
@@ -78,7 +82,7 @@ classdef Nao
 
             obj.inipose = obj.position_class.get_pose(team);
             obj.pose = obj.position_class.get_pose(team);%[0;0;0];%[rand(1)*11,rand(1)*8,rand(1)]';
-            obj.V = 0.1333;
+            obj.V = 2;%0.1333;
             obj.w = 0;
 
             obj.vel = [obj.V*cos(obj.pose(3,1)); obj.V*sin(obj.pose(3,1))]';
@@ -153,7 +157,7 @@ classdef Nao
             % State validator
             sv = validatorOccupancyMap(ss);
             sv.Map = obj.map;
-            sv.ValidationDistance = 0.1;
+            sv.ValidationDistance = 0.01;
             
             % Path planner
             planner = plannerRRT(ss,sv);
@@ -291,8 +295,8 @@ classdef Nao
             if obj.isFallen == true
                 obj.pose = obj.pose;
             else            
-                obj.pose(1,1) = obj.pose(1,1) + obj.vel(1,1)*obj.dt;
-                obj.pose(2,1) = obj.pose(2,1) + obj.vel(2,1)*obj.dt;
+                obj.pose(1,1) = obj.pose(1,1) + obj.vel(1)*obj.dt;
+                obj.pose(2,1) = obj.pose(2,1) + obj.vel(2)*obj.dt;
             end
 
 
@@ -301,18 +305,18 @@ classdef Nao
             obj.poses(idx,2) = obj.pose(2);
             obj.poses(idx,3) = obj.pose(3,1);
 
-            obj.vels(idx,1) = obj.vel(1,1);
-            obj.vels(idx,2) = obj.vel(2,1);
+            obj.vels(idx,1) = obj.vel(1);
+            obj.vels(idx,2) = obj.vel(2);
 
         end
         
         %% Checks for colisions, if true robot is fallen
-        function obj = checkColision(obj,i,robots)
+        function obj = checkColision(obj,robots)
             counter = 1;
             for robot = robots
                 
 
-                if counter ~= i
+                if counter ~= obj.ID
                     distance = sqrt((robot.pose(1,1)-obj.pose(1,1))^2 +(robot.pose(2,1)-obj.pose(2,1))^2);
                     
                     if distance < obj.radius*2
@@ -366,7 +370,7 @@ classdef Nao
             % Direction
             x_mdot = [obj.V*cos(obj.pose(3)); obj.V*sin(obj.pose(3))];
             
-            plot([obj.pose(1,1), obj.pose(1,1)+x_mdot(1)*5],[obj.pose(2,1), obj.pose(2,1)+x_mdot(2)*5],Color='r',LineWidth=1)
+%             plot([obj.pose(1,1), obj.pose(1,1)+x_mdot(1)*5],[obj.pose(2,1), obj.pose(2,1)+x_mdot(2)*5],Color='r',LineWidth=1)
 
             %Draw sensors
             %Left
