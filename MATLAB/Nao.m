@@ -124,46 +124,10 @@ classdef Nao
             rearLen = 0.25;         % Distance from CG to rear wheels [m]
             vehicle = FourWheelSteering(wheelRadius,[frontLen rearLen]);
         end
-
-        function obj = RRT(obj,idx)
-            
-
-            poses = transpose(obj.poses);
-
-            [vRef,wRef] = obj.controller(poses(:,idx-1));
-            [wheelSpeeds,steerAngles] = inverseKinematicsFrontSteer(obj.vehicle,vRef,wRef);
-            wheelSpeeds = wheelSpeeds([1 1]); % Use front wheel speed for both
-            
-            % Compute the velocities
-            velB = forwardKinematics(obj.vehicle,wheelSpeeds,steerAngles);
-            vel = bodyToWorld(velB,poses(:,idx-1));  % Convert from body to world
-
-            obj.vel = vel(1:2);
-            obj.w = vel(3);
-        end
-
-        function visualizeRRTPath(obj)
-            % Plot the path from start to goal
-            plot(obj.plannedPath.States(:,1),obj.plannedPath.States(:,2),'r--','LineWidth',1.5);
-            % Interpolate each path segment to be smoother and plot it
-            tData = obj.solInfo.TreeData;
-            print('hey')
-            for idx = 3:3:size(tData,1)-2
-                p = navPath(obj.ss,tData(idx:idx+1,:));
-                interpolate(p,10);
-                plot(p.States(:,1),p.States(:,2),':','Color',[0 0.6 0.9]);
-            end
-        end
-
-        function show_occupancy(obj)
-            show(obj.map)
-            hold on
-            obj.show(0,true)
-            obj.visualizeRRTPath()
-        end
-
+        
+        %% Makes a new occupancy map with all other robots
         function obj = make_map(obj,robots)
-            %% Makes a new occupancy map with all other robots
+            
             map = binaryOccupancyMap(11,9,100);
             for robot = robots
                 if robot.ID ~= obj.ID
@@ -214,13 +178,19 @@ classdef Nao
             obj.plannedPath = plannedPath;
         end
 
-
+        %% Base Behavioural algorithms
+        % Turns in a circle
         function obj = DroneMode(obj,idx,ballPose,ballorientation,ballV)
             obj.w = 0.7;
             obj.vel = [0;0];
         end
 
-        %% Targeting algorithm
+        % Standstill
+        function obj = standstill(obj)
+            obj.pose = obj.pose;
+        end
+
+        % Targeting algorithm to ball
         function obj = ToPoint(obj,idx,trgt_pose,orientation,V)
 
             N = 0.2; %Gain
@@ -292,6 +262,25 @@ classdef Nao
             %             waitfor(obj.r);
         end
 
+        % Rapid random tree to goal pose
+        % Goes to point asigned in Goal pose
+        function obj = RRT(obj,idx)
+            
+
+            poses = transpose(obj.poses);
+
+            [vRef,wRef] = obj.controller(poses(:,idx-1));
+            [wheelSpeeds,steerAngles] = inverseKinematicsFrontSteer(obj.vehicle,vRef,wRef);
+            wheelSpeeds = wheelSpeeds([1 1]); % Use front wheel speed for both
+            
+            % Compute the velocities
+            velB = forwardKinematics(obj.vehicle,wheelSpeeds,steerAngles);
+            vel = bodyToWorld(velB,poses(:,idx-1));  % Convert from body to world
+
+            obj.vel = vel(1:2);
+            obj.w = vel(3);
+        end
+        %% Update function
         function obj = update(obj,idx)
 
 
@@ -316,7 +305,8 @@ classdef Nao
             obj.vels(idx,2) = obj.vel(2,1);
 
         end
-
+        
+        %% Checks for colisions, if true robot is fallen
         function obj = checkColision(obj,i,robots)
             counter = 1;
             for robot = robots
@@ -348,7 +338,8 @@ classdef Nao
 
         end
 
-        %% shows the robot
+        %% Visualisations
+        % Shows the robot, waypoints trajectory
         function show(obj,idx,show_waypoints)
 
              if ~exist('show_waypoints','var')
@@ -387,7 +378,30 @@ classdef Nao
             
             
         end
-        %% set position class of each player
+
+
+
+        function visualizeRRTPath(obj)
+            % Plot the path from start to goal
+            plot(obj.plannedPath.States(:,1),obj.plannedPath.States(:,2),'r--','LineWidth',1.5);
+            % Interpolate each path segment to be smoother and plot it
+            tData = obj.solInfo.TreeData;
+            print('hey')
+            for idx = 3:3:size(tData,1)-2
+                p = navPath(obj.ss,tData(idx:idx+1,:));
+                interpolate(p,10);
+                plot(p.States(:,1),p.States(:,2),':','Color',[0 0.6 0.9]);
+            end
+        end
+
+        function show_occupancy(obj)
+            show(obj.map)
+            hold on
+            obj.show(0,true)
+            obj.visualizeRRTPath()
+        end
+
+        %% set position class of each player - Goalkeeper, Attacker of Defender
         function position_class = get_position_class(obj,position)
             if strcmp(position,'Defender')
                 position_class = Defender(obj.is_repeated);

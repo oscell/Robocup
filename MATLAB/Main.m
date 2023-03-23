@@ -106,6 +106,7 @@ for idx = 2:numel(tVec)
             sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
         end
         sim.robots(i) = sim.robots(i).RRT(idx);
+        
         % Update
         sim.robots(i) = sim.robots(i).update(idx);
         
