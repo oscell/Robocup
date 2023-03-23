@@ -13,10 +13,11 @@ classdef BallDynamics
         poses
         dt
         totaltime
+        robotSpeed
     end
     methods
-        function obj=BallDynamics(pose,velocity,kvelocity,c,dt,totalTime)
-            if nargin==6
+        function obj=BallDynamics(pose,velocity,kvelocity,c,dt,totalTime,robotSpeed)
+            if nargin==7
                 obj.dt = dt;
                 obj.totaltime = totalTime;
                 obj.poses = zeros(numel(0:dt:totalTime),2);
@@ -31,9 +32,36 @@ classdef BallDynamics
                 obj.orientation = (5/3)*pi - pi;(5/3)*pi - pi;
 %                 obj.V = sqrt(velocity(1,1)^2 + velocity(1,1)^2);
                 obj.V = 0.05;
+                obj.robotSpeed = robotSpeed;
             end 
         end
         
+        function obj = robotDribble(obj, robotDirection, robotPose)
+            % Calculate robot velocity vector
+            robotVelocity = obj.robotSpeed * [cos(robotDirection); sin(robotDirection)];
+
+            % Calculate distance between ball and robot
+            distance = norm(obj.Pose - robotPose);
+
+            desiredBallPose = robotPose + 0.6 * [cos(robotDirection); sin(robotDirection)];
+
+            % Check if the ball is moving at a lower speed than the robot
+            % and if the distance is less than 0.6
+            if norm(obj.Velocity) < norm(robotVelocity) && distance <= 0.6
+            % Set the ball's velocity equal to the robot's velocity
+                obj.Velocity = robotVelocity;
+                obj.Pose = obj.Pose + 0.3* (desiredBallPose - obj.Pose);
+            end
+            obj.Pose = obj.Pose + obj.Velocity * obj.dt;
+            obj.Velocity = obj.Velocity - (obj.C * obj.Velocity);
+            % Update ball orientation based on its velocity
+            if norm(obj.Velocity) <= 0
+                obj.Velocity = [0; 0];
+                obj.orientation = 0;
+            else
+            obj.orientation = asin(obj.Velocity(2) / norm(obj.Velocity));
+            end
+        end
         function obj= update(obj,idx)
 
             obj.Pose=obj.Pose+obj.Velocity*obj.dt;
