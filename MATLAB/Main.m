@@ -5,13 +5,9 @@ clc
 rng(10)
 
 %% Simulation time
-<<<<<<< HEAD
 dt = 0.01;
-totalTime = 1;
-=======
-dt = 0.5;
 totalTime = 8;
->>>>>>> main
+
 tVec = 0:dt:totalTime;
 
 
