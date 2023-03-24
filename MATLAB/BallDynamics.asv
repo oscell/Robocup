@@ -43,7 +43,7 @@ classdef BallDynamics
             % Calculate distance between ball and robot
             distance = norm(obj.Pose - robotPose);
 
-            desiredBallPose = robotPose + 0.1 * [cos(robotDirection); sin(robotDirection)];
+            desiredBallPose = robotPose + 1 * [cos(robotDirection); sin(robotDirection)];
 
             % Check if the ball is moving at a lower speed than the robot
             % and if the distance is less than 0.6

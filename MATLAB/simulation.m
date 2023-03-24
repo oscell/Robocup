@@ -132,11 +132,11 @@ classdef simulation
 
 
         function ball=MakeBall(obj)
-            pose=[5.5,4];
+            pose=[5.5,5.5];
 %             pose=[9;0];
 
             velocity=[0;0];
-            kvelocity=[5,5];
+            kvelocity=[0,0];
             c=0.1;
             ball=BallDynamics(pose,velocity,kvelocity,c,obj.sampletime,obj.totaltime);
         end

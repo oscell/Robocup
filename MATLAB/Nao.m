@@ -461,8 +461,7 @@ classdef Nao
                     break;
                 end
             end   
-            
-        end
+   end
 
 
 
