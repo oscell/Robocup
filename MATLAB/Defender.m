@@ -2,6 +2,7 @@ classdef Defender
     properties
         is_repeated
         name = "Defender"
+        boundary = 5.5;
       
     end
     methods
@@ -26,7 +27,14 @@ classdef Defender
                 
             end           
         end 
-
+        
+        function boundary = get_boundary(obj,team)
+            if team == 1
+                boundary = [1.0 7.0; 5.5 1.0];
+            else
+                boundary = [5.5 7.0; 10.0 1.0];
+            end
+        end
 
 
     end

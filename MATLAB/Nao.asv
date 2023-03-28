@@ -40,13 +40,16 @@ classdef Nao
         is_repeated
     
         % Boundary for defender not to play too aggressive
-        boundary_line % integer, x-coordinate
+
+        boundary % integer, x-coordinate
+
 
 
         %% states
         arrived
         isFallen
         timeSetpFell
+
 
 
         % Start and goalpose for robot(testing)
@@ -61,7 +64,7 @@ classdef Nao
         solInfo
         ss
         plannedPath
-        
+
 
 
         % for state flow
@@ -83,6 +86,7 @@ classdef Nao
             obj.inipose = obj.position_class.get_pose(team);
             obj.pose = obj.position_class.get_pose(team);%[0;0;0];%[rand(1)*11,rand(1)*8,rand(1)]';
             obj.V = 0.1333;
+
             obj.w = 0;
 
             obj.vel = [obj.V*cos(obj.pose(3,1)); obj.V*sin(obj.pose(3,1))]';
@@ -90,6 +94,8 @@ classdef Nao
 
             obj.fov = 0.873;
             obj.range = range;
+
+            obj.boundary = obj.position_class.get_boundary(team);
 
 
             %% Timeseries data
@@ -110,6 +116,7 @@ classdef Nao
             obj.isFallen = false;
             obj.timeSetpFell = -inf;
 
+
             %% Pathplanning
             obj.startPose = transpose(obj.inipose);
 
@@ -117,9 +124,6 @@ classdef Nao
             obj.colour=obj.makecolour();
 
             obj.vehicle = obj.Make_vehicle();
-
-
-
 
         end
 
@@ -199,6 +203,7 @@ classdef Nao
         % Targeting algorithm to ball
         function obj = ToPoint(obj,idx,trgt_pose,orientation,V)
 
+
             N = 0.2; %Gain
             x_t = trgt_pose; % Position of target
             %             disp(x_t)
@@ -256,11 +261,6 @@ classdef Nao
             obj.w = phi_mdot/obj.dt;
 
 
-
-
-            
-            %searchBall(obj,trgt_pose)
-
             %             waitfor(obj.r);
         end
 
@@ -284,6 +284,7 @@ classdef Nao
         end
         %% Update function
         function obj = update(obj,idx)
+
 
 
             
@@ -313,7 +314,9 @@ classdef Nao
         end
         
         %% Checks for colisions, if true robot is fallen
+
         function obj = checkColision(obj,robots,timestep)
+
             counter = 1;
             for robot = robots
                 
@@ -321,18 +324,19 @@ classdef Nao
                 if counter ~= obj.ID
                     distance = sqrt((robot.pose(1,1)-obj.pose(1,1))^2 +(robot.pose(2,1)-obj.pose(2,1))^2);
                     
+
                     if distance < obj.radius*2 && timestep > (obj.timeSetpFell + 100)
 
 %                         disp("for robot "+ i+ " range is: "+distance+"from robot: "+counter)
                         obj.isFallen = true;
                         obj.timeSetpFell = timestep;
 
+
                     end
                 end
                 counter = counter + 1;
             end 
         end
-
         function [obj,D_heading] = getUp(obj,robots)
             dist = inf;
             % find the closest robot
@@ -367,6 +371,7 @@ classdef Nao
 
 
         end
+
         
         %% Colour based on team
         function colour = makecolour(obj)
@@ -408,7 +413,9 @@ classdef Nao
             % Direction
             x_mdot = [obj.V*cos(obj.pose(3)); obj.V*sin(obj.pose(3))];
             
+
             plot([obj.pose(1,1), obj.pose(1,1)+x_mdot(1)*5],[obj.pose(2,1), obj.pose(2,1)+x_mdot(2)*5],Color='r',LineWidth=1)
+
 
             %Draw sensors
             %Left
@@ -520,8 +527,9 @@ classdef Nao
             
         end
 
-
-
+        function isWithinBoundary = checkBoundary(obj, x ,y, boundary)
+            if 
+        end
 
 
     end
