@@ -36,6 +36,7 @@ end
 for idx = 2:numel(tVec)
     % Update
     sim.ball = sim.ball.update_kick(idx,sim.ball.V,sim.ball.orientation);
+    
     for i = 1:sim.numRobots
 
         
