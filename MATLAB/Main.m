@@ -37,8 +37,10 @@ for idx = 2:numel(tVec)
     % Update
     sim.ball = sim.ball.update_kick(idx,sim.ball.V,sim.ball.orientation);
     for i = 1:sim.numRobots
-
         
+        if sim.robots(i).position_class.name == "Goalkeeper"
+            sim.robots(i),sim.robots(i).checkBoundary()
+        end
         %% robot state flow goes here
         % If the robot hasnt arrived go to the ball else drone mode
 
