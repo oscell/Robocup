@@ -40,7 +40,7 @@ classdef Nao
         is_repeated
     
         % Boundary for defender not to play too aggressive
-        boundary_line % integer, x-coordinate
+        boundary % integer, x-coordinate
 
 
         %% states
@@ -90,6 +90,7 @@ classdef Nao
 
             obj.fov = 0.873;
             obj.range = range;
+            obj.boundary = obj.position_class.get_boundary(team);
 
 
             %% Timeseries data
@@ -260,8 +261,7 @@ classdef Nao
 
 
 
-            
-            %searchBall(obj,trgt_pose)
+         
 
             %             waitfor(obj.r);
         end
@@ -482,8 +482,16 @@ classdef Nao
             
         end
 
-
-
+        %% Function for checking the boundary of the role of robots
+        %
+        % Input  {obj: self}
+        %
+        % Return {isWithinBoundary:bool % whether the robot current position is within the boundary}   
+        function isWithinBoundary = checkBoundary(obj)
+            check_x =  (obj.boundary(1,1) <= obj.pose(1,1)) && (obj.pose(1,1) <= obj.boundary (2,1));
+            check_y =  (obj.boundary(1,2) <= obj.pose(2,1)) && (obj.pose(2,1) <= obj.boundary (2,2));
+            isWithinBoundary =  (check_x && check_y);
+        end
 
 
     end

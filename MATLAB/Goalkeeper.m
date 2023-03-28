@@ -19,6 +19,14 @@ classdef Goalkeeper
         
         end 
 
+        function boundary = get_boundary(obj,team)            
+            if team == 1
+                boundary = [1.0 6.5; 3 1.5];
+            else
+                boundary = [8.0 6.5; 10.0 1.5];
+            end
+        end
+
 
 
 
