@@ -347,6 +347,7 @@ classdef Nao
 
 
         end
+        
 
         %% shows the robot
         function show(obj,idx,show_waypoints)
@@ -461,7 +462,18 @@ classdef Nao
                     break;
                 end
             end   
-   end
+        end   
+        function inRange = checkDribblingRange(obj, ballPose)
+            % Check if the ball is within the dribbling range of the robot
+            distance = sqrt((obj.pose(1) - ballPose(1))^2 + (obj.pose(2) - ballPose(2))^2);
+            dribblingRange = 0.5; % You can adjust this value to your desired dribbling range
+
+            if distance <= dribblingRange
+                inRange = true;
+            else
+                inRange = false;
+            end
+        end
 
 
 

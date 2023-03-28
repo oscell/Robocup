@@ -20,6 +20,7 @@ classdef simulation
         ShowEnv
 
         positions
+        robotWithBall = 0
     end
     methods
         function obj = simulation(dt,totalTime,num_teams,robot_radius,show_env,Positions,SensorRange)

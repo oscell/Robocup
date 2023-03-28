@@ -6,8 +6,9 @@ rng(10)
 
 %% Simulation time
 
-dt = 1;
-totalTime = 30;
+dt = 0.01;
+totalTime = 2
+0;
 
 tVec = 0:dt:totalTime;
 
@@ -31,11 +32,12 @@ ballPos = sim.ball.Pose;
 tracker = BallTracker(fieldPos, ballPos, goalLeft, goalRight, scoreLeft, scoreRight);
 for i = 1:sim.numRobots
         sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
+        sim.robots(i).ID = i;
 end
 
 %% Show the occupancy map and planned path
-figure(1)
-sim.robots(1).show_occupancy()
+% figure(1)
+% sim.robots(1).show_occupancy()
 
 
 
@@ -43,6 +45,7 @@ for idx = 2:numel(tVec)
     % Update
 %     sim.ball = sim.ball.update_kick(idx,sim.ball.V,sim.ball.orientation);
     for i = 1:sim.numRobots
+        
 
         
         %% robot state flow goes here
@@ -99,7 +102,7 @@ for idx = 2:numel(tVec)
 %             if sim.robots(i).searchRobot(i,sim.numRobots,sim.robots)
 %                 disp("Robot "+i+" sees another robot")
 %             end
-        sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2));
+        sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2), sim.robots(i).ID);
         sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
                     % colision check
         sim.robots(i) = sim.robots(i).checkColision(i,sim.robots);
@@ -107,10 +110,10 @@ for idx = 2:numel(tVec)
 
         % RRT
         % plan a new path every so often to update obstacles
-%         if mod(idx,40) == 0
-%             sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
-%         end
-%         sim.robots(i) = sim.robots(i).RRT(idx);
+        if mod(idx,0) == 0
+            sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
+        end
+        sim.robots(i) = sim.robots(i).RRT(idx);
         
         % Update
         sim.robots(i) = sim.robots(i).update(idx);
@@ -130,6 +133,11 @@ for idx = 2:numel(tVec)
         tracker.showScores();
 
     end
+    if ~isempty(sim.ball.dribblingRobotID)
+    text(5, 7.5, sprintf('Ball is being dribbled by Robot %d', sim.ball.dribblingRobotID), 'FontSize', 12, 'HorizontalAlignment', 'center');
+else
+    text(5, 7.5, 'Ball is not being dribbled', 'FontSize', 12, 'HorizontalAlignment', 'center');
+end
     sim.drawpitch(); 
     
     hold off
