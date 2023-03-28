@@ -205,6 +205,9 @@ classdef Nao
             x_m = obj.pose(1:2,1); % Position of target
             phi_t = orientation;
             phi_m = obj.pose(3,1);
+            if obj.V == 0
+                return
+            end
             V_m = obj.V;
             V_t = V;
 
@@ -250,9 +253,11 @@ classdef Nao
             n = N*y_dot*Vc;
             %             disp(n)
             phi_mdot = n/V_m;
+
+
+
             
             obj.vel = x_mdot;
-
 
             obj.w = phi_mdot/obj.dt;
 
