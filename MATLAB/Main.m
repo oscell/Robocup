@@ -6,8 +6,8 @@ rng(10)
 
 %% Simulation time
 
-dt = 0.01;
-totalTime = 10;
+dt = 0.8;
+totalTime = 20;
 
 tVec = 0:dt:totalTime;
 
@@ -27,9 +27,9 @@ for i = 1:sim.numRobots
 end
 
 % Show the occupancy map and planned path
-figure(1)
-sim.robots(1).show_occupancy()
-hold off
+% figure(1)
+% sim.robots(1).show_occupancy()
+% hold off
 
 
 
@@ -42,7 +42,7 @@ for idx = 2:numel(tVec)
         %% robot state flow goes here
         % If the robot hasnt arrived go to the ball else drone mode
 
-        sim.robots(i) = sim.robots(i).checkColision(sim.robots);
+        sim.robots(i) = sim.robots(i).checkColision(sim.robots,idx);
         if sim.robots(i).position_class.name == "Attacker" && sim.robots(i).isFallen == false
             switch sim.robots(i).team % Checks team
 
@@ -57,17 +57,17 @@ for idx = 2:numel(tVec)
                                             
                                         
 
-                                            sim.robots(i).goalPose = [1 1 -pi/2];
+                                            sim.robots(i).goalPose = [4 9 -pi/2];
 
                                             if sim.robots(i).counter == 0
-                                                sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
+%                                                 sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
                                             elseif mod(sim.robots(i).counter,20) == 0
                                                 sim.robots(i).ID
-                                                sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
+%                                                 sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
                                             end
                                             sim.robots(i).counter = 1+sim.robots(i).counter;
 
-                                            sim.robots(i) = sim.robots(i).RRT(idx);
+%                                             sim.robots(i) = sim.robots(i).RRT(idx);
 
 
                                     end
@@ -82,7 +82,7 @@ for idx = 2:numel(tVec)
                                             case false
                                                     sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
                                             case true
-                    %                                 sim.robots(i) = sim.robots(i).ToPoint(idx,[4.5,9],0,4);
+                                                    sim.robots(i) = sim.robots(i).ToPoint(idx,[4.5,9],0,4);
                                           end
                                 case 0 %Ball not found
                             end
@@ -94,7 +94,7 @@ for idx = 2:numel(tVec)
         elseif sim.robots(i).position_class.name == "Goalkeeper" && sim.robots(i).isFallen == false
 
         else
-%             sim.robots(i) = sim.robots(i).getUp();
+            [sim.robots(i),d_head] = sim.robots(i).getUp(sim.robots);
         end
     
         % robot state flow goes here
