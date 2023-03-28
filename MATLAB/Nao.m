@@ -46,6 +46,7 @@ classdef Nao
         %% states
         arrived
         isFallen
+        timeSetpFell
 
 
         % Start and goalpose for robot(testing)
@@ -61,7 +62,6 @@ classdef Nao
         ss
         plannedPath
         
-        posess %% same as trajectory but is the transfore(this is purely for testing)
 
 
         % for state flow
@@ -82,7 +82,7 @@ classdef Nao
 
             obj.inipose = obj.position_class.get_pose(team);
             obj.pose = obj.position_class.get_pose(team);%[0;0;0];%[rand(1)*11,rand(1)*8,rand(1)]';
-            obj.V = 2;%0.1333;
+            obj.V = 0.1333;
             obj.w = 0;
 
             obj.vel = [obj.V*cos(obj.pose(3,1)); obj.V*sin(obj.pose(3,1))]';
@@ -108,7 +108,7 @@ classdef Nao
             obj.dt = dt;
 
             obj.isFallen = false;
-
+            obj.timeSetpFell = -inf;
 
             %% Pathplanning
             obj.startPose = transpose(obj.inipose);
@@ -117,6 +117,8 @@ classdef Nao
             obj.colour=obj.makecolour();
 
             obj.vehicle = obj.Make_vehicle();
+
+
 
 
         end
@@ -203,6 +205,9 @@ classdef Nao
             x_m = obj.pose(1:2,1); % Position of target
             phi_t = orientation;
             phi_m = obj.pose(3,1);
+            if obj.V == 0
+                return
+            end
             V_m = obj.V;
             V_t = V;
 
@@ -250,8 +255,7 @@ classdef Nao
             phi_mdot = n/V_m;
 
 
-            %             disp(x_m)
-            %             disp(-Rd)
+
             
             obj.vel = x_mdot;
 
@@ -288,13 +292,17 @@ classdef Nao
         function obj = update(obj,idx)
 
 
+            
+
             obj.pose(3,1) = obj.pose(3,1) + obj.w*obj.dt;
-
-
-
+            
+            if obj.pose(3,1) > 2*pi 
+                obj.pose(3,1) =obj.pose(3,1)  - 2*pi;
+            end
             if obj.isFallen == true
                 obj.pose = obj.pose;
-            else            
+            else
+                
                 obj.pose(1,1) = obj.pose(1,1) + obj.vel(1)*obj.dt;
                 obj.pose(2,1) = obj.pose(2,1) + obj.vel(2)*obj.dt;
             end
@@ -311,7 +319,7 @@ classdef Nao
         end
         
         %% Checks for colisions, if true robot is fallen
-        function obj = checkColision(obj,robots)
+        function obj = checkColision(obj,robots,timestep)
             counter = 1;
             for robot = robots
                 
@@ -319,15 +327,51 @@ classdef Nao
                 if counter ~= obj.ID
                     distance = sqrt((robot.pose(1,1)-obj.pose(1,1))^2 +(robot.pose(2,1)-obj.pose(2,1))^2);
                     
-                    if distance < obj.radius*2
+                    if distance < obj.radius*2 && timestep > (obj.timeSetpFell + 100)
 
 %                         disp("for robot "+ i+ " range is: "+distance+"from robot: "+counter)
                         obj.isFallen = true;
+                        obj.timeSetpFell = timestep;
 
                     end
                 end
                 counter = counter + 1;
             end 
+        end
+
+        function [obj,D_heading] = getUp(obj,robots)
+            dist = inf;
+            % find the closest robot
+            for robot = robots
+                if robot.ID ~= obj.ID
+                    newdist = sqrt((obj.pose(1) - robot.pose(1))^2 + (obj.pose(2) - robot.pose(2 ))^2);
+                    if newdist < dist
+                        dist = newdist;
+                        closest_ID = robot.ID; 
+                    end
+                end
+            end
+            
+            % Face diferent direction to robot
+            if obj.team == 1
+                D_heading = pi+tan((obj.pose(2) - robots(closest_ID).pose(2)) / (obj.pose(1) - robots(closest_ID).pose(1)));
+            else
+                D_heading = tan((obj.pose(2) - robots(closest_ID).pose(2)) / (obj.pose(1) - robots(closest_ID).pose(1)));
+            end
+
+            if D_heading < (obj.pose(3) + 0.5) && D_heading > (obj.pose(3) - 0.5)
+                obj.isFallen = false;
+                disp('Robot '+ string(obj.ID) + ' Got up!')
+                obj.w = 0;
+
+            else
+                 obj.w = 0.7;
+%                  disp('Robot '+ string(obj.ID)  + ' Heading to ' +string(D_heading)+ ' at '+ string(obj.pose(3)))
+            end
+
+           
+
+
         end
         
         %% Colour based on team
@@ -370,7 +414,7 @@ classdef Nao
             % Direction
             x_mdot = [obj.V*cos(obj.pose(3)); obj.V*sin(obj.pose(3))];
             
-%             plot([obj.pose(1,1), obj.pose(1,1)+x_mdot(1)*5],[obj.pose(2,1), obj.pose(2,1)+x_mdot(2)*5],Color='r',LineWidth=1)
+            plot([obj.pose(1,1), obj.pose(1,1)+x_mdot(1)*5],[obj.pose(2,1), obj.pose(2,1)+x_mdot(2)*5],Color='r',LineWidth=1)
 
             %Draw sensors
             %Left
