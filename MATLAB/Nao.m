@@ -324,7 +324,7 @@ classdef Nao
                 
 
                 if counter ~= obj.ID
-                    distance = sqrt((robot.pose(1,1)-obj.pose(1,1))^2 +(robot.pose(2,1)-obj.pose(2,1))^2);
+                    distance = sqrt((robot.pose(1)-obj.pose(1))^2 +(robot.pose(2)-obj.pose(2))^2);
                     
                     if distance < obj.radius*2 && timestep > (obj.timeSetpFell + 100)
 
@@ -368,6 +368,7 @@ classdef Nao
 
 
         end
+        
 
         %% Visualisations
         % Shows the robot, waypoints trajectory
@@ -506,7 +507,17 @@ classdef Nao
                     break;
                 end
             end   
-            
+        end   
+        function inRange = checkDribblingRange(obj, ballPose)
+            % Check if the ball is within the dribbling range of the robot
+            distance = sqrt((obj.pose(1) - ballPose(1))^2 + (obj.pose(2) - ballPose(2))^2);
+            dribblingRange = 0.5; % You can adjust this value to your desired dribbling range
+
+            if distance <= dribblingRange
+                inRange = true;
+            else
+                inRange = false;
+            end
         end
 
         %% Function for checking the boundary of the role of robots

@@ -20,6 +20,7 @@ classdef simulation
         ShowEnv
 
         positions
+        robotWithBall = 0
     end
     methods
         function obj = simulation(dt,totalTime,num_teams,robot_radius,show_env,Positions,SensorRange)
@@ -132,13 +133,14 @@ classdef simulation
 
 
         function ball=MakeBall(obj)
-            pose=[5.5,4];
+            pose=[5.5,5.5];
 %             pose=[9;0];
 
-            velocity=[0,0];
-            kvelocity=[5,5];
-            
-            ball=BallDynamics(pose,velocity,kvelocity,obj.sampletime,obj.totaltime);
+            velocity=[0;0];
+            kvelocity=[0,0];
+            c=0.1;
+            ball=BallDynamics(pose,velocity,kvelocity,c,obj.sampletime,obj.totaltime);
+
         end
 
         function env = MakeEnv(obj,robotRadius,showTrajectory)
