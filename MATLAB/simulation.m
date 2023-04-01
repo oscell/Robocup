@@ -11,6 +11,10 @@ classdef simulation
         env
 
         robots
+        robotwithball
+        nrobothb
+        robotpass
+        passp
         gamestate
 
         tVec % Time array
@@ -36,9 +40,7 @@ classdef simulation
             
             obj.teams = obj.make_teams();
 
-
             obj.env = obj.MakeEnv(0.15,true);
-            obj.ball= obj.MakeBall();
 
             obj.totaltime = totalTime;
             obj.positions = Positions;
@@ -47,13 +49,13 @@ classdef simulation
             obj.robotradius = robot_radius;
             obj.sensorRange = SensorRange;
             obj.robots = obj.MakeRobots();
+            obj.robotwithball=obj.robothold();
+            obj.robotpass=obj.robottopass();
+            obj.passp=obj.passing();
+            obj.ball= obj.MakeBall();
             
             obj.gamestate = gamestate();
             obj.ShowEnv = show_env;
-
-            
-
-
         end
 
         function show(obj,idx)
@@ -129,10 +131,40 @@ classdef simulation
                 obj.robots(i) = obj.robots(i).update_target(idx,obj.ball.Pose,obj.ball.orientation,obj.ball.V);
             end
         end
-
-
+        function obj=robothold(obj)
+            for i = 1:obj.numRobots
+                if obj.robots(i).holdball == 1
+                    obj.nrobothb=i;
+                end
+            end
+        end
+        function obj=robottopass(obj)
+            for i = 1:obj.numRobots
+                if obj.robots(i).team==1
+                    dx(i)=[2]-obj.robots(i).pose(1);
+                else
+                   dx(i)=[6]-obj.robots(i).pose(1);
+                end
+            end
+            for i = 1:obj.numRobots
+                lowest_dx = min([dx(i)]);
+            end
+            for i = 1:obj.numRobots
+                if lowest_dx==dx(i)
+                    passrobot=i;
+                end
+            end
+        end
+        function obj=passing(obj)
+            for i = 1:obj.numRobots
+                obj.robots(i).searchRobot()
+                obj.robots(i).needpass(foundRobot)
+            end
+            obj.robots(passrobot).desiredpose()
+        end
         function ball=MakeBall(obj)
             pose=[5.5,4];
+<<<<<<< Updated upstream
 %             pose=[9;0];
 
             velocity=[0;0];
@@ -146,6 +178,21 @@ classdef simulation
             dt=0.05;
             totalTime = 8
             ball=BallDynamics(pose,velocity,kvelocity,pvelocity,c,dt,totalTime);
+=======
+            for i = 1:obj.numRobots
+                robot(i)=obj.robots(i);
+                if robot(i).Shoot==1
+                    Svel=obj.robots(i).Shotting(goalpose,obj);
+                    kvelocity=Svel;
+                    obj.robots(i).Shoot=0;
+                else
+                    kvelocity=[0,0];
+                end
+            end
+            velocity=[0;0];
+            c=0.1;
+            ball=BallDynamics(pose,velocity,kvelocity,c,obj.sampletime,obj.totaltime);
+>>>>>>> Stashed changes
         end
 
         function env = MakeEnv(obj,robotRadius,showTrajectory)

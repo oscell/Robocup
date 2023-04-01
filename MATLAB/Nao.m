@@ -36,6 +36,7 @@ classdef Nao
         waypoint
 
         controller
+<<<<<<< Updated upstream
         r
         is_repeated
         arrived
@@ -44,6 +45,26 @@ classdef Nao
         F
 
 
+=======
+        vehicle 
+        map
+        solInfo
+        ss
+        plannedPath
+
+        % for state flow
+        counter = 0 
+        % Passing and shotting variables
+        Fmax
+        F
+        Dxpose
+        Dypose
+        Dpose
+        poseready
+        holdball
+        Shoot
+        ballrequest
+>>>>>>> Stashed changes
     end
     methods
         function obj = Nao(env,num,dt,totaltime,team,position,is_repeated,roboRadius,range)
@@ -65,8 +86,18 @@ classdef Nao
 
             obj.fov = 0.873;
             obj.range = range;
+<<<<<<< Updated upstream
 
 
+=======
+            obj.boundary = obj.position_class.get_boundary(team);
+            % Shotting and passing
+            obj.Fmax=2;
+            obj.poseready=0;
+            obj.holdball=0;
+            obj.Shoot=0;
+            obj.ballrequest=0;
+>>>>>>> Stashed changes
             %% Timeseries data
             obj.poses = zeros(numel(0:dt:totaltime),2);
             obj.poses(1,:) = obj.inipose(1:2,:);
@@ -87,6 +118,72 @@ classdef Nao
 
         end
 
+<<<<<<< Updated upstream
+=======
+        function vehicle = Make_vehicle(obj)
+            %% Define Vehicle
+            wheelRadius = 0.05;     % Wheel radius [m]
+            frontLen = 0.25;        % Distance from CG to front wheels [m]
+            rearLen = 0.25;         % Distance from CG to rear wheels [m]
+            vehicle = FourWheelSteering(wheelRadius,[frontLen rearLen]);
+        end
+        
+        %% Makes a new occupancy map with all other robots
+        function obj = make_map(obj,robots)
+            
+            map = binaryOccupancyMap(11,9,100);
+            for robot = robots
+                if robot.ID ~= obj.ID
+                    map.setOccupancy([robot.pose(1) robot.pose(2)], 1);
+                end
+            end
+            map.inflate(0.25);
+            obj.map = map;
+        end
+
+        function obj = Make_controller(obj,robots)
+            
+            obj = obj.make_map(robots);
+%             map = binaryOccupancyMap(11,9,100);
+%             inflate(map,0.25); % Inflate the map for planning
+
+            
+            % State space
+            ss = stateSpaceDubins;
+            ss.MinTurningRadius = 0.75;
+            ss.StateBounds = [obj.map.XWorldLimits; obj.map.YWorldLimits; [-pi pi]];
+            
+            % State validator
+            sv = validatorOccupancyMap(ss);
+            sv.Map = obj.map;
+            sv.ValidationDistance = 0.01;
+            
+            % Path planner
+            planner = plannerRRT(ss,sv);
+            planner.MaxConnectionDistance = 2.5;
+
+            [plannedPath,solInfo] = plan(planner,transpose(obj.pose),obj.goalPose);
+            if plannedPath.NumStates < 1
+                disp('No path found. Please rerun the example');
+            end
+            interpolate(plannedPath,round(2*plannedPath.pathLength)); % Interpolate to approx. 2 waypoints per meter
+            obj.waypoints = plannedPath.States(:,1:2);
+
+            controller = controllerPurePursuit;
+            controller.Waypoints = obj.waypoints;
+            controller.LookaheadDistance = 0.25;
+            controller.DesiredLinearVelocity = 1;
+            controller.MaxAngularVelocity = 3;
+
+            obj.controller = controller;
+            obj.solInfo = solInfo;
+            obj.ss = ss;
+            obj.plannedPath = plannedPath;
+        end
+
+        %% Base Behavioural algorithms
+        % Turns in a circle
+>>>>>>> Stashed changes
         function obj = DroneMode(obj,idx,ballPose,ballorientation,ballV)
             obj.w = 0.7;
             obj.vel = [0;0];
@@ -174,6 +271,66 @@ classdef Nao
             obj.poses(idx,1) = obj.pose(1);
             obj.poses(idx,2) = obj.pose(2);
 
+<<<<<<< Updated upstream
+=======
+            obj.vels(idx,1) = obj.vel(1);
+            obj.vels(idx,2) = obj.vel(2);
+
+        end
+        
+        %% Checks for colisions, if true robot is fallen
+        function obj = checkColision(obj,robots,timestep)
+            counter = 1;
+            for robot = robots
+                
+
+                if counter ~= obj.ID
+                    distance = sqrt((robot.pose(1,1)-obj.pose(1,1))^2 +(robot.pose(2,1)-obj.pose(2,1))^2);
+                    
+                    if distance < obj.radius*2 && timestep > (obj.timeSetpFell + 100)
+
+%                         disp("for robot "+ i+ " range is: "+distance+"from robot: "+counter)
+                        obj.isFallen = true;
+                        obj.timeSetpFell = timestep;
+
+                    end
+                end
+                counter = counter + 1;
+            end 
+        end
+
+        function [obj,D_heading] = getUp(obj,robots)
+            dist = inf;
+            % find the closest robot
+            for robot = robots
+                if robot.ID ~= obj.ID
+                    newdist = sqrt((obj.pose(1) - robot.pose(1))^2 + (obj.pose(2) - robot.pose(2 ))^2);
+                    if newdist < dist
+                        dist = newdist;
+                        closest_ID = robot.ID; 
+                    end
+                end
+            end
+            
+            % Face diferent direction to robot
+            if obj.team == 1
+                D_heading = pi+tan((obj.pose(2) - robots(closest_ID).pose(2)) / (obj.pose(1) - robots(closest_ID).pose(1)));
+            else
+                D_heading = tan((obj.pose(2) - robots(closest_ID).pose(2)) / (obj.pose(1) - robots(closest_ID).pose(1)));
+            end
+
+            if D_heading < (obj.pose(3) + 0.5) && D_heading > (obj.pose(3) - 0.5)
+                obj.isFallen = false;
+                disp('Robot '+ string(obj.ID) + ' Got up!')
+                obj.w = 0;
+
+            else
+                 obj.w = 0.7;
+%                  disp('Robot '+ string(obj.ID)  + ' Heading to ' +string(D_heading)+ ' at '+ string(obj.pose(3)))
+            end
+
+           
+>>>>>>> Stashed changes
 
             obj.vels(idx,1) = obj.vel(1,1);
             obj.vels(idx,2) = obj.vel(2,1);
@@ -217,7 +374,34 @@ classdef Nao
             
             
         end
+<<<<<<< Updated upstream
         %% set position class of each player
+=======
+
+
+
+        function visualizeRRTPath(obj)
+            % Plot the path from start to goal
+            plot(obj.plannedPath.States(:,1),obj.plannedPath.States(:,2),'r--','LineWidth',1.5);
+            % Interpolate each path segment to be smoother and plot it
+            tData = obj.solInfo.TreeData;
+            print('hey')
+            for idx = 3:3:size(tData,1)-2
+                p = navPath(obj.ss,tData(idx:idx+1,:));
+                interpolate(p,10);
+                plot(p.States(:,1),p.States(:,2),':','Color',[0 0.6 0.9]);
+            end
+        end
+
+        function show_occupancy(obj)
+            show(obj.map)
+            hold on
+            obj.show(0,true)
+            obj.visualizeRRTPath()
+        end
+
+        %% set position class of each player - Goalkeeper, Attacker of Defender
+>>>>>>> Stashed changes
         function position_class = get_position_class(obj,position)
             if strcmp(position,'Defender')
                 position_class = Defender(obj.is_repeated);
@@ -269,12 +453,66 @@ classdef Nao
             %foundBall = (polar_angle >= angle()            
             
         end
+<<<<<<< Updated upstream
+=======
+
+        %% Function for checking the boundary of the role of robots
+        %
+        % Input  {obj: self}
+        %
+        % Return {isWithinBoundary:bool % whether the robot current position is within the boundary}   
+        function isWithinBoundary = checkBoundary(obj)
+            check_x =  (obj.boundary(1,1) <= obj.pose(1,1)) && (obj.pose(1,1) <= obj.boundary (2,1));
+            check_y =  (obj.boundary(1,2) <= obj.pose(2,1)) && (obj.pose(2,1) <= obj.boundary (2,2));
+            isWithinBoundary =  (check_x && check_y);
+        end
+        function obj=readytoshoot(obj)
+            if obj.team==1
+                if 8<obj.pose(1,1)<10 && 1.5<obj.pose(2,1)<6.5
+                    obj.poseready=1;
+                else
+                    obj.poseready=0;
+                end
+            end
+            if obj.team==0
+                if 1<obj.pose(1,1)<3 && 1.5<obj.pose(2,1)<6.5
+                    obj.poseready=1;
+                else
+                    obj.poseready=0;
+                end
+            end
+            if obj.poseready==1 && obj.holdball==1
+                obj.Shoot=1;
+                obj.poseready=0;
+                obj.holdball=0;
+            end
+        end
+        function obj=needpass(obj,foundrobot)
+            if foundrobot==true && obj.holdball==1
+                obj.ballrequest=1;
+            else
+                obj.ballrequest=0;
+            end
+        end
+        function obj=desiredpose(obj)
+            if obj.ballrequest==1
+                obj.Dxpose=obj.pose(1)+0.2
+                obj.Dypose=obj.pose(2)+0.2
+                obj.Dpose=[obj.Dxpose, obj.Dypose];
+            end
+        end
+>>>>>>> Stashed changes
         function Svel=Shotting(goalpose,obj)
             d=goalpose-obj.pose;
             Svel=sqrt((2*obj.Fmax*d)/0.45);
         end
+<<<<<<< Updated upstream
         function Pvel=Pass(Dpose,obj)
             d=Dpose-obj.pose;
+=======
+        function Pvel=Pass(obj)
+            d=obj.Dpose-obj.pose;
+>>>>>>> Stashed changes
             %F=d*0.0565; %for c=0.5
             %F=d*0.0365; %for c=0.4
             F=d*0.012; %for c=0.2
