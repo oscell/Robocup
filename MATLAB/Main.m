@@ -6,7 +6,7 @@ rng(10)
 
 %% Simulation time
 
-dt = 0.5;
+dt = 0.2;
 totalTime = 40;
 
 tVec = 0:dt:totalTime;
