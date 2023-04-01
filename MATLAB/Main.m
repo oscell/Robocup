@@ -6,8 +6,13 @@ rng(10)
 
 %% Simulation time
 
+<<<<<<< Updated upstream
 dt = 0.05;
 totalTime = 40;
+=======
+dt = 0.5;
+totalTime = 60;
+>>>>>>> Stashed changes
 
 tVec = 0:dt:totalTime;
 
@@ -29,9 +34,9 @@ for i = 1:sim.numRobots
 end
 
 % Show the occupancy map and planned path
-% figure(1)
-% sim.robots(1).show_occupancy()
-% hold off
+figure(1)
+sim.robots(1).show_occupancy()
+hold off
 
 
 
@@ -49,6 +54,7 @@ for idx = 2:numel(tVec)
 
         
 
+<<<<<<< Updated upstream
         if sim.robots(i).position_class.name == "Attacker" && sim.robots(i).isFallen == false
             switch sim.robots(i).team % Checks team
 
@@ -137,6 +143,71 @@ for idx = 2:numel(tVec)
 %         sim.robots(i) = sim.robots(i).RRT(idx);
 %         
 %         % Update
+=======
+%         if sim.robots(i).position_class.name == "Attacker" && sim.robots(i).isFallen == false
+%             switch sim.robots(i).team % Checks team
+%               
+%                 case 1 %Team Blue
+%                             switch sim.robots(i).searchBall(sim.ball.Pose) %Looks for ball
+%                                 case 1 %Ball has been found
+%                                     switch sim.robots(i).arrived %Checks to see if player has arrived at ball
+%     
+%                                         case false
+% 
+%                                             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+%                                         case true
+%                                             sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2), sim.robots(i).ID);
+%                                             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+%                                             
+% 
+%                                             sim.robots(i).goalPose = [4 9 pi/2];
+% 
+%                                             if sim.robots(i).counter == 0
+% %                                                 sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
+%                                             elseif mod(sim.robots(i).counter,20) == 0
+%                                                 sim.robots(i).ID
+% %                                                 sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
+%                                             end
+%                                             sim.robots(i).counter = 1+sim.robots(i).counter;
+% 
+%                                             sim.robots(i) = sim.robots(i).RRT(idx);
+% 
+% 
+%                                     end
+%                                 case 0 %Ball not found
+%                                     sim.robots(i) = sim.robots(i).DroneMode();
+%                             end
+% 
+%                 case 0 %Team Red
+%                             switch sim.robots(i).searchBall(sim.ball.Pose) %Looks for ball
+%                                 case 1 %Ball has been found
+%                                          switch sim.robots(i).arrived %Checks to see if player has arrived at ball
+%             
+%                                              case false
+% %                                                  disp('Robot '  + string(i) + 'ToPoint: 1')
+%                                                  sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+%                                              case true
+% %                                                  disp('Robot '  + string(i) + 'ToPoint: 1')
+%                                                  sim.robots(i) = sim.robots(i).ToPoint(idx,[4.5,9],0,4);
+%                                           end
+%                                 case 0 %Ball not found
+%                                     sim.robots(i) = sim.robots(i).DroneMode();
+%                             end
+%                        
+%             end
+% 
+%         elseif sim.robots(i).position_class.name == "Defender" && sim.robots(i).isFallen == false
+% 
+%         elseif sim.robots(i).position_class.name == "Goalkeeper" && sim.robots(i).isFallen == false
+% 
+%         else
+% %             disp('Robot '  + string(i) + 'Getting up')
+%             sim.robots(i) = sim.robots(i).getUp(idx);
+%            
+%         end
+        sim.robots(i) = sim.robots(i).RRT(idx);
+        % Update
+>>>>>>> Stashed changes
         sim.robots(i) = sim.robots(i).update(idx);
         
     end
@@ -149,8 +220,15 @@ for idx = 2:numel(tVec)
     hold on
     sim.ball.show();
     for i = 1:sim.numRobots
+<<<<<<< Updated upstream
         sim.robots(i).show(idx);
         sim.robots(4).show(idx,true);
+=======
+        sim.robots(i).show(idx,true);
+         tracker.updateBallPos(ballPos,scoreLeft, scoreRight);
+        tracker.showScores();
+
+>>>>>>> Stashed changes
     end
     sim.drawpitch();
     drawnow;
