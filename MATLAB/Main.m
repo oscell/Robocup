@@ -6,7 +6,7 @@ rng(10)
 
 %% Simulation time
 
-dt = 0.05;
+dt = 0.5;
 totalTime = 40;
 
 tVec = 0:dt:totalTime;
@@ -107,7 +107,7 @@ for idx = 2:numel(tVec)
 
         else
 %             disp('Robot '  + string(i) + 'Getting up')
-            [sim.robots(i),d_head] = sim.robots(i).getUp(sim.robots);
+            sim.robots(i) = sim.robots(i).getUp(idx);
 
         end
     
