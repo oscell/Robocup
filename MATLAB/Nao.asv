@@ -190,13 +190,8 @@ classdef Nao
 
         %% Base Behavioural algorithms
         % Turns in a circle
-<<<<<<< Updated upstream
         function obj = DroneMode(obj,idx,ballPose,ballorientation,ballV)
             obj.w = 0.7;
-=======
-        function obj = DroneMode(obj)
-            obj.w = 0.3;
->>>>>>> Stashed changes
             obj.vel = [0;0];
         end
 
@@ -274,18 +269,18 @@ classdef Nao
         function obj = RRT(obj,idx)
             
 
-            lposes = transpose(obj.poses);
+            poses = transpose(obj.poses);
 
-            [vRef,wRef] = obj.controller(lposes(:,idx-1));
+            [vRef,wRef] = obj.controller(poses(:,idx-1));
             [wheelSpeeds,steerAngles] = inverseKinematicsFrontSteer(obj.vehicle,vRef,wRef);
             wheelSpeeds = wheelSpeeds([1 1]); % Use front wheel speed for both
             
             % Compute the velocities
             velB = forwardKinematics(obj.vehicle,wheelSpeeds,steerAngles);
-            lvel = bodyToWorld(velB,lposes(:,idx-1));  % Convert from body to world
+            vel = bodyToWorld(velB,poses(:,idx-1));  % Convert from body to world
 
-            obj.vel = lvel(1:2);
-            obj.w = lvel(3);
+            obj.vel = vel(1:2);
+            obj.w = vel(3);
         end
         %% Update function
         function obj = update(obj,idx)
@@ -327,7 +322,7 @@ classdef Nao
                 
 
                 if counter ~= obj.ID
-                    distance = sqrt((robot.pose(1)-obj.pose(1))^2 +(robot.pose(2)-obj.pose(2))^2);
+                    distance = sqrt((robot.pose(1,1)-obj.pose(1,1))^2 +(robot.pose(2,1)-obj.pose(2,1))^2);
                     
 
                     if distance < obj.radius*2 && timestep > (obj.timeSetpFell + 100)
@@ -342,7 +337,6 @@ classdef Nao
                 counter = counter + 1;
             end 
         end
-<<<<<<< Updated upstream
         function [obj,D_heading] = getUp(obj,robots)
             dist = inf;
             % find the closest robot
@@ -359,14 +353,6 @@ classdef Nao
             % Face diferent direction to robot
             if obj.team == 1
                 D_heading = pi+tan((obj.pose(2) - robots(closest_ID).pose(2)) / (obj.pose(1) - robots(closest_ID).pose(1)));
-=======
-
-        function obj = getUp(obj,timestep)
-%             disp([timestep*obj.dt,obj.timeSetpFell*obj.dt + 3.90])
-            
-            if timestep*obj.dt < obj.timeSetpFell*obj.dt + 3.90
-                obj.w = 0.7;
->>>>>>> Stashed changes
             else
                 D_heading = tan((obj.pose(2) - robots(closest_ID).pose(2)) / (obj.pose(1) - robots(closest_ID).pose(1)));
             end
@@ -398,7 +384,6 @@ classdef Nao
 
 
         end
-        
 
         %% Visualisations
         % Shows the robot, waypoints trajectory
@@ -539,17 +524,7 @@ classdef Nao
                     break;
                 end
             end   
-        end   
-        function inRange = checkDribblingRange(obj, ballPose)
-            % Check if the ball is within the dribbling range of the robot
-            distance = sqrt((obj.pose(1) - ballPose(1))^2 + (obj.pose(2) - ballPose(2))^2);
-            dribblingRange = 0.5; % You can adjust this value to your desired dribbling range
-
-            if distance <= dribblingRange
-                inRange = true;
-            else
-                inRange = false;
-            end
+            
         end
 
         function isWithinBoundary = checkBoundary(obj, x ,y, boundary)

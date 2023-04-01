@@ -82,7 +82,7 @@ classdef Nao
 
             obj.inipose = obj.position_class.get_pose(team);
             obj.pose = obj.position_class.get_pose(team);%[0;0;0];%[rand(1)*11,rand(1)*8,rand(1)]';
-            obj.V = 0.0;
+            obj.V = 0.1333;
             obj.w = 0;
 
             obj.vel = [obj.V*cos(obj.pose(3,1)); obj.V*sin(obj.pose(3,1))]';
@@ -188,7 +188,7 @@ classdef Nao
         %% Base Behavioural algorithms
         % Turns in a circle
         function obj = DroneMode(obj)
-            obj.w = 0.3;
+            obj.w = 0.7;
             obj.vel = [0;0];
         end
 
@@ -275,18 +275,18 @@ classdef Nao
         function obj = RRT(obj,idx)
             
 
-            lposes = transpose(obj.poses);
+            poses = transpose(obj.poses);
 
-            [vRef,wRef] = obj.controller(lposes(:,idx));
+            [vRef,wRef] = obj.controller(poses(:,idx-1));
             [wheelSpeeds,steerAngles] = inverseKinematicsFrontSteer(obj.vehicle,vRef,wRef);
             wheelSpeeds = wheelSpeeds([1 1]); % Use front wheel speed for both
             
             % Compute the velocities
             velB = forwardKinematics(obj.vehicle,wheelSpeeds,steerAngles);
-            lvel = bodyToWorld(velB,lposes(:,idx));  % Convert from body to world
+            vel = bodyToWorld(velB,poses(:,idx-1));  % Convert from body to world
 
-            obj.vel = lvel(1:2);
-            obj.w = lvel(3);
+            obj.vel = vel(1:2);
+            obj.w = vel(3);
         end
         %% Update function
         function obj = update(obj,idx)
@@ -339,7 +339,6 @@ classdef Nao
             end 
         end
 
-<<<<<<< Updated upstream
         function [obj,D_heading] = getUp(obj,robots)
             dist = inf;
             % find the closest robot
@@ -352,10 +351,6 @@ classdef Nao
                     end
                 end
             end
-=======
-        function obj = getUp(obj,timestep)
-%             disp([timestep*obj.dt,obj.timeSetpFell*obj.dt + 3.90])
->>>>>>> Stashed changes
             
             % Face diferent direction to robot
             if obj.team == 1
