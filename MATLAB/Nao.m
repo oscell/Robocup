@@ -187,7 +187,7 @@ classdef Nao
 
         %% Base Behavioural algorithms
         % Turns in a circle
-        function obj = DroneMode(obj,idx,ballPose,ballorientation,ballV)
+        function obj = DroneMode(obj)
             obj.w = 0.7;
             obj.vel = [0;0];
         end
@@ -213,7 +213,7 @@ classdef Nao
             V_t = V;
 
 
-            OR = sqrt((x_t(1,1) - x_m(1,1))^2 + (x_t(2,1) - x_m(2,1))^2);
+            OR = sqrt((x_t(1) - x_m(1))^2 + (x_t(2) - x_m(2))^2);
             
             if OR < 0.5
                 obj.arrived = true;
@@ -233,7 +233,7 @@ classdef Nao
             x_mdot = [V_m*cos(phi_m); V_m*sin(phi_m)];
             x_tdot = [V_t*cos(phi_t); V_t*sin(phi_t)];
 
-
+            
             x_dif = x_t - x_m;
 
             x_dotDif = x_tdot - x_mdot;
@@ -361,7 +361,6 @@ classdef Nao
 
             if D_heading < (obj.pose(3) + 0.5) && D_heading > (obj.pose(3) - 0.5)
                 obj.isFallen = false;
-                disp('Robot '+ string(obj.ID) + ' Got up!')
                 obj.w = 0;
 
             else
@@ -434,7 +433,7 @@ classdef Nao
             plot(obj.plannedPath.States(:,1),obj.plannedPath.States(:,2),'r--','LineWidth',1.5);
             % Interpolate each path segment to be smoother and plot it
             tData = obj.solInfo.TreeData;
-            print('hey')
+
             for idx = 3:3:size(tData,1)-2
                 p = navPath(obj.ss,tData(idx:idx+1,:));
                 interpolate(p,10);
@@ -484,8 +483,8 @@ classdef Nao
             center_x = obj.pose(1);                                         % Get robot x position
             center_y = obj.pose(2);                                         % Get robot y position
             orientation = obj.pose(3);                                      % Get robot orientation
-            ball_x = ball_pose(1,1);                                        % Get ball x position
-            ball_y = ball_pose(2,1);                                        % Get ball y position
+            ball_x = ball_pose(1);                                        % Get ball x position
+            ball_y = ball_pose(2);                                        % Get ball y position
             theta = [obj.pose(3) - obj.fov/2; obj.pose(3) + obj.fov/2];     % Min and max angle of the sector
             
             distance = (center_x-ball_x)^2 + (center_y-ball_y)^2;           % Distance between the ball and the robot

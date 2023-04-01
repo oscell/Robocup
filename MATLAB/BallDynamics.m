@@ -1,7 +1,7 @@
 classdef BallDynamics
     properties
-        Pose=[];
-        Velocity=[];
+        Pose=[5.5;4];
+        Velocity=[0.1;0.1];
         KVelocity=[];
         C
 
@@ -23,20 +23,20 @@ classdef BallDynamics
                 
                 obj.r = rateControl(1/dt);
 
-                obj.Pose = pose;
-                obj.Velocity = velocity;
+                obj.Velocity = [0;0];
                 obj.KVelocity = kvelocity;
                 obj.C = c;
 
-                obj.orientation = (5/3)*pi - pi;(5/3)*pi - pi;
+                obj.orientation = (5/3)*pi - pi;
 %                 obj.V = sqrt(velocity(1,1)^2 + velocity(1,1)^2);
-                obj.V = 0.05;
+                obj.V = 0.01;
             end 
         end
         
         function obj= update(obj,idx)
 
             obj.Pose=obj.Pose+obj.Velocity*obj.dt;
+
             obj.Velocity=obj.Velocity-(obj.C*obj.Velocity);
 
 %             disp(obj.Pose)
@@ -63,13 +63,15 @@ classdef BallDynamics
         end
 
         function obj= update_kick(obj,idx,V,phi)
+%             disp(phi)
             x_tdot = [V*cos(phi); V*sin(phi)];
+%             disp(x_tdot)
             obj.Pose=obj.Pose+x_tdot*obj.dt;
 %             waitfor(obj.r);
         end
 
         function show(obj)
-            plot(obj.Pose(1,1), obj.Pose(2,1),'o', 'Color', 'k', "MarkerFaceColor", 'k', 'MarkerSize', 10)
+            plot(obj.Pose(1), obj.Pose(2),'o', 'Color', 'k', "MarkerFaceColor", 'k', 'MarkerSize', 10)
 
             x_tdot = [obj.V*cos(obj.orientation); obj.V*sin(obj.orientation)];
 %             disp(x_tdot)

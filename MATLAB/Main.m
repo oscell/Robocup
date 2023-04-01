@@ -6,8 +6,8 @@ rng(10)
 
 %% Simulation time
 
-dt = 0.8;
-totalTime = 20;
+dt = 0.05;
+totalTime = 40;
 
 tVec = 0:dt:totalTime;
 
@@ -21,7 +21,9 @@ Positions = {'Goalkeeper','Defender','Defender','Attacker','Attacker'};
 
 
 sim = simulation(dt,totalTime,num_teams,robot_radius,showEnv,Positions,sensorRange);
-
+sim.ball.dt = dt;
+sim.ball.orientation = pi;
+sim.ball.V = 0.01;
 for i = 1:sim.numRobots
         sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
 end
@@ -36,13 +38,15 @@ end
 for idx = 2:numel(tVec)
     % Update
     sim.ball = sim.ball.update_kick(idx,sim.ball.V,sim.ball.orientation);
-    for i = 1:sim.numRobots
 
+
+    for i = 1:sim.numRobots
         
         %% robot state flow goes here
-        % If the robot hasnt arrived go to the ball else drone mode
-
         sim.robots(i) = sim.robots(i).checkColision(sim.robots,idx);
+
+        
+
         if sim.robots(i).position_class.name == "Attacker" && sim.robots(i).isFallen == false
             switch sim.robots(i).team % Checks team
 
@@ -52,10 +56,10 @@ for idx = 2:numel(tVec)
                                     switch sim.robots(i).arrived %Checks to see if player has arrived at ball
     
                                         case false
-                                            disp('Robot '  + string(i) + 'ToPoint: 1')
+
                                             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
                                         case true
-                                            disp('Robot '  + string(i) + 'ToPoint: 1')
+
                                             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
                                         
 
@@ -74,6 +78,7 @@ for idx = 2:numel(tVec)
 
                                     end
                                 case 0 %Ball not found
+                                    sim.robots(i) = sim.robots(i).DroneMode();
                             end
 
                 case 0 %Team Red
@@ -82,13 +87,14 @@ for idx = 2:numel(tVec)
                                          switch sim.robots(i).arrived %Checks to see if player has arrived at ball
             
                                              case false
-                                                 disp('Robot '  + string(i) + 'ToPoint: 1')
+%                                                  disp('Robot '  + string(i) + 'ToPoint: 1')
                                                  sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
                                              case true
-                                                 disp('Robot '  + string(i) + 'ToPoint: 1')
+%                                                  disp('Robot '  + string(i) + 'ToPoint: 1')
                                                  sim.robots(i) = sim.robots(i).ToPoint(idx,[4.5,9],0,4);
                                           end
                                 case 0 %Ball not found
+                                    sim.robots(i) = sim.robots(i).DroneMode();
                             end
                        
             end
@@ -98,7 +104,7 @@ for idx = 2:numel(tVec)
         elseif sim.robots(i).position_class.name == "Goalkeeper" && sim.robots(i).isFallen == false
 
         else
-            disp('Robot '  + string(i) + 'Getting up')
+%             disp('Robot '  + string(i) + 'Getting up')
             [sim.robots(i),d_head] = sim.robots(i).getUp(sim.robots);
 
         end
@@ -139,7 +145,6 @@ for idx = 2:numel(tVec)
     
     figure(2); clf; hold on; grid off; axis([0 11,0 8]); %set(gca,'visible','off');
     hold on
-    disp(sim.robots(5).vel)
     sim.ball.show();
     for i = 1:sim.numRobots
         sim.robots(i).show(idx);
