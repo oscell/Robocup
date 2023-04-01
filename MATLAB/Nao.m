@@ -532,8 +532,8 @@ classdef Nao
         % Return {isWithinBoundary:bool % whether the robot current position is within the boundary}   
         function isWithinBoundary = checkBoundary(obj)
             check_x =  (obj.boundary(1,1) <= obj.pose(1,1)) && (obj.pose(1,1) <= obj.boundary (2,1));
-            check_y =  (obj.boundary(1,2) <= obj.pose(2,1)) && (obj.pose(2,1) <= obj.boundary (2,2));
-            isWithinBoundary =  (check_x && check_y);
+            check_y =  (obj.boundary(1,2) >= obj.pose(2,1)) && (obj.pose(2,1) >= obj.boundary (2,2));
+            isWithinBoundary =  (check_x && check_y);            
         end
 
 
