@@ -31,7 +31,7 @@ sim.ball.dt = dt;
 sim.ball.orientation = pi;
 sim.ball.V = 0.01;
 
-=
+
 ballPos = sim.ball.Pose;
 tracker = BallTracker(fieldPos, ballPos, goalLeft, goalRight, scoreLeft, scoreRight);
 
@@ -75,6 +75,17 @@ for idx = 2:numel(tVec)
                                     switch sim.robots(i).arrived %Checks to see if player has arrived at ball
                                         case false
 
+                                            
+                                            sim.robots(i) = sim.robots(i).RRT(idx);
+%                                             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+                                        case true
+                                            sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2), sim.robots(i).ID);
+%                                             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+                                            
+
+                                            
+
+
 %                                             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
                                             sim.robots(i) = sim.robots(i).RRT(idx);
                                         case true
@@ -87,14 +98,13 @@ for idx = 2:numel(tVec)
 
 
                                             if sim.robots(i).counter == 0
-%                                                 sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
+                                                sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
                                             elseif mod(sim.robots(i).counter,20) == 0
-                                                sim.robots(i).ID
-%                                                 sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
+                                                sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
                                             end
                                             sim.robots(i).counter = 1+sim.robots(i).counter;
 
-%                                             sim.robots(i) = sim.robots(i).RRT(idx);
+                                            sim.robots(i) = sim.robots(i).RRT(idx);
 
 
                                     end
@@ -142,8 +152,9 @@ for idx = 2:numel(tVec)
     figure(2); clf; hold on; grid off; axis([0 11,0 8]); %set(gca,'visible','off');
     hold on
     sim.ball.show();
+    sim.robots(i).show(idx,true)
     for i = 1:sim.numRobots
-        sim.robots(i).show(idx);
+        sim.robots(4).show(idx);
          tracker.updateBallPos(ballPos,scoreLeft, scoreRight);
         tracker.showScores();
 

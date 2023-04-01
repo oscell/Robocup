@@ -71,13 +71,23 @@ for idx = 2:numel(tVec)
 
         if sim.robots(i).position_class.name == "Attacker" && sim.robots(i).isFallen == false
             switch sim.robots(i).team % Checks team
-
+              
                 case 1 %Team Blue
                             switch sim.robots(i).searchBall(sim.ball.Pose) %Looks for ball
                                 case 1 %Ball has been found
                                     switch sim.robots(i).arrived %Checks to see if player has arrived at ball
     
                                         case false
+<<<<<<< HEAD
+                                            sim.robots(i).goalPose = [4 9 -pi/2];
+                                            sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+                                        case true
+                                            sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2), sim.robots(i).ID);
+                                            sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+                                            
+
+                                            
+=======
 
 %                                             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
                                             sim.robots(i) = sim.robots(i).RRT(idx);
@@ -90,6 +100,7 @@ for idx = 2:numel(tVec)
                                         sim.robots(i).goalPose(2) = sim.ball.Pose(2);
                                         sim.robots(i).goalPose(3) = -pi/2;
 
+>>>>>>> 4533591708e16e9f3e17e64958ac7680757fc860
 
                                             if sim.robots(i).counter == 0
 %                                                 sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
@@ -132,7 +143,11 @@ for idx = 2:numel(tVec)
         else
 %             disp('Robot '  + string(i) + 'Getting up')
             sim.robots(i) = sim.robots(i).getUp(idx);
+<<<<<<< HEAD
+           
+=======
 
+>>>>>>> 4533591708e16e9f3e17e64958ac7680757fc860
         end
     
         sim.robots(i) = sim.robots(i).update(idx);

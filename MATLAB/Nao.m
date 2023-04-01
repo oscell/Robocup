@@ -147,9 +147,6 @@ classdef Nao
         function obj = Make_controller(obj,robots)
             
             obj = obj.make_map(robots);
-%             map = binaryOccupancyMap(11,9,100);
-%             inflate(map,0.25); % Inflate the map for planning
-
             
             % State space
             ss = stateSpaceDubins;
@@ -295,9 +292,9 @@ classdef Nao
 
             obj.pose(3,1) = obj.pose(3,1) + obj.w*obj.dt;
             
-            if obj.pose(3,1) > 2*pi 
-                obj.pose(3,1) =obj.pose(3,1)  - 2*pi;
-            end
+%             if obj.pose(3,1) > 2*pi 
+%                 obj.pose(3,1) =obj.pose(3,1)  - 2*pi;
+%             end
             if obj.isFallen == true
                 obj.pose = obj.pose;
             else
@@ -339,7 +336,6 @@ classdef Nao
         end
 
         function obj = getUp(obj,timestep)
-            disp([timestep*obj.dt,obj.timeSetpFell*obj.dt + 3.90])
             
             if timestep*obj.dt < obj.timeSetpFell*obj.dt + 3.90
                 obj.w = 0.7;
