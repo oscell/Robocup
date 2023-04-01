@@ -122,8 +122,8 @@ for idx = 2:numel(tVec)
 
         else
 %             disp('Robot '  + string(i) + 'Getting up')
-            [sim.robots(i),d_head] = sim.robots(i).getUp(sim.robots);
-            
+            sim.robots(i) = sim.robots(i).getUp(idx);
+           
         end
     
         % Update

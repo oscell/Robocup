@@ -47,8 +47,7 @@ classdef Nao
         arrived
         isFallen
         timeSetpFell
-
-
+        desiredheading
         % Start and goalpose for robot(testing)
         startPose        % Start pose [x y theta]
         goalPose = [1 1 -pi/2];       % Goal pose [x y theta]
@@ -62,7 +61,7 @@ classdef Nao
         ss
         plannedPath
         
-
+        
 
         % for state flow
         counter = 0 
@@ -339,34 +338,19 @@ classdef Nao
             end 
         end
 
-        function [obj,D_heading] = getUp(obj,robots)
-            dist = inf;
-            % find the closest robot
-            for robot = robots
-                if robot.ID ~= obj.ID
-                    newdist = sqrt((obj.pose(1) - robot.pose(1))^2 + (obj.pose(2) - robot.pose(2 ))^2);
-                    if newdist < dist
-                        dist = newdist;
-                        closest_ID = robot.ID; 
-                    end
-                end
-            end
+        function obj = getUp(obj,timestep)
+            disp([timestep*obj.dt,obj.timeSetpFell*obj.dt + 3.90])
             
-            % Face diferent direction to robot
-            if obj.team == 1
-                D_heading = pi+tan((obj.pose(2) - robots(closest_ID).pose(2)) / (obj.pose(1) - robots(closest_ID).pose(1)));
+            if timestep*obj.dt < obj.timeSetpFell*obj.dt + 3.90
+                obj.w = 0.7;
             else
-                D_heading = tan((obj.pose(2) - robots(closest_ID).pose(2)) / (obj.pose(1) - robots(closest_ID).pose(1)));
-            end
-
-            if D_heading < (obj.pose(3) + 0.5) && D_heading > (obj.pose(3) - 0.5)
                 obj.isFallen = false;
-                obj.w = 0;
-
-            else
-                 obj.w = 0.7;
-%                  disp('Robot '+ string(obj.ID)  + ' Heading to ' +string(D_heading)+ ' at '+ string(obj.pose(3)))
             end
+
+             
+             
+
+
 
            
 
