@@ -66,7 +66,7 @@ for idx = 2:numel(tVec)
 
         if sim.robots(i).position_class.name == "Attacker" && sim.robots(i).isFallen == false
             switch sim.robots(i).team % Checks team
-
+              
                 case 1 %Team Blue
                             switch sim.robots(i).searchBall(sim.ball.Pose) %Looks for ball
                                 case 1 %Ball has been found
@@ -76,9 +76,9 @@ for idx = 2:numel(tVec)
 
                                             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
                                         case true
-
+                                            sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2), sim.robots(i).ID);
                                             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
-                                        
+                                            
 
                                             sim.robots(i).goalPose = [4 9 -pi/2];
 
@@ -123,7 +123,7 @@ for idx = 2:numel(tVec)
         else
 %             disp('Robot '  + string(i) + 'Getting up')
             [sim.robots(i),d_head] = sim.robots(i).getUp(sim.robots);
-
+            
         end
     
         % Update
