@@ -25,7 +25,7 @@ goalLeft = [0.4 2.7 1 5.3];
 goalRight = [10 2.7 10.6 5.3];
 scoreLeft = 0;
 scoreRight = 0;
-
+ballOut = 0;
 sim = simulation(dt,totalTime,num_teams,robot_radius,showEnv,Positions,sensorRange);
 sim.ball.dt = dt;
 sim.ball.orientation = pi;
@@ -33,7 +33,7 @@ sim.ball.V = 0.01;
 
 
 ballPos = sim.ball.Pose;
-tracker = BallTracker(fieldPos, ballPos, goalLeft, goalRight, scoreLeft, scoreRight);
+tracker = BallTracker(fieldPos, ballPos, goalLeft, goalRight, scoreLeft, scoreRight,ballOut);
 
 for i = 1:sim.numRobots
         sim.robots(i).goalPose = sim.robots(i).position_class.getGoalpose(sim.ball);
@@ -48,6 +48,9 @@ end
 % sim.robots(1).show_occupancy()
 % hold off
 
+% % uncomment when gathering gamestate.csv
+% file = fopen('gamestate.csv','w+','n','UTF-8'); 
+% fprintf(file,"%s,%s,%s,%s\n",'Time','Team1_Score','Team2_Score',"Ball Out Number");
 
 
 for idx = 2:numel(tVec)
@@ -167,6 +170,8 @@ end
     sim.drawpitch(); 
     drawnow
     hold off
+%     %% add to csv % uncomment when gathering gamestate.csv
+%     fprintf(file,"%f,%d,%d,%d\n",idx,tracker.goalLeft,tracker.goalRight,tracker.ballOut);
 end
 
 %% PLOT

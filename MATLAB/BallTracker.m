@@ -6,16 +6,18 @@ classdef BallTracker
         ballPos % [x, y]
         scoreLeft 
         scoreRight 
+        ballOut
     end
     
     methods
-        function obj = BallTracker(fieldPos, ballPos, goalLeft, goalRight, scoreLeft, scoreRight)
+        function obj = BallTracker(fieldPos, ballPos, goalLeft, goalRight, scoreLeft, scoreRight,ballOut)
             obj.fieldPos = fieldPos;
             obj.ballPos = ballPos;
             obj.goalLeft = goalLeft;
             obj.goalRight = goalRight;
             obj.scoreLeft = scoreLeft;
             obj.scoreRight = scoreRight;
+            obj.ballOut = ballOut;
         end
         
         function isOut = isBallOutOfBounds(obj)
@@ -44,15 +46,16 @@ classdef BallTracker
             end
         end
 
-        function updateBallPos(obj, ballPos, scoreLeft, scoreRight)
+        function updateBallPos(obj, ballPos, scoreLeft, scoreRight, ballOut)
             % Update the coordinates of the ball
             obj.ballPos = ballPos;
             obj.scoreLeft = scoreLeft;
             obj.scoreRight = scoreRight;
-
+            obj.ballOut = ballOut;
             % Check if the ball is out of bounds
             if obj.isBallOutOfBounds()
                 text(0, 7, 'The ball is out of bounds!', 'Color', 'r', 'FontSize', 20);
+                obj.ballOut = obj.ballOut + 1;
             end
             if obj.isBallInLeftGoal()
                 text(0, 7, 'Left goal!', 'Color', 'r', 'FontSize', 20);
