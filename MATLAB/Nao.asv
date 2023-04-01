@@ -40,16 +40,13 @@ classdef Nao
         is_repeated
     
         % Boundary for defender not to play too aggressive
-
         boundary % integer, x-coordinate
-
 
 
         %% states
         arrived
         isFallen
         timeSetpFell
-
 
 
         % Start and goalpose for robot(testing)
@@ -64,7 +61,7 @@ classdef Nao
         solInfo
         ss
         plannedPath
-
+        
 
 
         % for state flow
@@ -86,7 +83,6 @@ classdef Nao
             obj.inipose = obj.position_class.get_pose(team);
             obj.pose = obj.position_class.get_pose(team);%[0;0;0];%[rand(1)*11,rand(1)*8,rand(1)]';
             obj.V = 0.1333;
-
             obj.w = 0;
 
             obj.vel = [obj.V*cos(obj.pose(3,1)); obj.V*sin(obj.pose(3,1))]';
@@ -94,7 +90,6 @@ classdef Nao
 
             obj.fov = 0.873;
             obj.range = range;
-
             obj.boundary = obj.position_class.get_boundary(team);
 
 
@@ -116,7 +111,6 @@ classdef Nao
             obj.isFallen = false;
             obj.timeSetpFell = -inf;
 
-
             %% Pathplanning
             obj.startPose = transpose(obj.inipose);
 
@@ -124,6 +118,9 @@ classdef Nao
             obj.colour=obj.makecolour();
 
             obj.vehicle = obj.Make_vehicle();
+
+
+
 
         end
 
@@ -190,7 +187,7 @@ classdef Nao
 
         %% Base Behavioural algorithms
         % Turns in a circle
-        function obj = DroneMode(obj,idx,ballPose,ballorientation,ballV)
+        function obj = DroneMode(obj)
             obj.w = 0.7;
             obj.vel = [0;0];
         end
@@ -198,11 +195,12 @@ classdef Nao
         % Standstill
         function obj = standstill(obj)
             obj.pose = obj.pose;
+            obj.vel(1) = 0;
+            obj.vel(2) = 0;
         end
 
         % Targeting algorithm to ball
         function obj = ToPoint(obj,idx,trgt_pose,orientation,V)
-
 
             N = 0.2; %Gain
             x_t = trgt_pose; % Position of target
@@ -210,11 +208,14 @@ classdef Nao
             x_m = obj.pose(1:2,1); % Position of target
             phi_t = orientation;
             phi_m = obj.pose(3,1);
+            if obj.V == 0
+                return
+            end
             V_m = obj.V;
             V_t = V;
 
 
-            OR = sqrt((x_t(1,1) - x_m(1,1))^2 + (x_t(2,1) - x_m(2,1))^2);
+            OR = sqrt((x_t(1) - x_m(1))^2 + (x_t(2) - x_m(2))^2);
             
             if OR < 0.5
                 obj.arrived = true;
@@ -234,7 +235,7 @@ classdef Nao
             x_mdot = [V_m*cos(phi_m); V_m*sin(phi_m)];
             x_tdot = [V_t*cos(phi_t); V_t*sin(phi_t)];
 
-
+            
             x_dif = x_t - x_m;
 
             x_dotDif = x_tdot - x_mdot;
@@ -255,11 +256,18 @@ classdef Nao
             n = N*y_dot*Vc;
             %             disp(n)
             phi_mdot = n/V_m;
+
+
+
             
             obj.vel = x_mdot;
 
             obj.w = phi_mdot/obj.dt;
 
+
+
+
+         
 
             %             waitfor(obj.r);
         end
@@ -284,7 +292,6 @@ classdef Nao
         end
         %% Update function
         function obj = update(obj,idx)
-
 
 
             
@@ -314,9 +321,7 @@ classdef Nao
         end
         
         %% Checks for colisions, if true robot is fallen
-
         function obj = checkColision(obj,robots,timestep)
-
             counter = 1;
             for robot = robots
                 
@@ -324,19 +329,18 @@ classdef Nao
                 if counter ~= obj.ID
                     distance = sqrt((robot.pose(1,1)-obj.pose(1,1))^2 +(robot.pose(2,1)-obj.pose(2,1))^2);
                     
-
                     if distance < obj.radius*2 && timestep > (obj.timeSetpFell + 100)
 
 %                         disp("for robot "+ i+ " range is: "+distance+"from robot: "+counter)
                         obj.isFallen = true;
                         obj.timeSetpFell = timestep;
 
-
                     end
                 end
                 counter = counter + 1;
             end 
         end
+
         function [obj,D_heading] = getUp(obj,robots)
             dist = inf;
             % find the closest robot
@@ -359,7 +363,6 @@ classdef Nao
 
             if D_heading < (obj.pose(3) + 0.5) && D_heading > (obj.pose(3) - 0.5)
                 obj.isFallen = false;
-                disp('Robot '+ string(obj.ID) + ' Got up!')
                 obj.w = 0;
 
             else
@@ -371,7 +374,6 @@ classdef Nao
 
 
         end
-
         
         %% Colour based on team
         function colour = makecolour(obj)
@@ -413,9 +415,7 @@ classdef Nao
             % Direction
             x_mdot = [obj.V*cos(obj.pose(3)); obj.V*sin(obj.pose(3))];
             
-
             plot([obj.pose(1,1), obj.pose(1,1)+x_mdot(1)*5],[obj.pose(2,1), obj.pose(2,1)+x_mdot(2)*5],Color='r',LineWidth=1)
-
 
             %Draw sensors
             %Left
@@ -435,7 +435,7 @@ classdef Nao
             plot(obj.plannedPath.States(:,1),obj.plannedPath.States(:,2),'r--','LineWidth',1.5);
             % Interpolate each path segment to be smoother and plot it
             tData = obj.solInfo.TreeData;
-            print('hey')
+
             for idx = 3:3:size(tData,1)-2
                 p = navPath(obj.ss,tData(idx:idx+1,:));
                 interpolate(p,10);
@@ -477,7 +477,7 @@ classdef Nao
 
         %% Function for searching the ball in front of the nao robot
         %
-        % Input  {obj: self, ball_pose: [2x2 array]}
+        % Input  {obj: self, ball_pose: [1x2 array]}
         %
         % Return {foundBall:bool % whether the ball is founded}      
         function foundBall = searchBall(obj, ball_pose)
@@ -485,8 +485,8 @@ classdef Nao
             center_x = obj.pose(1);                                         % Get robot x position
             center_y = obj.pose(2);                                         % Get robot y position
             orientation = obj.pose(3);                                      % Get robot orientation
-            ball_x = ball_pose(1,1);                                        % Get ball x position
-            ball_y = ball_pose(2,1);                                        % Get ball y position
+            ball_x = ball_pose(1);                                        % Get ball x position
+            ball_y = ball_pose(2);                                        % Get ball y position
             theta = [obj.pose(3) - obj.fov/2; obj.pose(3) + obj.fov/2];     % Min and max angle of the sector
             
             distance = (center_x-ball_x)^2 + (center_y-ball_y)^2;           % Distance between the ball and the robot
@@ -527,8 +527,26 @@ classdef Nao
             
         end
 
-        function isWithinBoundary = checkBoundary(obj, x ,y, boundary)
-            if 
+        %% Function for checking the boundary of the role of robots
+        %
+        % Input  {obj: self}
+        %
+        % Return {isWithinBoundary:bool % whether the robot current position is within the boundary}   
+        function isWithinBoundary = checkRobotBoundary(obj)
+            check_x =  (obj.boundary(1,1) <= obj.pose(1,1)) && (obj.pose(1,1) <= obj.boundary (2,1));
+            check_y =  (obj.boundary(1,2) >= obj.pose(2,1)) && (obj.pose(2,1) >= obj.boundary (2,2));
+            isWithinBoundary =  (check_x && check_y);            
+        end
+        
+        %% Function for checking if the ball is within the robot's boundary
+        %
+        % Input  {obj: self, ball_pose}
+        %
+        % Return {isWithinBoundary:bool % whether the robot current position is within the boundary}          
+        function isWithinBoundary = checkBallBoundary(obj, ball_pose)
+            check_x =  (obj.boundary(1,1) <= ball_pose(1)) && (ball_pose(2) <= obj.boundary (2,1));
+            check_y =  (obj.boundary(1,2) >= ball_pose(1)) && (ball_pose(2) >= obj.boundary (2,2));
+            isWithinBoundary =  (check_x && check_y);            
         end
 
 

@@ -6,7 +6,7 @@ rng(10)
 
 %% Simulation time
 
-dt = 0.05;
+dt = 0.5;
 totalTime = 40;
 
 tVec = 0:dt:totalTime;
@@ -104,7 +104,15 @@ for idx = 2:numel(tVec)
         elseif sim.robots(i).position_class.name == "Defender" && sim.robots(i).isFallen == false
 
         elseif sim.robots(i).position_class.name == "Goalkeeper" && sim.robots(i).isFallen == false
-
+            if sim.robots(i).checkSelfBoundary() == false          
+                if sim.robots(i).checkBallBoundary(sim.ball.Pose) == false
+                    sim.robots(i) = sim.robots(i).standstill();
+                else
+                    sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+                end
+            else
+                sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+            end
         else
 %             disp('Robot '  + string(i) + 'Getting up')
             [sim.robots(i),d_head] = sim.robots(i).getUp(sim.robots);
