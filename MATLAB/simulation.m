@@ -65,7 +65,7 @@ classdef simulation
                 obj.env(1:obj.numRobots,[obj.robots.pose]);
                 
             end
-            
+
             hold off
             hold on
             
@@ -140,6 +140,7 @@ classdef simulation
             kvelocity=[0,0];
             c=0.1;
             ball=BallDynamics(pose,velocity,kvelocity,c,obj.sampletime,obj.totaltime);
+
         end
 
         function env = MakeEnv(obj,robotRadius,showTrajectory)

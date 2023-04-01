@@ -6,9 +6,8 @@ rng(10)
 
 %% Simulation time
 
-dt = 0.01;
-totalTime = 2
-0;
+dt = 0.5;
+totalTime = 40;
 
 tVec = 0:dt:totalTime;
 
@@ -20,101 +19,113 @@ sensorRange = 2;
 showEnv = false;
 Positions = {'Goalkeeper','Defender','Defender','Attacker','Attacker'};
 
+
 fieldPos = [1, 1, 10, 7];
 goalLeft = [0.4 2.7 1 5.3];
 goalRight = [10 2.7 10.6 5.3];
 scoreLeft = 0;
 scoreRight = 0;
 
-
 sim = simulation(dt,totalTime,num_teams,robot_radius,showEnv,Positions,sensorRange);
+sim.ball.dt = dt;
+sim.ball.orientation = pi;
+sim.ball.V = 0.01;
+
 ballPos = sim.ball.Pose;
 tracker = BallTracker(fieldPos, ballPos, goalLeft, goalRight, scoreLeft, scoreRight);
+
+
+
+
+
 for i = 1:sim.numRobots
         sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
         sim.robots(i).ID = i;
 end
 
-%% Show the occupancy map and planned path
+% Show the occupancy map and planned path
 % figure(1)
 % sim.robots(1).show_occupancy()
+% hold off
 
 
 
 for idx = 2:numel(tVec)
     % Update
-%     sim.ball = sim.ball.update_kick(idx,sim.ball.V,sim.ball.orientation);
+    sim.ball = sim.ball.update_kick(idx,sim.ball.V,sim.ball.orientation);
+
     for i = 1:sim.numRobots
         
-
-        
-        %% robot state flow goes here
-        % If the robot hasnt arrived go to the ball else drone mode
-
-
-%         switch sim.robots(i).position_class.name %Checks player position 
-%             case "Attacker"
-%                 switch sim.robots(i).team
-% 
-%                     case 1 %Team Blue
-%                                 switch sim.robots(i).searchBall(sim.ball.Pose) %Looks for ball
-%                                     case 1 %Ball has been found
-%                                         switch sim.robots(i).arrived %Checks to see if player has arrived at ball
-%         
-%                                             case false
-%                                                 sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
-%                                                 sim.robots(i) = sim.robots(i).update(idx);
-%                                             case true
-%                 %                                 sim.robots(i) = sim.robots(i).ToPoint(idx,[4.5,9],0,4);
-%                                         end
-%                                     case 0 %Ball not found
-%                                 end
-% 
-%                     case 0 %Team Red
-%                                 switch sim.robots(i).searchBall(sim.ball.Pose) %Looks for ball
-%                                     case 1 %Ball has been found
-%                                              switch sim.robots(i).arrived %Checks to see if player has arrived at ball
-%                 
-%                                                 case false
-%                                                         sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
-%                                                         sim.robots(i) = sim.robots(i).update(idx);
-%                                                 case true
-%                         %                                 sim.robots(i) = sim.robots(i).ToPoint(idx,[4.5,9],0,4);
-%                                               end
-%                                     case 0 %Ball not found
-%                                 end
-%                            
-%                 end
-% 
-%             case "Defender"
-% 
-%             case "Goalkeeper"
-% 
+%         if sim.robots(i).position_class.name == "Goalkeeper"
+%             sim.robots(i),sim.robots(i).checkBoundary()
 %         end
+        %% robot state flow goes here
+        sim.robots(i) = sim.robots(i).checkColision(sim.robots,idx);
+
+        
+
+        if sim.robots(i).position_class.name == "Attacker" && sim.robots(i).isFallen == false
+            switch sim.robots(i).team % Checks team
+
+                case 1 %Team Blue
+                            switch sim.robots(i).searchBall(sim.ball.Pose) %Looks for ball
+                                case 1 %Ball has been found
+                                    switch sim.robots(i).arrived %Checks to see if player has arrived at ball
     
-        % robot state flow goes here
-%         If the robot hasnt arrived go to the ball else drone mode
+                                        case false
 
-%     if sim.robots(i).arrived == false
-%             if sim.robots(i).searchBall(sim.ball.Pose)
-% %                 disp("Robot "+i+" found the ball")
-%             end
-%             if sim.robots(i).searchRobot(i,sim.numRobots,sim.robots)
-%                 disp("Robot "+i+" sees another robot")
-%             end
-        sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2), sim.robots(i).ID);
-        sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
-                    % colision check
-        sim.robots(i) = sim.robots(i).checkColision(i,sim.robots);
-        
+                                            sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+                                        case true
 
-        % RRT
-        % plan a new path every so often to update obstacles
-        if mod(idx,0) == 0
-            sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
+                                            sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+                                        
+
+                                            sim.robots(i).goalPose = [4 9 -pi/2];
+
+                                            if sim.robots(i).counter == 0
+%                                                 sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
+                                            elseif mod(sim.robots(i).counter,20) == 0
+                                                sim.robots(i).ID
+%                                                 sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
+                                            end
+                                            sim.robots(i).counter = 1+sim.robots(i).counter;
+
+%                                             sim.robots(i) = sim.robots(i).RRT(idx);
+
+
+                                    end
+                                case 0 %Ball not found
+                                    sim.robots(i) = sim.robots(i).DroneMode();
+                            end
+
+                case 0 %Team Red
+                            switch sim.robots(i).searchBall(sim.ball.Pose) %Looks for ball
+                                case 1 %Ball has been found
+                                         switch sim.robots(i).arrived %Checks to see if player has arrived at ball
+            
+                                             case false
+%                                                  disp('Robot '  + string(i) + 'ToPoint: 1')
+                                                 sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+                                             case true
+%                                                  disp('Robot '  + string(i) + 'ToPoint: 1')
+                                                 sim.robots(i) = sim.robots(i).ToPoint(idx,[4.5,9],0,4);
+                                          end
+                                case 0 %Ball not found
+                                    sim.robots(i) = sim.robots(i).DroneMode();
+                            end
+                       
+            end
+
+        elseif sim.robots(i).position_class.name == "Defender" && sim.robots(i).isFallen == false
+
+        elseif sim.robots(i).position_class.name == "Goalkeeper" && sim.robots(i).isFallen == false
+
+        else
+%             disp('Robot '  + string(i) + 'Getting up')
+            [sim.robots(i),d_head] = sim.robots(i).getUp(sim.robots);
+
         end
-        sim.robots(i) = sim.robots(i).RRT(idx);
-        
+    
         % Update
         sim.robots(i) = sim.robots(i).update(idx);
         
@@ -139,7 +150,7 @@ else
     text(5, 7.5, 'Ball is not being dribbled', 'FontSize', 12, 'HorizontalAlignment', 'center');
 end
     sim.drawpitch(); 
-    
+    drawnow
     hold off
 end
 

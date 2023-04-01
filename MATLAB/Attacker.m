@@ -4,7 +4,7 @@ classdef Attacker
 
         decisions
         decision
-        name = "Attacker"
+        name = "Attacker"       
       
     end
     methods
@@ -36,6 +36,9 @@ classdef Attacker
         function Decision = makeDecision(obj)
         end
 
+        function boundary = get_boundary(obj,team)            
+            boundary = [1 7.0; 10.0 1.0];
+        end
 
 
     end

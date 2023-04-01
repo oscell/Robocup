@@ -40,17 +40,18 @@ classdef Nao
         is_repeated
     
         % Boundary for defender not to play too aggressive
-        boundary_line % integer, x-coordinate
+        boundary % integer, x-coordinate
 
 
         %% states
         arrived
         isFallen
+        timeSetpFell
 
 
         % Start and goalpose for robot(testing)
         startPose        % Start pose [x y theta]
-        goalPose = [5 5 -pi/2];       % Goal pose [x y theta]
+        goalPose = [1 1 -pi/2];       % Goal pose [x y theta]
 
 
         waypoints
@@ -61,7 +62,10 @@ classdef Nao
         ss
         plannedPath
         
-        posess %% same as trajectory but is the transfore(this is purely for testing)
+
+
+        % for state flow
+        counter = 0 
 
     end
     methods
@@ -86,6 +90,7 @@ classdef Nao
 
             obj.fov = 0.873;
             obj.range = range;
+            obj.boundary = obj.position_class.get_boundary(team);
 
 
             %% Timeseries data
@@ -104,7 +109,7 @@ classdef Nao
             obj.dt = dt;
 
             obj.isFallen = false;
-
+            obj.timeSetpFell = -inf;
 
             %% Pathplanning
             obj.startPose = transpose(obj.inipose);
@@ -113,6 +118,8 @@ classdef Nao
             obj.colour=obj.makecolour();
 
             obj.vehicle = obj.Make_vehicle();
+
+
 
 
         end
@@ -124,46 +131,10 @@ classdef Nao
             rearLen = 0.25;         % Distance from CG to rear wheels [m]
             vehicle = FourWheelSteering(wheelRadius,[frontLen rearLen]);
         end
-
-        function obj = RRT(obj,idx)
-            
-
-            poses = transpose(obj.poses);
-
-            [vRef,wRef] = obj.controller(poses(:,idx-1));
-            [wheelSpeeds,steerAngles] = inverseKinematicsFrontSteer(obj.vehicle,vRef,wRef);
-            wheelSpeeds = wheelSpeeds([1 1]); % Use front wheel speed for both
-            
-            % Compute the velocities
-            velB = forwardKinematics(obj.vehicle,wheelSpeeds,steerAngles);
-            vel = bodyToWorld(velB,poses(:,idx-1));  % Convert from body to world
-
-            obj.vel = vel(1:2);
-            obj.w = vel(3);
-        end
-
-        function visualizeRRTPath(obj)
-            % Plot the path from start to goal
-            plot(obj.plannedPath.States(:,1),obj.plannedPath.States(:,2),'r--','LineWidth',1.5);
-            % Interpolate each path segment to be smoother and plot it
-            tData = obj.solInfo.TreeData;
-            print('hey')
-            for idx = 3:3:size(tData,1)-2
-                p = navPath(obj.ss,tData(idx:idx+1,:));
-                interpolate(p,10);
-                plot(p.States(:,1),p.States(:,2),':','Color',[0 0.6 0.9]);
-            end
-        end
-
-        function show_occupancy(obj)
-            show(obj.map)
-            hold on
-            obj.show(0,true)
-            obj.visualizeRRTPath()
-        end
-
+        
+        %% Makes a new occupancy map with all other robots
         function obj = make_map(obj,robots)
-            %% Makes a new occupancy map with all other robots
+            
             map = binaryOccupancyMap(11,9,100);
             for robot = robots
                 if robot.ID ~= obj.ID
@@ -189,7 +160,7 @@ classdef Nao
             % State validator
             sv = validatorOccupancyMap(ss);
             sv.Map = obj.map;
-            sv.ValidationDistance = 0.1;
+            sv.ValidationDistance = 0.01;
             
             % Path planner
             planner = plannerRRT(ss,sv);
@@ -214,13 +185,19 @@ classdef Nao
             obj.plannedPath = plannedPath;
         end
 
-
-        function obj = DroneMode(obj,idx,ballPose,ballorientation,ballV)
+        %% Base Behavioural algorithms
+        % Turns in a circle
+        function obj = DroneMode(obj)
             obj.w = 0.7;
             obj.vel = [0;0];
         end
 
-        %% Targeting algorithm
+        % Standstill
+        function obj = standstill(obj)
+            obj.pose = obj.pose;
+        end
+
+        % Targeting algorithm to ball
         function obj = ToPoint(obj,idx,trgt_pose,orientation,V)
 
             N = 0.2; %Gain
@@ -229,11 +206,14 @@ classdef Nao
             x_m = obj.pose(1:2,1); % Position of target
             phi_t = orientation;
             phi_m = obj.pose(3,1);
+            if obj.V == 0
+                return
+            end
             V_m = obj.V;
             V_t = V;
 
 
-            OR = sqrt((x_t(1,1) - x_m(1,1))^2 + (x_t(2,1) - x_m(2,1))^2);
+            OR = sqrt((x_t(1) - x_m(1))^2 + (x_t(2) - x_m(2))^2);
             
             if OR < 0.5
                 obj.arrived = true;
@@ -253,7 +233,7 @@ classdef Nao
             x_mdot = [V_m*cos(phi_m); V_m*sin(phi_m)];
             x_tdot = [V_t*cos(phi_t); V_t*sin(phi_t)];
 
-
+            
             x_dif = x_t - x_m;
 
             x_dotDif = x_tdot - x_mdot;
@@ -276,8 +256,7 @@ classdef Nao
             phi_mdot = n/V_m;
 
 
-            %             disp(x_m)
-            %             disp(-Rd)
+
             
             obj.vel = x_mdot;
 
@@ -286,24 +265,46 @@ classdef Nao
 
 
 
-            
-            %searchBall(obj,trgt_pose)
+         
 
             %             waitfor(obj.r);
         end
 
+        % Rapid random tree to goal pose
+        % Goes to point asigned in Goal pose
+        function obj = RRT(obj,idx)
+            
+
+            poses = transpose(obj.poses);
+
+            [vRef,wRef] = obj.controller(poses(:,idx-1));
+            [wheelSpeeds,steerAngles] = inverseKinematicsFrontSteer(obj.vehicle,vRef,wRef);
+            wheelSpeeds = wheelSpeeds([1 1]); % Use front wheel speed for both
+            
+            % Compute the velocities
+            velB = forwardKinematics(obj.vehicle,wheelSpeeds,steerAngles);
+            vel = bodyToWorld(velB,poses(:,idx-1));  % Convert from body to world
+
+            obj.vel = vel(1:2);
+            obj.w = vel(3);
+        end
+        %% Update function
         function obj = update(obj,idx)
 
 
+            
+
             obj.pose(3,1) = obj.pose(3,1) + obj.w*obj.dt;
-
-
-
+            
+            if obj.pose(3,1) > 2*pi 
+                obj.pose(3,1) =obj.pose(3,1)  - 2*pi;
+            end
             if obj.isFallen == true
                 obj.pose = obj.pose;
-            else            
-                obj.pose(1,1) = obj.pose(1,1) + obj.vel(1,1)*obj.dt;
-                obj.pose(2,1) = obj.pose(2,1) + obj.vel(2,1)*obj.dt;
+            else
+                
+                obj.pose(1,1) = obj.pose(1,1) + obj.vel(1)*obj.dt;
+                obj.pose(2,1) = obj.pose(2,1) + obj.vel(2)*obj.dt;
             end
 
 
@@ -312,28 +313,64 @@ classdef Nao
             obj.poses(idx,2) = obj.pose(2);
             obj.poses(idx,3) = obj.pose(3,1);
 
-            obj.vels(idx,1) = obj.vel(1,1);
-            obj.vels(idx,2) = obj.vel(2,1);
+            obj.vels(idx,1) = obj.vel(1);
+            obj.vels(idx,2) = obj.vel(2);
 
         end
-
-        function obj = checkColision(obj,i,robots)
+        
+        %% Checks for colisions, if true robot is fallen
+        function obj = checkColision(obj,robots,timestep)
             counter = 1;
             for robot = robots
                 
 
-                if counter ~= i
-                    distance = sqrt((robot.pose(1,1)-obj.pose(1,1))^2 +(robot.pose(2,1)-obj.pose(2,1))^2);
+                if counter ~= obj.ID
+                    distance = sqrt((robot.pose(1)-obj.pose(1))^2 +(robot.pose(2)-obj.pose(2))^2);
                     
-                    if distance < obj.radius*2
+                    if distance < obj.radius*2 && timestep > (obj.timeSetpFell + 100)
 
 %                         disp("for robot "+ i+ " range is: "+distance+"from robot: "+counter)
                         obj.isFallen = true;
+                        obj.timeSetpFell = timestep;
 
                     end
                 end
                 counter = counter + 1;
             end 
+        end
+
+        function [obj,D_heading] = getUp(obj,robots)
+            dist = inf;
+            % find the closest robot
+            for robot = robots
+                if robot.ID ~= obj.ID
+                    newdist = sqrt((obj.pose(1) - robot.pose(1))^2 + (obj.pose(2) - robot.pose(2 ))^2);
+                    if newdist < dist
+                        dist = newdist;
+                        closest_ID = robot.ID; 
+                    end
+                end
+            end
+            
+            % Face diferent direction to robot
+            if obj.team == 1
+                D_heading = pi+tan((obj.pose(2) - robots(closest_ID).pose(2)) / (obj.pose(1) - robots(closest_ID).pose(1)));
+            else
+                D_heading = tan((obj.pose(2) - robots(closest_ID).pose(2)) / (obj.pose(1) - robots(closest_ID).pose(1)));
+            end
+
+            if D_heading < (obj.pose(3) + 0.5) && D_heading > (obj.pose(3) - 0.5)
+                obj.isFallen = false;
+                obj.w = 0;
+
+            else
+                 obj.w = 0.7;
+%                  disp('Robot '+ string(obj.ID)  + ' Heading to ' +string(D_heading)+ ' at '+ string(obj.pose(3)))
+            end
+
+           
+
+
         end
         
         %% Colour based on team
@@ -349,7 +386,8 @@ classdef Nao
         end
         
 
-        %% shows the robot
+        %% Visualisations
+        % Shows the robot, waypoints trajectory
         function show(obj,idx,show_waypoints)
 
              if ~exist('show_waypoints','var')
@@ -388,7 +426,30 @@ classdef Nao
             
             
         end
-        %% set position class of each player
+
+
+
+        function visualizeRRTPath(obj)
+            % Plot the path from start to goal
+            plot(obj.plannedPath.States(:,1),obj.plannedPath.States(:,2),'r--','LineWidth',1.5);
+            % Interpolate each path segment to be smoother and plot it
+            tData = obj.solInfo.TreeData;
+
+            for idx = 3:3:size(tData,1)-2
+                p = navPath(obj.ss,tData(idx:idx+1,:));
+                interpolate(p,10);
+                plot(p.States(:,1),p.States(:,2),':','Color',[0 0.6 0.9]);
+            end
+        end
+
+        function show_occupancy(obj)
+            show(obj.map)
+            hold on
+            obj.show(0,true)
+            obj.visualizeRRTPath()
+        end
+
+        %% set position class of each player - Goalkeeper, Attacker of Defender
         function position_class = get_position_class(obj,position)
             if strcmp(position,'Defender')
                 position_class = Defender(obj.is_repeated);
@@ -423,8 +484,8 @@ classdef Nao
             center_x = obj.pose(1);                                         % Get robot x position
             center_y = obj.pose(2);                                         % Get robot y position
             orientation = obj.pose(3);                                      % Get robot orientation
-            ball_x = ball_pose(1,1);                                        % Get ball x position
-            ball_y = ball_pose(2,1);                                        % Get ball y position
+            ball_x = ball_pose(1);                                        % Get ball x position
+            ball_y = ball_pose(2);                                        % Get ball y position
             theta = [obj.pose(3) - obj.fov/2; obj.pose(3) + obj.fov/2];     % Min and max angle of the sector
             
             distance = (center_x-ball_x)^2 + (center_y-ball_y)^2;           % Distance between the ball and the robot
@@ -475,8 +536,16 @@ classdef Nao
             end
         end
 
-
-
+        %% Function for checking the boundary of the role of robots
+        %
+        % Input  {obj: self}
+        %
+        % Return {isWithinBoundary:bool % whether the robot current position is within the boundary}   
+        function isWithinBoundary = checkBoundary(obj)
+            check_x =  (obj.boundary(1,1) <= obj.pose(1,1)) && (obj.pose(1,1) <= obj.boundary (2,1));
+            check_y =  (obj.boundary(1,2) >= obj.pose(2,1)) && (obj.pose(2,1) >= obj.boundary (2,2));
+            isWithinBoundary =  (check_x && check_y);            
+        end
 
 
     end
