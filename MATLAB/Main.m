@@ -115,7 +115,7 @@ for idx = 2:numel(tVec)
     hold on
     sim.ball.show();
     for i = 1:sim.numRobots
-        sim.robots(i).show(idx);
+        sim.robots(i).show(idx,true);
     end
     sim.drawpitch();    
     hold off
