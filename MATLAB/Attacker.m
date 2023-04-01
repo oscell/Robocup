@@ -33,7 +33,11 @@ classdef Attacker
             end
         
         end
-        function Decision = makeDecision(obj)
+        function pose = getGoalpose(obj,ball)
+            pose = zeros(1,3);
+            pose(1) = ball.Pose(1);
+            pose(2) = ball.Pose(2);
+            pose(3) = -pi/2;
         end
 
         function boundary = get_boundary(obj,team)            

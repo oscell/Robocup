@@ -6,8 +6,8 @@ rng(10)
 
 %% Simulation time
 
-dt = 0.8;
-totalTime = 20;
+dt = 0.2;
+totalTime = 40;
 
 tVec = 0:dt:totalTime;
 
@@ -19,33 +19,31 @@ sensorRange = 2;
 showEnv = false;
 Positions = {'Goalkeeper','Defender','Defender','Attacker','Attacker'};
 
-%%
+
 sim = simulation(dt,totalTime,num_teams,robot_radius,showEnv,Positions,sensorRange);
-sim.ball.Pose
-%%
+sim.ball.dt = dt;
+sim.ball.orientation = pi;
+sim.ball.V = 0.01;
 for i = 1:sim.numRobots
         sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
 end
-sim.ball.Pose
-%%
+
 % Show the occupancy map and planned path
 % figure(1)
 % sim.robots(1).show_occupancy()
 % hold off
-%%
-clc;
-sim.ball = sim.ball.update(idx);
-sim.ball.Pose
-%%
+
+
+
 for idx = 2:numel(tVec)
     % Update
-
-    sim.ball = sim.ball.update(idx);
-    
-
+    sim.ball = sim.ball.update_kick(idx,sim.ball.V,sim.ball.orientation);
 
     for i = 1:sim.numRobots
         
+%         if sim.robots(i).position_class.name == "Goalkeeper"
+%             sim.robots(i),sim.robots(i).checkBoundary()
+%         end
         %% robot state flow goes here
         sim.robots(i) = sim.robots(i).checkColision(sim.robots,idx);
 
@@ -61,13 +59,17 @@ for idx = 2:numel(tVec)
     
                                         case false
 
-                                            sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+%                                             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+                                            sim.robots(i) = sim.robots(i).RRT(idx);
                                         case true
 
-                                            sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
-                                        
+%                                             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+                                        sim.robots(i) = sim.robots(i).RRT(idx);
 
-                                            sim.robots(i).goalPose = [4 9 -pi/2];
+                                        sim.robots(i).goalPose(1) = sim.ball.Pose(1);
+                                        sim.robots(i).goalPose(2) = sim.ball.Pose(2);
+                                        sim.robots(i).goalPose(3) = -pi/2;
+
 
                                             if sim.robots(i).counter == 0
 %                                                 sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
@@ -109,10 +111,36 @@ for idx = 2:numel(tVec)
 
         else
 %             disp('Robot '  + string(i) + 'Getting up')
-            [sim.robots(i),d_head] = sim.robots(i).getUp(sim.robots);
+            sim.robots(i) = sim.robots(i).getUp(idx);
 
         end
+    
+        % robot state flow goes here
+%         If the robot hasnt arrived go to the ball else drone mode
 
+%         if sim.robots(i).arrived == false
+%             if sim.robots(i).searchBall(sim.ball.Pose)
+% %                 disp("Robot "+i+" found the ball")
+%             end
+%             if sim.robots(i).searchRobot(i,sim.numRobots,sim.robots)
+%                 disp("Robot "+i+" sees another robot")
+%             end
+%             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+%         else
+%             sim.robots(i) = sim.robots(i).DroneMode(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+%         end
+%                     % colision check
+%         sim.robots(i) = sim.robots(i).checkColision(i,sim.robots);
+%         
+% 
+%         % RRT
+%         % plan a new path every so often to update obstacles
+%         if mod(idx,20) == 0
+%             sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
+%         end
+%         sim.robots(i) = sim.robots(i).RRT(idx);
+%         
+%         % Update
         sim.robots(i) = sim.robots(i).update(idx);
         
     end
