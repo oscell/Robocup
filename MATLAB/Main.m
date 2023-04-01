@@ -6,7 +6,7 @@ rng(10)
 
 %% Simulation time
 
-dt = 0.5;
+dt = 0.2;
 totalTime = 40;
 
 tVec = 0:dt:totalTime;
@@ -31,17 +31,16 @@ sim.ball.dt = dt;
 sim.ball.orientation = pi;
 sim.ball.V = 0.01;
 
+
 ballPos = sim.ball.Pose;
 tracker = BallTracker(fieldPos, ballPos, goalLeft, goalRight, scoreLeft, scoreRight);
 
-
-
-
-
 for i = 1:sim.numRobots
+        sim.robots(i).goalPose = sim.robots(i).position_class.getGoalpose(sim.ball);
         sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
+
         sim.robots(i).ID = i;
-        sim.robots(i).goalPose = [5.5 4 -pi/2];
+
 end
 
 % Show the occupancy map and planned path
@@ -66,14 +65,16 @@ for idx = 2:numel(tVec)
         
 
         if sim.robots(i).position_class.name == "Attacker" && sim.robots(i).isFallen == false
+
+            
             switch sim.robots(i).team % Checks team
               
                 case 1 %Team Blue
                             switch sim.robots(i).searchBall(sim.ball.Pose) %Looks for ball
                                 case 1 %Ball has been found
                                     switch sim.robots(i).arrived %Checks to see if player has arrived at ball
-    
                                         case false
+
                                             
                                             sim.robots(i) = sim.robots(i).RRT(idx);
 %                                             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
@@ -83,6 +84,18 @@ for idx = 2:numel(tVec)
                                             
 
                                             
+
+
+%                                             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+                                            sim.robots(i) = sim.robots(i).RRT(idx);
+                                        case true
+
+%                                             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+                                            sim.robots(i) = sim.robots(i).RRT(idx);
+
+                                            sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2), sim.robots(i).ID);
+
+
 
                                             if sim.robots(i).counter == 0
                                                 sim.robots(i) = sim.robots(i).Make_controller(sim.robots);

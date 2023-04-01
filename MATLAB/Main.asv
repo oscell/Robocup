@@ -6,7 +6,9 @@ rng(10)
 
 %% Simulation time
 
-dt = 0.5;
+
+dt = 0.2;
+
 totalTime = 40;
 
 tVec = 0:dt:totalTime;
@@ -26,13 +28,16 @@ goalRight = [10 2.7 10.6 5.3];
 scoreLeft = 0;
 scoreRight = 0;
 
+
 sim = simulation(dt,totalTime,num_teams,robot_radius,showEnv,Positions,sensorRange);
 sim.ball.dt = dt;
 sim.ball.orientation = pi;
 sim.ball.V = 0.01;
 
+
 ballPos = sim.ball.Pose;
 tracker = BallTracker(fieldPos, ballPos, goalLeft, goalRight, scoreLeft, scoreRight);
+
 
 
 
@@ -73,6 +78,7 @@ for idx = 2:numel(tVec)
                                     switch sim.robots(i).arrived %Checks to see if player has arrived at ball
     
                                         case false
+<<<<<<< HEAD
                                             sim.robots(i).goalPose = [4 9 -pi/2];
                                             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
                                         case true
@@ -81,6 +87,20 @@ for idx = 2:numel(tVec)
                                             
 
                                             
+=======
+
+%                                             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+                                            sim.robots(i) = sim.robots(i).RRT(idx);
+                                        case true
+
+%                                             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+                                        sim.robots(i) = sim.robots(i).RRT(idx);
+
+                                        sim.robots(i).goalPose(1) = sim.ball.Pose(1);
+                                        sim.robots(i).goalPose(2) = sim.ball.Pose(2);
+                                        sim.robots(i).goalPose(3) = -pi/2;
+
+>>>>>>> 4533591708e16e9f3e17e64958ac7680757fc860
 
                                             if sim.robots(i).counter == 0
 %                                                 sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
@@ -123,10 +143,13 @@ for idx = 2:numel(tVec)
         else
 %             disp('Robot '  + string(i) + 'Getting up')
             sim.robots(i) = sim.robots(i).getUp(idx);
+<<<<<<< HEAD
            
+=======
+
+>>>>>>> 4533591708e16e9f3e17e64958ac7680757fc860
         end
     
-        % Update
         sim.robots(i) = sim.robots(i).update(idx);
         
     end
