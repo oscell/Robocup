@@ -203,7 +203,7 @@ classdef Nao
             controller.LookaheadDistance = 0.25;
             controller.DesiredLinearVelocity = 1;
             controller.MaxAngularVelocity = 3;
-
+            
             obj.controller = controller;
             obj.solInfo = solInfo;
             obj.ss = ss;
