@@ -64,7 +64,7 @@ classdef Nao
         
 
         % for state flow
-        counter = 0 
+        counter = 0
 
     end
     methods
@@ -133,7 +133,7 @@ classdef Nao
         
         %% Makes a new occupancy map with all other robots
         function obj = make_map(obj,robots)
-            
+
             map = binaryOccupancyMap(11,9,100);
             for robot = robots
                 if robot.ID ~= obj.ID
@@ -144,8 +144,13 @@ classdef Nao
             obj.map = map;
         end
 
-        function obj = Make_controller(obj,robots)
+        function obj = Make_controller(obj,robots,ball)
+%             distance = sqrt((obj.pose(1) - ball.Pose(1))^2+(obj.pose(2) - ball.Pose(2))^2);
+            disp(obj.counter)
+            if mod(obj.counter,40) == 0
+                
             
+            try
             obj = obj.make_map(robots);
 %             map = binaryOccupancyMap(11,9,100);
 %             inflate(map,0.25); % Inflate the map for planning
@@ -177,11 +182,14 @@ classdef Nao
             controller.LookaheadDistance = 0.25;
             controller.DesiredLinearVelocity = 1;
             controller.MaxAngularVelocity = 3;
-
+            
             obj.controller = controller;
             obj.solInfo = solInfo;
             obj.ss = ss;
             obj.plannedPath = plannedPath;
+            catch
+            end
+            end
         end
 
         %% Base Behavioural algorithms

@@ -27,7 +27,7 @@ sim.ball.V = 0.01;
 
 for i = 1:sim.numRobots
         sim.robots(i).goalPose = sim.robots(i).position_class.getGoalpose(sim.ball);
-        sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
+        sim.robots(i) = sim.robots(i).Make_controller(sim.robots,sim.ball);
         
 end
 
@@ -43,17 +43,15 @@ for idx = 2:numel(tVec)
     sim.ball = sim.ball.update_kick(idx,sim.ball.V,sim.ball.orientation);
 
     for i = 1:sim.numRobots
-        
+        sim.robots(i).counter = sim.robots(i).counter+1;
 %         if sim.robots(i).position_class.name == "Goalkeeper"
 %             sim.robots(i),sim.robots(i).checkBoundary()
 %         end
         %% robot state flow goes here
         sim.robots(i) = sim.robots(i).checkColision(sim.robots,idx);
-
-        
-
+        sim.robots(i).goalPose = sim.robots(i).position_class.getGoalpose(sim.ball);
+        sim.robots(i) = sim.robots(i).Make_controller(sim.robots,sim.ball);
         if sim.robots(i).position_class.name == "Attacker" && sim.robots(i).isFallen == false
-
             
             switch sim.robots(i).team % Checks team
 
