@@ -20,15 +20,27 @@ showEnv = false;
 Positions = {'Goalkeeper','Defender','Defender','Attacker','Attacker'};
 
 
+fieldPos = [1, 1, 10, 7];
+goalLeft = [0.4 2.7 1 5.3];
+goalRight = [10 2.7 10.6 5.3];
+scoreLeft = 0;
+scoreRight = 0;
+
 sim = simulation(dt,totalTime,num_teams,robot_radius,showEnv,Positions,sensorRange);
 sim.ball.dt = dt;
 sim.ball.orientation = pi;
 sim.ball.V = 0.01;
 
+=
+ballPos = sim.ball.Pose;
+tracker = BallTracker(fieldPos, ballPos, goalLeft, goalRight, scoreLeft, scoreRight);
+
 for i = 1:sim.numRobots
         sim.robots(i).goalPose = sim.robots(i).position_class.getGoalpose(sim.ball);
         sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
-        
+
+        sim.robots(i).ID = i;
+
 end
 
 % Show the occupancy map and planned path
@@ -56,7 +68,7 @@ for idx = 2:numel(tVec)
 
             
             switch sim.robots(i).team % Checks team
-
+              
                 case 1 %Team Blue
                             switch sim.robots(i).searchBall(sim.ball.Pose) %Looks for ball
                                 case 1 %Ball has been found
@@ -69,8 +81,8 @@ for idx = 2:numel(tVec)
 
 %                                             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
                                             sim.robots(i) = sim.robots(i).RRT(idx);
-                                            
 
+                                            sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2), sim.robots(i).ID);
 
 
 
@@ -115,39 +127,14 @@ for idx = 2:numel(tVec)
         else
 %             disp('Robot '  + string(i) + 'Getting up')
             sim.robots(i) = sim.robots(i).getUp(idx);
-
+           
         end
     
-        % robot state flow goes here
-%         If the robot hasnt arrived go to the ball else drone mode
-
-%         if sim.robots(i).arrived == false
-%             if sim.robots(i).searchBall(sim.ball.Pose)
-% %                 disp("Robot "+i+" found the ball")
-%             end
-%             if sim.robots(i).searchRobot(i,sim.numRobots,sim.robots)
-%                 disp("Robot "+i+" sees another robot")
-%             end
-%             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
-%         else
-%             sim.robots(i) = sim.robots(i).DroneMode(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
-%         end
-%                     % colision check
-%         sim.robots(i) = sim.robots(i).checkColision(i,sim.robots);
-%         
-% 
-%         % RRT
-%         % plan a new path every so often to update obstacles
-%         if mod(idx,20) == 0
-%             sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
-%         end
-%         sim.robots(i) = sim.robots(i).RRT(idx);
-%         
-%         % Update
+        % Update
         sim.robots(i) = sim.robots(i).update(idx);
         
     end
-
+    
 
 
     % Figure
@@ -157,13 +144,19 @@ for idx = 2:numel(tVec)
     sim.ball.show();
     for i = 1:sim.numRobots
         sim.robots(i).show(idx);
-        sim.robots(4).show(idx,true);
+         tracker.updateBallPos(ballPos,scoreLeft, scoreRight);
+        tracker.showScores();
+
     end
-    sim.drawpitch();
-    drawnow;
+    if ~isempty(sim.ball.dribblingRobotID)
+    text(5, 7.5, sprintf('Ball is being dribbled by Robot %d', sim.ball.dribblingRobotID), 'FontSize', 12, 'HorizontalAlignment', 'center');
+else
+    text(5, 7.5, 'Ball is not being dribbled', 'FontSize', 12, 'HorizontalAlignment', 'center');
+end
+    sim.drawpitch(); 
+    drawnow
     hold off
 end
-
 
 %% PLOT
 % figure(3); clf; hold on; grid on; axis([0 totalTime,-3 5]);
@@ -240,3 +233,67 @@ end
 % sim.drawpitch();    
 % hold off
 % saveas(figure(7),'Images\Finalstate.png')
+
+
+% % Test script for BallDynamics with robotDribble
+% clear;
+% clc;
+% 
+% % Set parameters
+% pose = [0; 0.3];
+% velocity = [1; 1];
+% kvelocity = [0; 0];
+% c = 0.1;
+% dt = 0.1;
+% totalTime = 20;
+% robotSpeed = 1;
+% Pose = [-1;-0.4];
+% 
+% % Create BallDynamics object
+% ball = BallDynamics(pose, velocity, kvelocity, c, dt, totalTime);
+% 
+% % Set robot direction (in radians)
+% robotDirection = 0.5;
+% 
+% % Initialize robot pose
+% robotPose = Pose;
+% 
+% % Initialize figure
+% figure;
+% hold on;
+% xlim([-10, 10]);
+% ylim([-10, 10]);
+% xlabel('X');
+% ylabel('Y');
+% title('Robot Dribbling a Ball');
+% grid on;
+% 
+% % Loop through time steps
+% for t = 0 : dt : totalTime
+%     % Clear the current figure
+%     clf;
+%     hold on;
+%     xlim([-10, 10]);
+%     ylim([-10, 10]);
+%     xlabel('X');
+%     ylabel('Y');
+%     title('Robot Dribbling a Ball');
+%     grid on;
+% 
+%     % Update ball dynamics with robot dribble
+%     ball = ball.robotDribble(robotDirection, robotPose);
+% 
+%     % Update robot pose
+%     robotVelocity = 0.1333 * [cos(robotDirection); sin(robotDirection)];
+%     robotPose = robotPose + robotVelocity * dt;
+% 
+%     % Visualize ball and robot positions
+%     ball.show();
+%     plot(robotPose(1), robotPose(2), 'o', 'Color', 'b', "MarkerFaceColor", 'b', 'MarkerSize', 8);
+% 
+%     % Pause for visualization
+%     pause(dt);
+% end
+% 
+% % Release figure
+% hold off;
