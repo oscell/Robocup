@@ -58,7 +58,7 @@ classdef Controller
                 elseif t > 530
                     termination = true;
                 end
-           
+            
             R = sqrt((obj.x_t(1,1) - obj.x_t(1,1))^2 + (obj.x_t(2,1) - obj.x_m(2,1))^2);
             
             x_mdot = [obj.V_m*cos(obj.phi_m); obj.V_m*sin(obj.phi_m)];

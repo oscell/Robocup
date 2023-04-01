@@ -47,7 +47,8 @@ classdef Nao
         arrived
         isFallen
         timeSetpFell
-        desiredheading
+
+
         % Start and goalpose for robot(testing)
         startPose        % Start pose [x y theta]
         goalPose = [1 1 -pi/2];       % Goal pose [x y theta]
@@ -60,12 +61,19 @@ classdef Nao
         solInfo
         ss
         plannedPath
-        
-        
 
         % for state flow
         counter = 0 
-
+        % Passing and shotting variables
+        Fmax
+        F
+        Dxpose
+        Dypose
+        Dpose
+        poseready
+        holdball
+        Shoot
+        ballrequest
     end
     methods
         function obj = Nao(env,num,dt,totaltime,team,position,is_repeated,roboRadius,range,ID)
@@ -90,8 +98,12 @@ classdef Nao
             obj.fov = 0.873;
             obj.range = range;
             obj.boundary = obj.position_class.get_boundary(team);
-
-
+            % Shotting and passing
+            obj.Fmax=2;
+            obj.poseready=0;
+            obj.holdball=0;
+            obj.Shoot=0;
+            obj.ballrequest=0;
             %% Timeseries data
             obj.poses = zeros(numel(0:dt:totaltime),3);
             obj.poses(1,:) = obj.inipose;
@@ -186,7 +198,7 @@ classdef Nao
 
         %% Base Behavioural algorithms
         % Turns in a circle
-        function obj = DroneMode(obj)
+        function obj = DroneMode(obj,idx,ballPose,ballorientation,ballV)
             obj.w = 0.7;
             obj.vel = [0;0];
         end
@@ -212,7 +224,7 @@ classdef Nao
             V_t = V;
 
 
-            OR = sqrt((x_t(1) - x_m(1))^2 + (x_t(2) - x_m(2))^2);
+            OR = sqrt((x_t(1,1) - x_m(1,1))^2 + (x_t(2,1) - x_m(2,1))^2);
             
             if OR < 0.5
                 obj.arrived = true;
@@ -232,7 +244,7 @@ classdef Nao
             x_mdot = [V_m*cos(phi_m); V_m*sin(phi_m)];
             x_tdot = [V_t*cos(phi_t); V_t*sin(phi_t)];
 
-            
+
             x_dif = x_t - x_m;
 
             x_dotDif = x_tdot - x_mdot;
@@ -324,7 +336,7 @@ classdef Nao
                 
 
                 if counter ~= obj.ID
-                    distance = sqrt((robot.pose(1)-obj.pose(1))^2 +(robot.pose(2)-obj.pose(2))^2);
+                    distance = sqrt((robot.pose(1,1)-obj.pose(1,1))^2 +(robot.pose(2,1)-obj.pose(2,1))^2);
                     
                     if distance < obj.radius*2 && timestep > (obj.timeSetpFell + 100)
 
@@ -338,19 +350,35 @@ classdef Nao
             end 
         end
 
-        function obj = getUp(obj,timestep)
-            disp([timestep*obj.dt,obj.timeSetpFell*obj.dt + 3.90])
+        function [obj,D_heading] = getUp(obj,robots)
+            dist = inf;
+            % find the closest robot
+            for robot = robots
+                if robot.ID ~= obj.ID
+                    newdist = sqrt((obj.pose(1) - robot.pose(1))^2 + (obj.pose(2) - robot.pose(2 ))^2);
+                    if newdist < dist
+                        dist = newdist;
+                        closest_ID = robot.ID; 
+                    end
+                end
+            end
             
-            if timestep*obj.dt < obj.timeSetpFell*obj.dt + 3.90
-                obj.w = 0.7;
+            % Face diferent direction to robot
+            if obj.team == 1
+                D_heading = pi+tan((obj.pose(2) - robots(closest_ID).pose(2)) / (obj.pose(1) - robots(closest_ID).pose(1)));
             else
-                obj.isFallen = false;
+                D_heading = tan((obj.pose(2) - robots(closest_ID).pose(2)) / (obj.pose(1) - robots(closest_ID).pose(1)));
             end
 
-             
-             
+            if D_heading < (obj.pose(3) + 0.5) && D_heading > (obj.pose(3) - 0.5)
+                obj.isFallen = false;
+                disp('Robot '+ string(obj.ID) + ' Got up!')
+                obj.w = 0;
 
-
+            else
+                 obj.w = 0.7;
+%                  disp('Robot '+ string(obj.ID)  + ' Heading to ' +string(D_heading)+ ' at '+ string(obj.pose(3)))
+            end
 
            
 
@@ -368,7 +396,6 @@ classdef Nao
 
 
         end
-        
 
         %% Visualisations
         % Shows the robot, waypoints trajectory
@@ -418,7 +445,7 @@ classdef Nao
             plot(obj.plannedPath.States(:,1),obj.plannedPath.States(:,2),'r--','LineWidth',1.5);
             % Interpolate each path segment to be smoother and plot it
             tData = obj.solInfo.TreeData;
-
+            print('hey')
             for idx = 3:3:size(tData,1)-2
                 p = navPath(obj.ss,tData(idx:idx+1,:));
                 interpolate(p,10);
@@ -468,8 +495,8 @@ classdef Nao
             center_x = obj.pose(1);                                         % Get robot x position
             center_y = obj.pose(2);                                         % Get robot y position
             orientation = obj.pose(3);                                      % Get robot orientation
-            ball_x = ball_pose(1);                                        % Get ball x position
-            ball_y = ball_pose(2);                                        % Get ball y position
+            ball_x = ball_pose(1,1);                                        % Get ball x position
+            ball_y = ball_pose(2,1);                                        % Get ball y position
             theta = [obj.pose(3) - obj.fov/2; obj.pose(3) + obj.fov/2];     % Min and max angle of the sector
             
             distance = (center_x-ball_x)^2 + (center_y-ball_y)^2;           % Distance between the ball and the robot
@@ -507,17 +534,7 @@ classdef Nao
                     break;
                 end
             end   
-        end   
-        function inRange = checkDribblingRange(obj, ballPose)
-            % Check if the ball is within the dribbling range of the robot
-            distance = sqrt((obj.pose(1) - ballPose(1))^2 + (obj.pose(2) - ballPose(2))^2);
-            dribblingRange = 0.5; % You can adjust this value to your desired dribbling range
-
-            if distance <= dribblingRange
-                inRange = true;
-            else
-                inRange = false;
-            end
+            
         end
 
         %% Function for checking the boundary of the role of robots
@@ -527,8 +544,56 @@ classdef Nao
         % Return {isWithinBoundary:bool % whether the robot current position is within the boundary}   
         function isWithinBoundary = checkBoundary(obj)
             check_x =  (obj.boundary(1,1) <= obj.pose(1,1)) && (obj.pose(1,1) <= obj.boundary (2,1));
-            check_y =  (obj.boundary(1,2) >= obj.pose(2,1)) && (obj.pose(2,1) >= obj.boundary (2,2));
-            isWithinBoundary =  (check_x && check_y);            
+            check_y =  (obj.boundary(1,2) <= obj.pose(2,1)) && (obj.pose(2,1) <= obj.boundary (2,2));
+            isWithinBoundary =  (check_x && check_y);
+        end
+        
+        function obj=readytoshoot(obj)
+            if obj.team==1
+                if 8<obj.pose(1,1)<10 && 1.5<obj.pose(2,1)<6.5
+                    obj.poseready=1;
+                else
+                    obj.poseready=0;
+                end
+            end
+            if obj.team==0
+                if 1<obj.pose(1,1)<3 && 1.5<obj.pose(2,1)<6.5
+                    obj.poseready=1;
+                else
+                    obj.poseready=0;
+                end
+            end
+            if obj.poseready==1 && obj.holdball==1
+                obj.Shoot=1;
+                obj.poseready=0;
+                obj.holdball=0;
+            end
+        end
+        function obj=needpass(obj,foundrobot)
+            if foundrobot==true && obj.holdball==1
+                obj.ballrequest=1;
+            else
+                obj.ballrequest=0;
+            end
+        end
+        function obj=desiredpose(obj)
+            if obj.ballrequest==1
+                obj.Dxpose=obj.pose(1)+0.2
+                obj.Dypose=obj.pose(2)+0.2
+                obj.Dpose=[obj.Dxpose, obj.Dypose];
+            end
+        end
+        function Svel=Shotting(goalpose,obj)
+            d=goalpose-obj.pose;
+            Svel=sqrt((2*obj.Fmax*d)/0.45);
+        end
+        function Pvel=Pass(obj)
+            d=obj.Dpose-obj.pose;
+            %F=d*0.0565; %for c=0.5
+            %F=d*0.0365; %for c=0.4
+            F=d*0.012; %for c=0.2
+            %F=d*0.006; %for c=0.1
+            Pvel=sqrt((2*obj.F.*d)/0.45);
         end
 
 
