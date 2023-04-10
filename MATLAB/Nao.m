@@ -145,16 +145,11 @@ classdef Nao
         end
 
         function obj = Make_controller(obj,robots,ball)
-%             distance = sqrt((obj.pose(1) - ball.Pose(1))^2+(obj.pose(2) - ball.Pose(2))^2);
-            disp(obj.counter)
             if mod(obj.counter,40) == 0
                 
             
             try
             obj = obj.make_map(robots);
-%             map = binaryOccupancyMap(11,9,100);
-%             inflate(map,0.25); % Inflate the map for planning
-
             
             % State space
             ss = stateSpaceDubins;
@@ -209,7 +204,6 @@ classdef Nao
 
             N = 0.2; %Gain
             x_t = trgt_pose; % Position of target
-            %             disp(x_t)
             x_m = obj.pose(1:2,1); % Position of target
             phi_t = orientation;
             phi_m = obj.pose(3,1);
@@ -244,8 +238,6 @@ classdef Nao
             x_dif = x_t - x_m;
 
             x_dotDif = x_tdot - x_mdot;
-            %             disp(x_dif)
-            %             disp(x_dotDif)
 
             [x_difRot , rot] = obj.rotate(x_dif,phi_m);
             x_dotDifRot = obj.rotate(x_dotDif,phi_m);
@@ -259,7 +251,7 @@ classdef Nao
             y_dot = (x_dotDifRot(2,1)*x_difRot(1,1) - x_dotDifRot(1,1)*x_difRot(2,1))/(x_difRot(1,1)^2 * (1/cos(y))^2);
 
             n = N*y_dot*Vc;
-            %             disp(n)
+
             phi_mdot = n/V_m;
 
 
@@ -336,7 +328,6 @@ classdef Nao
                     
                     if distance < obj.radius*2 && timestep > (obj.timeSetpFell + 100)
 
-%                         disp("for robot "+ i+ " range is: "+distance+"from robot: "+counter)
                         obj.isFallen = true;
                         obj.timeSetpFell = timestep;
 
@@ -347,7 +338,6 @@ classdef Nao
         end
 
         function obj = getUp(obj,timestep)
-            disp([timestep*obj.dt,obj.timeSetpFell*obj.dt + 3.90])
             
             if timestep*obj.dt < obj.timeSetpFell*obj.dt + 3.90
                 obj.w = 0.7;

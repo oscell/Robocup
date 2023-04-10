@@ -20,7 +20,7 @@ classdef Goalkeeper
         end 
         function pose = getGoalpose(obj,ball)
             pose = zeros(1,3);
-            pose(3) = pi
+            pose(3) = pi;
         end
 
         function boundary = get_boundary(obj,team)            

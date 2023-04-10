@@ -48,7 +48,7 @@ for idx = 2:numel(tVec)
 %             sim.robots(i),sim.robots(i).checkBoundary()
 %         end
         %% robot state flow goes here
-        sim.robots(i) = sim.robots(i).checkColision(sim.robots,idx);
+%         sim.robots(i) = sim.robots(i).checkColision(sim.robots,idx);
         sim.robots(i).goalPose = sim.robots(i).position_class.getGoalpose(sim.ball);
         sim.robots(i) = sim.robots(i).Make_controller(sim.robots,sim.ball);
         if sim.robots(i).position_class.name == "Attacker" && sim.robots(i).isFallen == false
@@ -94,10 +94,8 @@ for idx = 2:numel(tVec)
                                          switch sim.robots(i).arrived %Checks to see if player has arrived at ball
             
                                              case false
-%                                                  disp('Robot '  + string(i) + 'ToPoint: 1')
                                                  sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
                                              case true
-%                                                  disp('Robot '  + string(i) + 'ToPoint: 1')
                                                  sim.robots(i) = sim.robots(i).ToPoint(idx,[4.5,9],0,4);
                                           end
                                 case 0 %Ball not found
@@ -111,37 +109,9 @@ for idx = 2:numel(tVec)
         elseif sim.robots(i).position_class.name == "Goalkeeper" && sim.robots(i).isFallen == false
 
         else
-%             disp('Robot '  + string(i) + 'Getting up')
             sim.robots(i) = sim.robots(i).getUp(idx);
 
         end
-    
-        % robot state flow goes here
-%         If the robot hasnt arrived go to the ball else drone mode
-
-%         if sim.robots(i).arrived == false
-%             if sim.robots(i).searchBall(sim.ball.Pose)
-% %                 disp("Robot "+i+" found the ball")
-%             end
-%             if sim.robots(i).searchRobot(i,sim.numRobots,sim.robots)
-%                 disp("Robot "+i+" sees another robot")
-%             end
-%             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
-%         else
-%             sim.robots(i) = sim.robots(i).DroneMode(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
-%         end
-%                     % colision check
-%         sim.robots(i) = sim.robots(i).checkColision(i,sim.robots);
-%         
-% 
-%         % RRT
-%         % plan a new path every so often to update obstacles
-%         if mod(idx,20) == 0
-%             sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
-%         end
-%         sim.robots(i) = sim.robots(i).RRT(idx);
-%         
-%         % Update
         sim.robots(i) = sim.robots(i).update(idx);
         
     end

@@ -122,10 +122,6 @@ classdef simulation
 %                 obj.robots(i) = obj.robots(i).update_pursuit(idx);
 
                 %update positions
-%                 disp('in dim update')
-%                 disp(obj.ball.Pose)
-%                 disp(obj.ball.orientation)
-
                 obj.robots(i) = obj.robots(i).update_target(idx,obj.ball.Pose,obj.ball.orientation,obj.ball.V);
             end
         end
