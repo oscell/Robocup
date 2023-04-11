@@ -1,6 +1,6 @@
 classdef BallDynamics
     properties
-        Pose=[5.5;4];
+        Pose=[7;7.];
         Velocity=[0;0];
         KVelocity=[];
         C
