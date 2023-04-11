@@ -52,24 +52,25 @@ classdef BallTracker
 
             % Check if the ball is out of bounds
             if obj.isBallOutOfBounds()
-                text(2, 7.5, 'The ball is out of bounds!', 'Color', 'r', 'FontSize', 20);
+                text(0, 10, 'The ball is out of bounds!', 'Color', 'r', 'FontSize', 20);
             end
             if obj.isBallInLeftGoal()
-                text(2, 7.5, 'Left goal!', 'Color', 'r', 'FontSize', 20);
+                text(0, 10, 'Left goal!', 'Color', 'r', 'FontSize', 20);
                 obj.scoreLeft = obj.scoreLeft + 1;
             end
             if obj.isBallInRightGoal()
-                text(2, 7.5, 'Right goal!', 'Color', 'r', 'FontSize', 20);
+                text(0, 10, 'Right goal!', 'Color', 'r', 'FontSize', 20);
                 obj.scoreRight = obj.scoreRight + 1;
             end
         end
         function showScores(obj)
        
-            text(3, 0.5, num2str(obj.scoreRight), 'FontSize', 24, 'HorizontalAlignment', 'right');
-            text(8, 0.5, num2str(obj.scoreLeft), 'FontSize', 24, 'HorizontalAlignment', 'left');
+            text(1, 15, num2str(obj.scoreRight), 'FontSize', 24, 'HorizontalAlignment', 'right');
+            text(10, 15, num2str(obj.scoreLeft), 'FontSize', 24, 'HorizontalAlignment', 'left');
 
         end
 
     end
 end
+
 

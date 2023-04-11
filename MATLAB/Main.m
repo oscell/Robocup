@@ -19,11 +19,19 @@ sensorRange = 2;
 showEnv = false;
 Positions = {'Goalkeeper','Defender','Defender','Attacker','Attacker'};
 
+fieldPos = [1, 1, 10, 7];
+goalLeft = [0.4 2.7 1 5.3];
+goalRight = [10 2.7 10.6 5.3];
+scoreLeft = 0;
+scoreRight = 0;
 
 sim = simulation(dt,totalTime,num_teams,robot_radius,showEnv,Positions,sensorRange);
 sim.ball.dt = dt;
 sim.ball.orientation = pi;
 sim.ball.V = 0.01;
+
+ballPos = sim.ball.Pose;
+tracker = BallTracker(fieldPos, ballPos, goalLeft, goalRight, scoreLeft, scoreRight);
 
 for i = 1:sim.numRobots
         sim.robots(i).goalPose = sim.robots(i).position_class.getGoalpose(sim.ball);
@@ -69,9 +77,6 @@ for idx = 2:numel(tVec)
                                             sim.robots(i) = sim.robots(i).RRT(idx);
                                             
 
-
-
-
                                             if sim.robots(i).counter == 0
 %                                                 sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
                                             elseif mod(sim.robots(i).counter,20) == 0
@@ -84,6 +89,7 @@ for idx = 2:numel(tVec)
 
 
                                     end
+                                    sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2),sim.robots(i).ID);
                                 case 0 %Ball not found
                                     sim.robots(i) = sim.robots(i).DroneMode();
                             end
@@ -96,8 +102,10 @@ for idx = 2:numel(tVec)
                                              case false
                                                  sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
                                              case true
+                                                
                                                  sim.robots(i) = sim.robots(i).ToPoint(idx,[4.5,9],0,4);
-                                          end
+                                         end
+                                         
                                 case 0 %Ball not found
                                     sim.robots(i) = sim.robots(i).DroneMode();
                             end
@@ -126,6 +134,9 @@ for idx = 2:numel(tVec)
     for i = 1:sim.numRobots
         sim.robots(i).show(idx);
         sim.robots(4).show(idx,true);
+        
+        tracker.updateBallPos(ballPos,scoreLeft, scoreRight);
+        tracker.showScores();
     end
     sim.drawpitch();
     drawnow;
