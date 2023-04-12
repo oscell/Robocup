@@ -89,7 +89,7 @@ for idx = 2:numel(tVec)
 
 
                                     end
-                                    sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2),sim.robots(i).ID);
+                                   sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2),sim.robots(i).ID); 
                                 case 0 %Ball not found
                                     sim.robots(i) = sim.robots(i).DroneMode();
                             end
@@ -121,7 +121,9 @@ for idx = 2:numel(tVec)
 
         end
         sim.robots(i) = sim.robots(i).update(idx);
-        
+        sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2),sim.robots(i).ID);
+        tracker.updateBallPos(sim.ball.Pose, scoreLeft, scoreRight);
+
     end
 
 
@@ -134,8 +136,6 @@ for idx = 2:numel(tVec)
     for i = 1:sim.numRobots
         sim.robots(i).show(idx);
         sim.robots(4).show(idx,true);
-        
-        tracker.updateBallPos(ballPos,scoreLeft, scoreRight);
         tracker.showScores();
     end
     sim.drawpitch();

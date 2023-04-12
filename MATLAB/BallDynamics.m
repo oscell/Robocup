@@ -45,8 +45,9 @@ classdef BallDynamics
     if distance <= 0.5 && (isempty(obj.dribblingRobotID) || obj.dribblingRobotID == robotID)
         
         obj.Velocity = robotVelocity;
-        obj.Pose = robotPose + 0.5* [cos(robotDirection); sin(robotDirection)];
+        obj.Pose = robotPose + 0.5 * [cos(robotDirection); sin(robotDirection)];
         obj.dribblingRobotID = robotID;
+        obj.orientation = robotDirection;
     end
 
     % Update the ball's position and orientation based on the dribbling robot's position and direction
