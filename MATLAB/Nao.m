@@ -197,6 +197,8 @@ classdef Nao
         % Standstill
         function obj = standstill(obj)
             obj.pose = obj.pose;
+            obj.vel(1) = 0;
+            obj.vel(2) = 0;
         end
 
         % Targeting algorithm to ball
@@ -512,9 +514,20 @@ classdef Nao
         % Input  {obj: self}
         %
         % Return {isWithinBoundary:bool % whether the robot current position is within the boundary}   
-        function isWithinBoundary = checkBoundary(obj)
+        function isWithinBoundary = checkSelfBoundary(obj)
             check_x =  (obj.boundary(1,1) <= obj.pose(1,1)) && (obj.pose(1,1) <= obj.boundary (2,1));
             check_y =  (obj.boundary(1,2) >= obj.pose(2,1)) && (obj.pose(2,1) >= obj.boundary (2,2));
+            isWithinBoundary =  (check_x && check_y);            
+        end
+        
+        %% Function for checking if the ball is within the robot's boundary
+        %
+        % Input  {obj: self, ball_pose: [1x2 array]}
+        %
+        % Return {isWithinBoundary:bool % whether the ball position is within the robot boundary}          
+        function isWithinBoundary = checkBallBoundary(obj, ball_pose)
+            check_x =  (obj.boundary(1,1) <= ball_pose(1)) && (ball_pose(1) <= obj.boundary (2,1));
+            check_y =  (obj.boundary(1,2) >= ball_pose(2)) && (ball_pose(2) >= obj.boundary (2,2));
             isWithinBoundary =  (check_x && check_y);            
         end
 

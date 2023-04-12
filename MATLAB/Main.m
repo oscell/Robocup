@@ -113,9 +113,18 @@ for idx = 2:numel(tVec)
             end
 
         elseif sim.robots(i).position_class.name == "Defender" && sim.robots(i).isFallen == false
-
+            if sim.robots(i).checkBallBoundary(sim.ball.Pose) == false
+                sim.robots(i) = sim.robots(i).standstill();
+            else
+                sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+            end
         elseif sim.robots(i).position_class.name == "Goalkeeper" && sim.robots(i).isFallen == false
+            if sim.robots(i).checkBallBoundary(sim.ball.Pose) == false
 
+                sim.robots(i) = sim.robots(i).standstill();
+            else
+                sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+            end
         else
             sim.robots(i) = sim.robots(i).getUp(idx);
 
