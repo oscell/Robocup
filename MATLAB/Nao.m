@@ -65,7 +65,19 @@ classdef Nao
 
         % for state flow
         counter = 0
-
+        % Passing and shotting variables
+        Fmax = 2;
+        F
+        Dxpose
+        Dypose
+        Dpose
+        xpose
+        ypose
+        xypose
+        poseready
+        holdball
+        Shoot
+        ballrequest
     end
     methods
         function obj = Nao(env,num,dt,totaltime,team,position,is_repeated,roboRadius,range,ID)
@@ -530,6 +542,69 @@ classdef Nao
             check_y =  (obj.boundary(1,2) >= ball_pose(2)) && (ball_pose(2) >= obj.boundary (2,2));
             isWithinBoundary =  (check_x && check_y);            
         end
+       function obj=readytoshoot(obj, goalpose)
+            if obj.team==1
+                if 8<obj.pose(1,1)<10 && 1.5<obj.pose(2,1)<6.5
+                    obj.poseready=1;
+                else
+                    obj.poseready=0;
+                end
+            end
+            if obj.team==0
+                if 1<obj.pose(1,1)<3 && 1.5<obj.pose(2,1)<6.5
+                    obj.poseready=1;
+                else
+                    obj.poseready=0;
+                end
+            end
+            if all([obj.poseready, obj.holdball])
+                obj.Shoot=1;
+                obj.poseready=0;
+                obj.holdball=0;
+            end
+     
+            if obj.Shoot==1
+                obj.Shoot=0;
+                d=goalpose-[obj.pose(1), obj.pose(2)];
+                FF=2*obj.Fmax;
+                Svel=sqrt((FF/0.45).*d);
+            end
+       end
+        function obj=needpass(obj,foundRobot)
+            if all([foundRobot, obj.holdball])
+                obj.ballrequest=1;
+            else
+                obj.ballrequest=0;
+            end
+        end
+        function obj=desiredpose(obj)
+            if obj.ballrequest==1
+                obj.Dxpose=obj.pose(1)+0.2;
+                obj.Dypose=obj.pose(2)+0.2;
+                obj.Dpose=[obj.Dxpose, obj.Dypose];
+            end
+        end
+        function Svel=Shotting(goalpose,obj)
+            if obj.Shoot==1
+                obj.Shoot=0;
+                d=goalpose-obj.pose;
+                Svel=sqrt((2*obj.Fmax*d)/0.45);
+            end
+        end
+        function Pvel=Pass(obj)
+            obj.xpose=obj.pose(1);
+            obj.ypose=obj.pose(2)
+            obj.xypose=[obj.xpose, obj.ypose];
+            %disp(obj.xypose)
+            %disp(obj.Dpose)
+            d=obj.Dpose-obj.xypose;
+            %F=d*0.0565; %for c=0.5
+            %F=d*0.0365; %for c=0.4
+            F=d*0.012; %for c=0.2
+            %F=d*0.006; %for c=0.1
+            Pvel=sqrt((2*obj.F.*d)/0.45);
+        end
+
 
 
     end

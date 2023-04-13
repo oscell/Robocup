@@ -34,41 +34,41 @@ classdef BallDynamics
             end 
         end
         function obj = robotDribble(obj, robotDirection, robotPose, robotID)
-    % Calculate robot velocity vector
-    robotVelocity = 0.1333 * [cos(robotDirection); sin(robotDirection)];
+            % Calculate robot velocity vector
+            robotVelocity = 0.1333 * [cos(robotDirection); sin(robotDirection)];
 
-    % Calculate distance between ball and robot
-    distance = norm(obj.Pose - robotPose);
+            % Calculate distance between ball and robot
+            distance = norm(obj.Pose - robotPose);
 
-    % Check if the distance is less than 1
-    % and check if no robot is dribbling the ball, or if the dribbling robot is the current robot
-    if distance <= 0.5 && (isempty(obj.dribblingRobotID) || obj.dribblingRobotID == robotID)
-        
-        obj.Velocity = robotVelocity;
-        obj.Pose = robotPose + 0.5 * [cos(robotDirection); sin(robotDirection)];
-        obj.dribblingRobotID = robotID;
-        obj.orientation = robotDirection;
-    end
+            % Check if the distance is less than 1
+            % and check if no robot is dribbling the ball, or if the dribbling robot is the current robot
+            if distance <= 0.5 && (isempty(obj.dribblingRobotID) || obj.dribblingRobotID == robotID)
 
-    % Update the ball's position and orientation based on the dribbling robot's position and direction
-    if ~isempty(obj.dribblingRobotID) && obj.dribblingRobotID == robotID
-        obj.Pose = robotPose + 0.5 * [cos(robotDirection); sin(robotDirection)];
-        obj.orientation = robotDirection;
-    else
-        % If the ball is not being dribbled, update its position and orientation based on its velocity
-        obj.Pose = obj.Pose + obj.Velocity * obj.dt;
-        obj.Velocity = obj.Velocity;
+                obj.Velocity = robotVelocity;
+                obj.Pose = robotPose + 0.5 * [cos(robotDirection); sin(robotDirection)];
+                obj.dribblingRobotID = robotID;
+                obj.orientation = robotDirection;
+            end
 
-        if norm(obj.Velocity) <= 0
-            obj.Velocity = [0; 0];
-            obj.orientation = 0;
-            % Clear dribblingRobotID since no robot is dribbling the ball
-            obj.dribblingRobotID = [];
-        else
-            obj.orientation = asin(obj.Velocity(2) / norm(obj.Velocity));
+            % Update the ball's position and orientation based on the dribbling robot's position and direction
+            if ~isempty(obj.dribblingRobotID) && obj.dribblingRobotID == robotID
+                obj.Pose = robotPose + 0.5 * [cos(robotDirection); sin(robotDirection)];
+                obj.orientation = robotDirection;
+            else
+                % If the ball is not being dribbled, update its position and orientation based on its velocity
+                obj.Pose = obj.Pose + obj.Velocity * obj.dt;
+                obj.Velocity = obj.Velocity;
+
+                if norm(obj.Velocity) <= 0
+                    obj.Velocity = [0; 0];
+                    obj.orientation = 0;
+                    % Clear dribblingRobotID since no robot is dribbling the ball
+                    obj.dribblingRobotID = [];
+                else
+                    obj.orientation = asin(obj.Velocity(2) / norm(obj.Velocity));
+                end
+            end
         end
-    end
-end
 
         function obj= update(obj,idx)
 

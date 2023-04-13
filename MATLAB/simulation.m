@@ -11,6 +11,7 @@ classdef simulation
         env
 
         robots
+        nrobothb
         gamestate
 
         tVec % Time array
@@ -18,6 +19,8 @@ classdef simulation
         totaltime
         ball
         ShowEnv
+
+        passrobot
 
         positions
     end
@@ -125,8 +128,46 @@ classdef simulation
                 obj.robots(i) = obj.robots(i).update_target(idx,obj.ball.Pose,obj.ball.orientation,obj.ball.V);
             end
         end
-
-
+        function obj = robothold(obj)
+            for i = 1:obj.numRobots
+                if obj.robots(i).holdball == 1
+                    obj.nrobothb=i;
+                end
+            end
+        end
+        function obj = robottopass(obj)
+            for i = 1:obj.numRobots
+                if obj.robots(i).team==1
+                    dx(i)=[1]-obj.robots(i).pose(1);
+                else
+                   dx(i)=[10]-obj.robots(i).pose(1);
+                end
+            end
+            for i = 1:obj.numRobots
+                lowest_dx = min([dx(i)]);
+            end
+            for i = 1:obj.numRobots
+                if lowest_dx==dx(i)
+                    obj.passrobot=i;
+                end
+            end
+        end
+        function obj = passing(obj)
+            for i = 1:obj.numRobots
+                 obj.robots(i).needpass(obj.robots(i).searchRobot(i,obj.numRobots,obj.robots))
+            end
+            obj.robots(obj.passrobot).desiredpose()
+            obj.robots(obj.passrobot).Pass()
+        end
+        function obj=holdingball(obj)
+            for i = 1:obj.numRobots
+                if obj.ball.dribblingRobotID==i
+                    obj.robots(i).holdball==1;
+                else
+                   obj.robots(i).holdball==0;
+                end
+            end
+        end
         function ball=MakeBall(obj)
             pose=[5.5,4];
 %             pose=[9;0];

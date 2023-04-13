@@ -49,6 +49,13 @@ end
 for idx = 2:numel(tVec)
     % Update
     sim.ball = sim.ball.update_kick(idx,sim.ball.V,sim.ball.orientation);
+    sim = sim.holdingball();
+    sim = sim.robothold();
+    sim = sim.robottopass();
+    sim.robots(1).pose(1)
+    sim = sim.passing();
+    sim.robots(1).pose(1)
+    
 
     for i = 1:sim.numRobots
         sim.robots(i).counter = sim.robots(i).counter+1;
@@ -132,6 +139,9 @@ for idx = 2:numel(tVec)
         sim.robots(i) = sim.robots(i).update(idx);
         sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2),sim.robots(i).ID);
         tracker.updateBallPos(sim.ball.Pose, scoreLeft, scoreRight);
+        GoalPose=[sim.robots(i).goalPose(1,1), sim.robots(i).goalPose(1,2)];
+        sim.robots(i) = sim.robots(i).readytoshoot(GoalPose);
+        
 
     end
 
