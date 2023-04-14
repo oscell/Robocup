@@ -52,9 +52,7 @@ for idx = 2:numel(tVec)
     sim = sim.holdingball();
     sim = sim.robothold();
     sim = sim.robottopass();
-    sim.robots(1).pose(1)
     sim = sim.passing();
-    sim.robots(1).pose(1)
     
 
     for i = 1:sim.numRobots

@@ -92,7 +92,7 @@ classdef Nao
             obj.radius = roboRadius;
 
             obj.inipose = obj.position_class.get_pose(team);
-            obj.pose = obj.position_class.get_pose(team);%[0;0;0];%[rand(1)*11,rand(1)*8,rand(1)]';
+            obj.pose = [0;0;0];%obj.position_class.get_pose(team);%[0;0;0];%[rand(1)*11,rand(1)*8,rand(1)]';
             obj.V = 0.1333;
             obj.w = 0;
 
@@ -593,16 +593,18 @@ classdef Nao
         end
         function Pvel=Pass(obj)
             obj.xpose=obj.pose(1);
-            obj.ypose=obj.pose(2)
+            obj.ypose=obj.pose(2);
             obj.xypose=[obj.xpose, obj.ypose];
-            %disp(obj.xypose)
-            %disp(obj.Dpose)
-            d=obj.Dpose-obj.xypose;
+            
+            
+            d=[obj.pose(1)+0.2,obj.pose(2)+0.2]-obj.xypose;
             %F=d*0.0565; %for c=0.5
             %F=d*0.0365; %for c=0.4
             F=d*0.012; %for c=0.2
             %F=d*0.006; %for c=0.1
-            Pvel=sqrt((2*obj.F.*d)/0.45);
+            disp(F)
+            disp(d)
+            Pvel=sqrt((2*F(1)*d(1) +2*F(2)*d(2))/0.45);
         end
 
 

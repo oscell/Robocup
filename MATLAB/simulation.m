@@ -154,17 +154,17 @@ classdef simulation
         end
         function obj = passing(obj)
             for i = 1:obj.numRobots
-                 obj.robots(i).needpass(obj.robots(i).searchRobot(i,obj.numRobots,obj.robots))
+                 obj.robots(i).needpass(obj.robots(i).searchRobot(i,obj.numRobots,obj.robots));
             end
-            obj.robots(obj.passrobot).desiredpose()
-            obj.robots(obj.passrobot).Pass()
+            obj.robots(obj.passrobot)= obj.robots(obj.passrobot).desiredpose();
+            obj.robots(obj.passrobot)= obj.robots(obj.passrobot).Pass();
         end
         function obj=holdingball(obj)
             for i = 1:obj.numRobots
                 if obj.ball.dribblingRobotID==i
-                    obj.robots(i).holdball==1;
+                   obj.robots(i).holdball=1;
                 else
-                   obj.robots(i).holdball==0;
+                   obj.robots(i).holdball=0;
                 end
             end
         end
