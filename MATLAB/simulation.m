@@ -21,6 +21,7 @@ classdef simulation
         ShowEnv
 
         passrobot
+        robotpassing
 
         positions
     end
@@ -155,9 +156,12 @@ classdef simulation
         function obj = passing(obj)
             for i = 1:obj.numRobots
                  obj.robots(i).needpass(obj.robots(i).searchRobot(i,obj.numRobots,obj.robots));
+                 if obj.robots(i).ballrequest()==1
+                     obj.robotpassing=i;
+                 end
             end
             obj.robots(obj.passrobot)= obj.robots(obj.passrobot).desiredpose();
-            obj.robots(obj.passrobot)= obj.robots(obj.passrobot).Pass();
+            obj.robots(obj.robotpassing)= obj.robots(obj.robotpassing).Pass();
         end
         function obj=holdingball(obj)
             for i = 1:obj.numRobots

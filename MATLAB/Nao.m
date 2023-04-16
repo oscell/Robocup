@@ -607,7 +607,5 @@ classdef Nao
             Pvel=sqrt((2*F(1)*d(1) +2*F(2)*d(2))/0.45);
         end
 
-
-
     end
 end
