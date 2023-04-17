@@ -81,18 +81,17 @@ classdef BallTracker
 
         end
         function showScores(obj)
-            if obj.score == 1
-                     text(3, 0.5, num2str(obj.scoreRight), 'FontSize', 24, 'HorizontalAlignment', 'right');
-            text(8, 0.5, num2str(1), 'FontSize', 24, 'HorizontalAlignment', 'left');
-            else
-                text(3, 0.5, num2str(obj.scoreRight), 'FontSize', 24, 'HorizontalAlignment', 'right');
+%             if obj.score == 1
+%                      text(3, 0.5, num2str(obj.scoreRight), 'FontSize', 24, 'HorizontalAlignment', 'right');
+%             text(8, 0.5, num2str(1), 'FontSize', 24, 'HorizontalAlignment', 'left');
+%             else
+            text(3, 0.5, num2str(obj.scoreRight), 'FontSize', 24, 'HorizontalAlignment', 'right');
             text(8, 0.5, num2str(obj.scoreLeft), 'FontSize', 24, 'HorizontalAlignment', 'left');
-            end
             
 
         end
 
-        function obj = isPointInRectangle(x, y, x1, y1, x2, y2)
+        function isInside = isPointInRectangle(obj,x, y)
         % isPointInRectangle Check if a point is within a rectangle
         %   INPUTS: 
         %       x, y : coordinates of the point to check
@@ -101,7 +100,10 @@ classdef BallTracker
         %
         %   OUTPUTS:
         %       isInside : returns true if the point is inside the rectangle, false otherwise
-        
+            x1 = 10;
+            y1 = 2.7;
+            x2 = 10.6;
+            y2 = 5.3;
             % Check if the point is within the horizontal boundaries
             isInsideX = x >= x1 && x <= x2;
         
@@ -109,10 +111,38 @@ classdef BallTracker
             isInsideY = y >= y1 && y <= y2;
         
             % Check if the point is within both the horizontal and vertical boundaries
-            obj.isInside = isInsideX && isInsideY;
+            isInside = isInsideX && isInsideY;
+            if isInside
+                disp('GOLALALALA')
+            end
         
         end
-
+        function isInside = isPointInrightRectangle(obj,x, y)
+        % isPointInRectangle Check if a point is within a rectangle
+        %   INPUTS: 
+        %       x, y : coordinates of the point to check
+        %       x1, y1 : coordinates of the bottom-left corner of the rectangle
+        %       x2, y2 : coordinates of the top-right corner of the rectangle
+        %
+        %   OUTPUTS:
+        %       isInside : returns true if the point is inside the rectangle, false otherwise
+            x1 = 0;
+            y1 = 2.7;
+            x2 = 1;
+            y2 = 5.3;
+            % Check if the point is within the horizontal boundaries
+            isInsideX = x >= x1 && x <= x2;
+        
+            % Check if the point is within the vertical boundaries
+            isInsideY = y >= y1 && y <= y2;
+        
+            % Check if the point is within both the horizontal and vertical boundaries
+            isInside = isInsideX && isInsideY;
+            if isInside
+                disp('GOLALALALA')
+            end
+        
+        end
     end
 end
 

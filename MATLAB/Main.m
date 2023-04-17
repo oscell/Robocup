@@ -106,13 +106,23 @@ for idx = 2:numel(tVec)
                         case false
                             if i == sim.ball.dribblingRobotID
                                 
-                                sim.robots(sim.ball.dribblingRobotID).goalPose = [2,4,0];
+                                sim.robots(sim.ball.dribblingRobotID).goalPose = [2,4,pi];
 
                                 if  mod(sim.robots(i).counter,20) == 0 ||mod(sim.robots(i).counter,20) == 20
                                     sim.robots(i) = sim.robots(i).Make_controller(sim.robots,sim.ball);
                                 else
                                 end
-                                sim.robots(sim.ball.dribblingRobotID).counter = 1+sim.robots(sim.ball.dribblingRobotID).counter;
+
+                                                                euclidean_distance = sqrt((sim.robots(i).pose(1) - sim.robots(i).goalPose(1))^2 + (sim.robots(i).pose(2) - sim.robots(i).goalPose(2))^2);
+
+                                % Check if the object is within 0.5 meters using an if statement
+                                if euclidean_distance <= 1
+                                    disp('The object is within 0.5 meters');
+                                    sim.ball.V = 0;
+                                    [sim.robots(i),Svel,sim.ball] = sim.robots(i).readytoshoot([0,5],sim.ball);
+                                    sim.ball.V = Svel;
+                                end
+                                sim.robots(i).counter = 1+sim.robots(i).counter;
                             end
 
                         sim.robots(i) = sim.robots(i).RRT(idx);
@@ -142,6 +152,8 @@ for idx = 2:numel(tVec)
         end
         sim.robots(i) = sim.robots(i).update(idx);
         sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2),sim.robots(i).ID);
+        tracker.isPointInRectangle(sim.ball.Pose(1), sim.ball.Pose(2));
+        tracker.isPointInrightRectangle(sim.ball.Pose(1), sim.ball.Pose(2));
         tracker.updateBallPos(sim.ball.Pose, scoreLeft, scoreRight,sim.ball);
         [tracker, sim.ball] = tracker.updateBallPos(sim.ball.Pose, scoreLeft, scoreRight,sim.ball);
 
@@ -157,6 +169,7 @@ for idx = 2:numel(tVec)
     for i = 1:sim.numRobots
         sim.robots(i).show(idx);
         sim.robots(4).show(idx,true);
+        sim.robots(8).show(idx,true);
         tracker.showScores();
         
     end

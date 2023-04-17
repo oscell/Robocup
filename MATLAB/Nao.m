@@ -294,7 +294,6 @@ classdef Nao
             
 
             poses = transpose(obj.poses);
-            disp(poses)
             [vRef,wRef] = obj.controller(poses(:,idx-1));
             [wheelSpeeds,steerAngles] = inverseKinematicsFrontSteer(obj.vehicle,vRef,wRef);
             wheelSpeeds = wheelSpeeds([1 1]); % Use front wheel speed for both
