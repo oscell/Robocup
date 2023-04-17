@@ -25,7 +25,7 @@ classdef Attacker
             else
 
                 if obj.is_repeated
-                    pose = [11-4.5;3;pi];
+                    pose = [11-4.5;3;-pi];
                 else
                     pose = [11-4.5;4;pi];
                 end
@@ -38,9 +38,9 @@ classdef Attacker
             pose(1) = ball.Pose(1);
             pose(2) = ball.Pose(2);
             if team == 1
-                pose(3) = pi;
+                pose(3) = 1;
             else
-               pose(3) = -pi;
+               pose(3) = 0;
             end
         end
 

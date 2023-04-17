@@ -105,7 +105,7 @@ for idx = 2:numel(tVec)
 
                         case false
                             if i == sim.ball.dribblingRobotID
-
+                                
                                 sim.robots(sim.ball.dribblingRobotID).goalPose = [2,4,0];
 
                                 if  mod(sim.robots(i).counter,20) == 0 ||mod(sim.robots(i).counter,20) == 20
@@ -115,7 +115,7 @@ for idx = 2:numel(tVec)
                                 sim.robots(sim.ball.dribblingRobotID).counter = 1+sim.robots(sim.ball.dribblingRobotID).counter;
                             end
 
-
+                        sim.robots(i) = sim.robots(i).RRT(idx);
 
                     end
 
@@ -134,7 +134,7 @@ for idx = 2:numel(tVec)
                 sim.robots(i) = sim.robots(i).standstill();
             
             else
-                sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+               sim.robots(i) = sim.robots(i).standstill();
             end
         else
             sim.robots(i) = sim.robots(i).getUp(idx);
@@ -142,6 +142,7 @@ for idx = 2:numel(tVec)
         end
         sim.robots(i) = sim.robots(i).update(idx);
         sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2),sim.robots(i).ID);
+        tracker.updateBallPos(sim.ball.Pose, scoreLeft, scoreRight,sim.ball);
         [tracker, sim.ball] = tracker.updateBallPos(sim.ball.Pose, scoreLeft, scoreRight,sim.ball);
 
     end

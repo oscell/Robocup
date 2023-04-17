@@ -6,6 +6,7 @@ classdef BallTracker
         ballPos % [x, y]
         scoreLeft
         scoreRight
+        isInside
         
         score = 0
         timer = 0
@@ -89,6 +90,27 @@ classdef BallTracker
             end
             
 
+        end
+
+        function obj = isPointInRectangle(x, y, x1, y1, x2, y2)
+        % isPointInRectangle Check if a point is within a rectangle
+        %   INPUTS: 
+        %       x, y : coordinates of the point to check
+        %       x1, y1 : coordinates of the bottom-left corner of the rectangle
+        %       x2, y2 : coordinates of the top-right corner of the rectangle
+        %
+        %   OUTPUTS:
+        %       isInside : returns true if the point is inside the rectangle, false otherwise
+        
+            % Check if the point is within the horizontal boundaries
+            isInsideX = x >= x1 && x <= x2;
+        
+            % Check if the point is within the vertical boundaries
+            isInsideY = y >= y1 && y <= y2;
+        
+            % Check if the point is within both the horizontal and vertical boundaries
+            obj.isInside = isInsideX && isInsideY;
+        
         end
 
     end
