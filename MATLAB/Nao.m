@@ -145,10 +145,11 @@ classdef Nao
         end
 
         function obj = Make_controller(obj,robots,ball)
-            if mod(obj.counter,40) == 0
+
                 
             
             try
+            disp(['Trying to make controller...robot ',string(obj.ID),'With goal pose ',string(obj.goalPose)])
             obj = obj.make_map(robots);
             
             % State space
@@ -182,9 +183,10 @@ classdef Nao
             obj.solInfo = solInfo;
             obj.ss = ss;
             obj.plannedPath = plannedPath;
+            disp('Successfully made controller...')
             catch
             end
-            end
+
         end
 
         %% Base Behavioural algorithms
@@ -320,8 +322,9 @@ classdef Nao
         end
         
         %% Checks for colisions, if true robot is fallen
-        function obj = checkColision(obj,robots,timestep)
+        function [obj,ball] = checkColision(obj,robots,timestep,ball)
             counter = 1;
+
             for robot = robots
                 
 
@@ -332,6 +335,9 @@ classdef Nao
 
                         obj.isFallen = true;
                         obj.timeSetpFell = timestep;
+                        ball.dribblingRobotID = [];
+                        ball.V = 0;
+                        ball.orientation = 0;
 
                     end
                 end
@@ -401,11 +407,11 @@ classdef Nao
 
             %Draw sensors
             %Left
-            left = [cos(obj.pose(3)+obj.fov/2); sin(obj.pose(3)+obj.fov/2)];
-            plot([obj.pose(1,1), obj.pose(1,1)+left(1)*obj.range],[obj.pose(2,1), obj.pose(2,1)+left(2)*obj.range],Color='g',LineWidth=1,LineStyle='--')
-            %Right
-            right = [cos(obj.pose(3)-obj.fov/2); sin(obj.pose(3)-obj.fov/2)];
-            plot([obj.pose(1,1), obj.pose(1,1)+right(1)*obj.range],[obj.pose(2,1), obj.pose(2,1)+right(2)*obj.range],Color='g',LineWidth=1,LineStyle='--')
+%             left = [cos(obj.pose(3)+obj.fov/2); sin(obj.pose(3)+obj.fov/2)];
+%             plot([obj.pose(1,1), obj.pose(1,1)+left(1)*obj.range],[obj.pose(2,1), obj.pose(2,1)+left(2)*obj.range],Color='g',LineWidth=1,LineStyle='--')
+%             %Right
+%             right = [cos(obj.pose(3)-obj.fov/2); sin(obj.pose(3)-obj.fov/2)];
+%             plot([obj.pose(1,1), obj.pose(1,1)+right(1)*obj.range],[obj.pose(2,1), obj.pose(2,1)+right(2)*obj.range],Color='g',LineWidth=1,LineStyle='--')
             
             
         end

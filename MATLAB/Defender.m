@@ -27,9 +27,15 @@ classdef Defender
                 
             end           
         end 
-        function pose = getGoalpose(obj,ball)
+        function pose = getGoalpose(obj,ball,team)
             pose = zeros(1,3);
-            pose(3) = pi;
+            pose(1) = 0;
+            pose(2) = 0;
+            if team == 1
+                pose(3) = pi;
+            else
+               pose(3) = -pi;
+            end
         end
         function boundary = get_boundary(obj,team)
             if team == 1

@@ -17,7 +17,7 @@ num_teams = 2;
 robot_radius = 0.15;
 sensorRange = 2;
 showEnv = false;
-Positions = {'Goalkeeper','Defender','Defender','Attacker','Attacker'};
+Positions = {'Goalkeeper','Defender','Defender','Attacker'};
 
 fieldPos = [1, 1, 10, 7];
 goalLeft = [0.4 2.7 1 5.3];
@@ -34,9 +34,9 @@ ballPos = sim.ball.Pose;
 tracker = BallTracker(fieldPos, ballPos, goalLeft, goalRight, scoreLeft, scoreRight);
 
 for i = 1:sim.numRobots
-        sim.robots(i).goalPose = sim.robots(i).position_class.getGoalpose(sim.ball);
-        sim.robots(i) = sim.robots(i).Make_controller(sim.robots,sim.ball);
-        
+    sim.robots(i).goalPose = sim.robots(i).position_class.getGoalpose(sim.ball,sim.robots(i).team);
+    sim.robots(i) = sim.robots(i).Make_controller(sim.robots,sim.ball);
+
 end
 
 % Show the occupancy map and planned path
@@ -51,65 +51,57 @@ for idx = 2:numel(tVec)
     sim.ball = sim.ball.update_kick(idx,sim.ball.V,sim.ball.orientation);
 
     for i = 1:sim.numRobots
-        sim.robots(i).counter = sim.robots(i).counter+1;
-%         if sim.robots(i).position_class.name == "Goalkeeper"
-%             sim.robots(i),sim.robots(i).checkBoundary()
-%         end
+        %         if sim.robots(i).position_class.name == "Goalkeeper"
+        %             sim.robots(i),sim.robots(i).checkBoundary()
+        %         end
         %% robot state flow goes here
-%         sim.robots(i) = sim.robots(i).checkColision(sim.robots,idx);
-        sim.robots(i).goalPose = sim.robots(i).position_class.getGoalpose(sim.ball);
+        [sim.robots(i),sim.ball] = sim.robots(i).checkColision(sim.robots,idx,sim.ball);
         sim.robots(i) = sim.robots(i).Make_controller(sim.robots,sim.ball);
         if sim.robots(i).position_class.name == "Attacker" && sim.robots(i).isFallen == false
-            
+
             switch sim.robots(i).team % Checks team
 
                 case 1 %Team Blue
-                            switch sim.robots(i).searchBall(sim.ball.Pose) %Looks for ball
-                                case 1 %Ball has been found
-                                    switch sim.robots(i).arrived %Checks to see if player has arrived at ball
-                                        case false
+                    switch  isempty(sim.ball.dribblingRobotID) %Checks to see if player has arrived at ball
+                        case true
+                            
+                        case false
+                            if i == sim.ball.dribblingRobotID
+                                sim.robots(sim.ball.dribblingRobotID).goalPose = [9,4,0];
 
-%                                             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
-                                            sim.robots(i) = sim.robots(i).RRT(idx);
-                                        case true
-
-%                                             sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
-                                            sim.robots(i) = sim.robots(i).RRT(idx);
-                                            
-
-                                            if sim.robots(i).counter == 0
-%                                                 sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
-                                            elseif mod(sim.robots(i).counter,20) == 0
-                                                sim.robots(i).ID
-%                                                 sim.robots(i) = sim.robots(i).Make_controller(sim.robots);
-                                            end
-                                            sim.robots(i).counter = 1+sim.robots(i).counter;
-
-%                                             sim.robots(i) = sim.robots(i).RRT(idx);
-
-
-                                    end
-                                   sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2),sim.robots(i).ID); 
-                                case 0 %Ball not found
-                                    sim.robots(i) = sim.robots(i).DroneMode();
+                                if  mod(sim.robots(i).counter,20) == 0 ||mod(sim.robots(i).counter,20) == 20
+                                    sim.robots(i) = sim.robots(i).Make_controller(sim.robots,sim.ball);
+                                else
+                                end
+                                sim.robots(sim.ball.dribblingRobotID).counter = 1+sim.robots(sim.ball.dribblingRobotID).counter;
                             end
+                            sim.robots(i) = sim.robots(i).RRT(idx);
+
+                    end
+                    sim.robots(i) = sim.robots(i).RRT(idx);
+                    sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2),sim.robots(i).ID);
 
                 case 0 %Team Red
-                            switch sim.robots(i).searchBall(sim.ball.Pose) %Looks for ball
-                                case 1 %Ball has been found
-                                         switch sim.robots(i).arrived %Checks to see if player has arrived at ball
-            
-                                             case false
-                                                 sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
-                                             case true
-                                                
-                                                 sim.robots(i) = sim.robots(i).ToPoint(idx,[4.5,9],0,4);
-                                         end
-                                         
-                                case 0 %Ball not found
-                                    sim.robots(i) = sim.robots(i).DroneMode();
+                    switch  isempty(sim.ball.dribblingRobotID) %Checks to see if player has arrived at ball
+                        case true
+
+                        case false
+                            if i == sim.ball.dribblingRobotID
+
+                                sim.robots(sim.ball.dribblingRobotID).goalPose = [2,4,0];
+
+                                if  mod(sim.robots(i).counter,20) == 0 ||mod(sim.robots(i).counter,20) == 20
+                                    sim.robots(i) = sim.robots(i).Make_controller(sim.robots,sim.ball);
+                                else
+                                end
+                                sim.robots(sim.ball.dribblingRobotID).counter = 1+sim.robots(sim.ball.dribblingRobotID).counter;
                             end
-                       
+
+
+
+                    end
+
+
             end
 
         elseif sim.robots(i).position_class.name == "Defender" && sim.robots(i).isFallen == false
@@ -131,14 +123,14 @@ for idx = 2:numel(tVec)
         end
         sim.robots(i) = sim.robots(i).update(idx);
         sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2),sim.robots(i).ID);
-        tracker.updateBallPos(sim.ball.Pose, scoreLeft, scoreRight);
-
+        sim.ball = tracker.updateBallPos(sim.ball.Pose, scoreLeft, scoreRight,sim.ball);
+       
     end
 
 
 
     % Figure
-    
+
     figure(2); clf; hold on; grid off; axis([0 11,0 8]); %set(gca,'visible','off');
     hold on
     sim.ball.show();
@@ -164,7 +156,7 @@ end
 % ylabel('Position (m)')
 % legend('x-position','y-position')
 % hold off
-% 
+%
 % figure(4); clf; hold on; grid on; axis([0 totalTime,-1 2]);
 % plot(tVec,sim.robots(i).vels(:,1))
 % plot(tVec,sim.robots(i).vels(:,2))
@@ -173,7 +165,7 @@ end
 % ylabel('Velocity (m/s)')
 % legend('x-velocity','y-velocity')
 % hold off
-% 
+%
 % figure(5); clf; hold on; grid on; axis equal;
 % plot(tVec,sim.robots(i).angles)
 % title('angle vs Time')
@@ -191,7 +183,7 @@ end
 % ylabel('Position (m)')
 % legend('x-position','y-position')
 % hold off
-% 
+%
 % figure(4); clf; hold on; grid on; axis([0 totalTime,-1 2]);
 % plot(tVec,sim.robots(i).vels(:,1))
 % plot(tVec,sim.robots(i).vels(:,2))
@@ -200,7 +192,7 @@ end
 % ylabel('Velocity (m/s)')
 % legend('x-velocity','y-velocity')
 % hold off
-% 
+%
 % figure(5); clf; hold on; grid on; axis equal;
 % plot(tVec,sim.robots(i).angles)
 % title('angle vs Time')
@@ -214,7 +206,7 @@ end
 % for i = 1:sim.numRobots
 %     sim.robots(i).show(1);
 % end
-% sim.drawpitch();    
+% sim.drawpitch();
 % hold off
 % saveas(figure(6),'Images\Startstate.png')
 
@@ -225,6 +217,6 @@ end
 % for i = 1:sim.numRobots
 %     sim.robots(i).show(idx);
 % end
-% sim.drawpitch();    
+% sim.drawpitch();
 % hold off
 % saveas(figure(7),'Images\Finalstate.png')

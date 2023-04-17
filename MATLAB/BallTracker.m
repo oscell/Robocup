@@ -44,15 +44,18 @@ classdef BallTracker
             end
         end
 
-        function updateBallPos(obj, ballPos, scoreLeft, scoreRight)
+        function ball = updateBallPos(obj, ballPos, scoreLeft, scoreRight,ball)
             % Update the coordinates of the ball
             obj.ballPos = ballPos;
             obj.scoreLeft = scoreLeft;
             obj.scoreRight = scoreRight;
 
+            
+
             % Check if the ball is out of bounds
             if obj.isBallOutOfBounds()
                 text(2, 7.5, 'The ball is out of bounds!', 'Color', 'r', 'FontSize', 20);
+                ball.Pose=[5.5;4];
             end
             if obj.isBallInLeftGoal()
                 text(2, 7.5, 'Left goal!', 'Color', 'r', 'FontSize', 20);

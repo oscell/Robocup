@@ -20,24 +20,28 @@ classdef Attacker
                 if obj.is_repeated
                     pose = [4.5;3;0];
                 else
-                    pose = [4.5;8-3;0];
+                    pose = [4.5;4;0];
                 end
             else
 
                 if obj.is_repeated
                     pose = [11-4.5;3;pi];
                 else
-                    pose = [11-4.5;8-3;pi];
+                    pose = [11-4.5;4;pi];
                 end
                 
             end
         
         end
-        function pose = getGoalpose(obj,ball)
+        function pose = getGoalpose(obj,ball,team)
             pose = zeros(1,3);
             pose(1) = ball.Pose(1);
             pose(2) = ball.Pose(2);
-            pose(3) = -pi/2;
+            if team == 1
+                pose(3) = pi;
+            else
+               pose(3) = -pi;
+            end
         end
 
         function boundary = get_boundary(obj,team)            
