@@ -39,11 +39,6 @@ for i = 1:sim.numRobots
 
 end
 
-% Show the occupancy map and planned path
-% figure(1)
-% sim.robots(1).show_occupancy()
-% hold off
-
 
 
 for idx = 2:numel(tVec)
@@ -56,7 +51,7 @@ for idx = 2:numel(tVec)
         %         end
         %% robot state flow goes here
         [sim.robots(i),sim.ball] = sim.robots(i).checkColision(sim.robots,idx,sim.ball);
-        sim.robots(i) = sim.robots(i).Make_controller(sim.robots,sim.ball);
+        %         sim.robots(i) = sim.robots(i).Make_controller(sim.robots,sim.ball);
         if sim.robots(i).position_class.name == "Attacker" && sim.robots(i).isFallen == false
 
             switch sim.robots(i).team % Checks team
@@ -64,16 +59,39 @@ for idx = 2:numel(tVec)
                 case 1 %Team Blue
                     switch  isempty(sim.ball.dribblingRobotID) %Checks to see if player has arrived at ball
                         case true
-                            
+                            sim.robots(i).goalPose = sim.robots(i).position_class.getGoalpose(sim.ball,sim.robots(i).team);
+                            if  mod(sim.robots(i).counter,10) == 0 ||mod(sim.robots(i).counter,20) == 20
+                                sim.robots(i) = sim.robots(i).Make_controller(sim.robots,sim.ball);
+                            end
+                            sim.robots(i).counter = 1+sim.robots(i).counter;
                         case false
                             if i == sim.ball.dribblingRobotID
-                                sim.robots(sim.ball.dribblingRobotID).goalPose = [9,4,0];
+                                sim.robots(sim.ball.dribblingRobotID).goalPose = [9,5,0];
 
-                                if  mod(sim.robots(i).counter,20) == 0 ||mod(sim.robots(i).counter,20) == 20
+                                if  mod(sim.robots(i).counter,10) == 0 ||mod(sim.robots(i).counter,20) == 20
                                     sim.robots(i) = sim.robots(i).Make_controller(sim.robots,sim.ball);
                                 else
                                 end
-                                sim.robots(sim.ball.dribblingRobotID).counter = 1+sim.robots(sim.ball.dribblingRobotID).counter;
+                                euclidean_distance = sqrt((sim.robots(i).pose(1) - sim.robots(i).goalPose(1))^2 + (sim.robots(i).pose(2) - sim.robots(i).goalPose(2))^2);
+
+                                % Check if the object is within 0.5 meters using an if statement
+                                if euclidean_distance <= 1
+                                    disp('The object is within 0.5 meters');
+                                    sim.ball.V = 0;
+                                    [sim.robots(i),Svel,sim.ball] = sim.robots(i).readytoshoot([10,5],sim.ball);
+                                    sim.ball.V = Svel;
+
+
+                                end
+
+                                sim.robots(i).counter = 1+sim.robots(i).counter;
+                            else
+                                sim.robots(i).goalPose = sim.robots(i).position_class.getGoalpose(sim.ball,sim.robots(i).team);
+                                if  mod(sim.robots(i).counter,10) == 0 ||mod(sim.robots(i).counter,20) == 20
+                                    sim.robots(i) = sim.robots(i).Make_controller(sim.robots,sim.ball);
+                                end
+
+                                sim.robots(i).counter = 1+sim.robots(i).counter;
                             end
                             sim.robots(i) = sim.robots(i).RRT(idx);
 
@@ -124,7 +142,7 @@ for idx = 2:numel(tVec)
         sim.robots(i) = sim.robots(i).update(idx);
         sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2),sim.robots(i).ID);
         sim.ball = tracker.updateBallPos(sim.ball.Pose, scoreLeft, scoreRight,sim.ball);
-       
+
     end
 
 

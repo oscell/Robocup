@@ -55,18 +55,18 @@ classdef BallDynamics
         obj.Pose = robotPose + 0.5 * [cos(robotDirection); sin(robotDirection)];
         obj.orientation = robotDirection;
     else
-        % If the ball is not being dribbled, update its position and orientation based on its velocity
-        obj.Pose = obj.Pose + obj.Velocity * obj.dt;
-        obj.Velocity = obj.Velocity;
-
-        if norm(obj.Velocity) <= 0
-            obj.Velocity = [0; 0];
-            obj.orientation = 0;
-            % Clear dribblingRobotID since no robot is dribbling the ball
-            obj.dribblingRobotID = [];
-        else
-            obj.orientation = asin(obj.Velocity(2) / norm(obj.Velocity));
-        end
+%         % If the ball is not being dribbled, update its position and orientation based on its velocity
+%         obj.Pose = obj.Pose + obj.Velocity * obj.dt;
+%         obj.Velocity = obj.Velocity;
+% 
+%         if norm(obj.Velocity) <= 0
+%             obj.Velocity = [0; 0];
+%             obj.orientation = 0;
+%             % Clear dribblingRobotID since no robot is dribbling the ball
+%             obj.dribblingRobotID = [];
+%         else
+%             obj.orientation = asin(obj.Velocity(2) / norm(obj.Velocity));
+%         end
     end
 end
 

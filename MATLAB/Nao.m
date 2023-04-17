@@ -60,6 +60,20 @@ classdef Nao
         solInfo
         ss
         plannedPath
+
+        % Passing and shotting variables
+        Fmax = 2;
+        F
+        Dxpose
+        Dypose
+        Dpose
+        xpose
+        ypose
+        xypose
+        poseready
+        holdball
+        Shoot
+        ballrequest
         
         
 
@@ -149,7 +163,7 @@ classdef Nao
                 
             
             try
-            disp(['Trying to make controller...robot ',string(obj.ID),'With goal pose ',string(obj.goalPose)])
+%             disp(['Trying to make controller...robot ',string(obj.ID),'With goal pose ',string(obj.goalPose)])
             obj = obj.make_map(robots);
             
             % State space
@@ -183,7 +197,7 @@ classdef Nao
             obj.solInfo = solInfo;
             obj.ss = ss;
             obj.plannedPath = plannedPath;
-            disp('Successfully made controller...')
+%             disp('Successfully made controller...')
             catch
             end
 
@@ -536,6 +550,20 @@ classdef Nao
             check_y =  (obj.boundary(1,2) >= ball_pose(2)) && (ball_pose(2) >= obj.boundary (2,2));
             isWithinBoundary =  (check_x && check_y);            
         end
+
+       function [obj,Svel,ball]=readytoshoot(obj, goalpose,ball)
+
+                obj.Shoot=0;
+                d=goalpose-[obj.pose(1), obj.pose(2)];
+                FF=2*obj.Fmax;
+                Svel=sqrt((FF/0.45).*d);
+                disp(d)
+                disp(Svel)
+                Svel = d;
+                d
+                ball.orientation = 0;
+                ball.dribblingRobotID = [];
+       end
 
 
     end

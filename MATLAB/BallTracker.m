@@ -6,6 +6,8 @@ classdef BallTracker
         ballPos % [x, y]
         scoreLeft 
         scoreRight 
+
+        timer = 0
     end
     
     methods
@@ -55,7 +57,12 @@ classdef BallTracker
             % Check if the ball is out of bounds
             if obj.isBallOutOfBounds()
                 text(2, 7.5, 'The ball is out of bounds!', 'Color', 'r', 'FontSize', 20);
+                obj.timer = obj.timer + 1;
+                if obj.timer > 10
                 ball.Pose=[5.5;4];
+                ball.dribblingRobotID = [];
+                ball.V = 0;
+                end
             end
             if obj.isBallInLeftGoal()
                 text(2, 7.5, 'Left goal!', 'Color', 'r', 'FontSize', 20);
