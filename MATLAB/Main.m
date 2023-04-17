@@ -152,8 +152,8 @@ for idx = 2:numel(tVec)
         end
         sim.robots(i) = sim.robots(i).update(idx);
         sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2),sim.robots(i).ID);
-        tracker.isPointInRectangle(sim.ball.Pose(1), sim.ball.Pose(2));
-        tracker.isPointInrightRectangle(sim.ball.Pose(1), sim.ball.Pose(2));
+        [sim.ball,tracker] = tracker.isPointInRectangle(sim.ball.Pose(1), sim.ball.Pose(2),sim.ball);
+        [sim.ball,tracker] = tracker.isPointInrightRectangle(sim.ball.Pose(1), sim.ball.Pose(2),sim.ball);
         tracker.updateBallPos(sim.ball.Pose, scoreLeft, scoreRight,sim.ball);
         [tracker, sim.ball] = tracker.updateBallPos(sim.ball.Pose, scoreLeft, scoreRight,sim.ball);
 

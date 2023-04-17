@@ -6,6 +6,7 @@ classdef BallTracker
         ballPos % [x, y]
         scoreLeft
         scoreRight
+        isInside
         
         score = 0
         timer = 0
@@ -119,7 +120,7 @@ classdef BallTracker
             end
         
         end
-        function  [ball,obj] = isPointInrightRectangle(obj,x, y,ball)
+        function  ball = isPointInrightRectangle(obj,x, y,ball)
         % isPointInRectangle Check if a point is within a rectangle
         %   INPUTS: 
         %       x, y : coordinates of the point to check
@@ -144,7 +145,6 @@ classdef BallTracker
                     ball.Pose=[5.5;4];
                     ball.dribblingRobotID = [];
                     ball.V = 0;
-                    obj.scoreRight = obj.scoreRight + 1;
             end
 
 
