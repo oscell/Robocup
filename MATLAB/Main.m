@@ -132,6 +132,7 @@ for idx = 2:numel(tVec)
             if sim.robots(i).checkBallBoundary(sim.ball.Pose) == false
 
                 sim.robots(i) = sim.robots(i).standstill();
+            
             else
                 sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
             end
@@ -141,7 +142,7 @@ for idx = 2:numel(tVec)
         end
         sim.robots(i) = sim.robots(i).update(idx);
         sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2),sim.robots(i).ID);
-        sim.ball = tracker.updateBallPos(sim.ball.Pose, scoreLeft, scoreRight,sim.ball);
+        [tracker, sim.ball] = tracker.updateBallPos(sim.ball.Pose, scoreLeft, scoreRight,sim.ball);
 
     end
 
@@ -156,85 +157,11 @@ for idx = 2:numel(tVec)
         sim.robots(i).show(idx);
         sim.robots(4).show(idx,true);
         tracker.showScores();
+        
     end
     sim.drawpitch();
     drawnow;
     hold off
+
+
 end
-
-
-%% PLOT
-% figure(3); clf; hold on; grid on; axis([0 totalTime,-3 5]);
-% % disp(tVec(1:idx))
-% % disp(numel(sim.robots(i).poses(1:idx,1)))
-% plot(tVec(1:idx),sim.robots(i).poses(1:idx,1))
-% plot(tVec,sim.robots(i).poses(:,2))
-% title('x and y movement vs Time')
-% xlabel('Time')
-% ylabel('Position (m)')
-% legend('x-position','y-position')
-% hold off
-%
-% figure(4); clf; hold on; grid on; axis([0 totalTime,-1 2]);
-% plot(tVec,sim.robots(i).vels(:,1))
-% plot(tVec,sim.robots(i).vels(:,2))
-% title('Velocity vs Time')
-% xlabel('Time')
-% ylabel('Velocity (m/s)')
-% legend('x-velocity','y-velocity')
-% hold off
-%
-% figure(5); clf; hold on; grid on; axis equal;
-% plot(tVec,sim.robots(i).angles)
-% title('angle vs Time')
-% xlabel('Time (s)')
-% ylabel('Angle (Rad)')
-% hold off
-
-% figure(3); clf; hold on; grid on; axis([0 totalTime,-3 5]);
-% % disp(tVec(1:idx))
-% % disp(numel(sim.robots(i).poses(1:idx,1)))
-% plot(tVec(1:idx),sim.robots(i).poses(1:idx,1))
-% plot(tVec,sim.robots(i).poses(:,2))
-% title('x and y movement vs Time')
-% xlabel('Time')
-% ylabel('Position (m)')
-% legend('x-position','y-position')
-% hold off
-%
-% figure(4); clf; hold on; grid on; axis([0 totalTime,-1 2]);
-% plot(tVec,sim.robots(i).vels(:,1))
-% plot(tVec,sim.robots(i).vels(:,2))
-% title('Velocity vs Time')
-% xlabel('Time')
-% ylabel('Velocity (m/s)')
-% legend('x-velocity','y-velocity')
-% hold off
-%
-% figure(5); clf; hold on; grid on; axis equal;
-% plot(tVec,sim.robots(i).angles)
-% title('angle vs Time')
-% xlabel('Time (s)')
-% ylabel('Angle (Rad)')
-% hold off
-
-% figure(6); clf; hold on; grid off; axis([0 11,0 8]); %set(gca,'visible','off');
-% hold on
-% sim.ball.show();
-% for i = 1:sim.numRobots
-%     sim.robots(i).show(1);
-% end
-% sim.drawpitch();
-% hold off
-% saveas(figure(6),'Images\Startstate.png')
-
-
-% figure(7); clf; hold on; grid off; axis([0 11,0 8]); %set(gca,'visible','off');
-% hold on
-% sim.ball.show();
-% for i = 1:sim.numRobots
-%     sim.robots(i).show(idx);
-% end
-% sim.drawpitch();
-% hold off
-% saveas(figure(7),'Images\Finalstate.png')

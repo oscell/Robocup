@@ -72,14 +72,15 @@ for idx = 2:numel(tVec)
                                     sim.robots(i) = sim.robots(i).Make_controller(sim.robots,sim.ball);
                                 else
                                 end
-                                euclidean_distance = sqrt((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2);
+                                euclidean_distance = sqrt((sim.robots(i).pose(1) - sim.robots(i).goalPose(1))^2 + (sim.robots(i).pose(2) - sim.robots(i).goalPose(2))^2);
 
                                 % Check if the object is within 0.5 meters using an if statement
-if euclidean_distance <= 0.5
-    disp('The object is within 0.5 meters');
-                                if 0 == 0
+                                if euclidean_distance <= 1
+                                    disp('The object is within 0.5 meters');
+                                    sim.ball.V = 0;
                                     [sim.robots(i),Svel,sim.ball] = sim.robots(i).readytoshoot([10,5],sim.ball);
                                     sim.ball.V = Svel;
+
 
                                 end
 
@@ -131,6 +132,7 @@ if euclidean_distance <= 0.5
             if sim.robots(i).checkBallBoundary(sim.ball.Pose) == false
 
                 sim.robots(i) = sim.robots(i).standstill();
+            
             else
                 sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
             end
@@ -140,7 +142,7 @@ if euclidean_distance <= 0.5
         end
         sim.robots(i) = sim.robots(i).update(idx);
         sim.ball = sim.ball.robotDribble(sim.robots(i).pose(3), sim.robots(i).pose(1:2),sim.robots(i).ID);
-        sim.ball = tracker.updateBallPos(sim.ball.Pose, scoreLeft, scoreRight,sim.ball);
+        [tracker, sim.ball] = tracker.updateBallPos(sim.ball.Pose, scoreLeft, scoreRight,sim.ball);
 
     end
 
@@ -159,6 +161,9 @@ if euclidean_distance <= 0.5
     sim.drawpitch();
     drawnow;
     hold off
+
+    text(3, 0.5, num2str(obj.scoreRight), 'FontSize', 24, 'HorizontalAlignment', 'right');
+    text(8, 0.5, num2str(obj.scoreLeft), 'FontSize', 24, 'HorizontalAlignment', 'left');
 end
 
 
