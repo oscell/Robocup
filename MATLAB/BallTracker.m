@@ -9,6 +9,9 @@ classdef BallTracker
         
         score = 0
         timer = 0
+
+        rightgoal = false
+        leftgoal = false
     end
 
     methods
@@ -98,8 +101,8 @@ classdef BallTracker
         %       x2, y2 : coordinates of the top-right corner of the rectangle
         %
         %   OUTPUTS:
-        %       isInside : returns true if the point is inside the rectangle, false otherwise
-            x1 = 10;
+        %       isInside : returns true if the point is inside the rectangle, false otherwise    
+        x1 = 10;
             y1 = 2.7;
             x2 = 10.6;
             y2 = 5.3;
@@ -115,7 +118,7 @@ classdef BallTracker
                     ball.Pose=[5.5;4];
                     ball.dribblingRobotID = [];
                     ball.V = 0;
-                    obj.scoreLeft = obj.scoreLeft + 1;
+                    obj.rightgoal = true;
             end
         
         end
@@ -144,7 +147,7 @@ classdef BallTracker
                     ball.Pose=[5.5;4];
                     ball.dribblingRobotID = [];
                     ball.V = 0;
-                    obj.scoreRight = obj.scoreRight + 1;
+                    obj.leftgoal = true;
             end
 
 

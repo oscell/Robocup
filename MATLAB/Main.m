@@ -33,6 +33,10 @@ sim.ball.V = 0.01;
 ballPos = sim.ball.Pose;
 tracker = BallTracker(fieldPos, ballPos, goalLeft, goalRight, scoreLeft, scoreRight);
 
+rightgoal = 0;
+leftgoal = 0;
+
+
 for i = 1:sim.numRobots
     sim.robots(i).goalPose = sim.robots(i).position_class.getGoalpose(sim.ball,sim.robots(i).team);
     sim.robots(i) = sim.robots(i).Make_controller(sim.robots,sim.ball);
@@ -102,7 +106,12 @@ for idx = 2:numel(tVec)
                 case 0 %Team Red
                     switch  isempty(sim.ball.dribblingRobotID) %Checks to see if player has arrived at ball
                         case true
-
+                            sim.robots(i).counter = 1+sim.robots(i).counter;
+                            sim.robots(i).goalPose = sim.robots(i).position_class.getGoalpose(sim.ball,sim.robots(i).team);
+                            if  mod(sim.robots(i).counter,10) == 0 ||mod(sim.robots(i).counter,20) == 20
+                                sim.robots(i) = sim.robots(i).Make_controller(sim.robots,sim.ball);
+                            end
+                            
                         case false
                             if i == sim.ball.dribblingRobotID
                                 
@@ -113,12 +122,10 @@ for idx = 2:numel(tVec)
                                 else
                                 end
 
-                                                                euclidean_distance = sqrt((sim.robots(i).pose(1) - sim.robots(i).goalPose(1))^2 + (sim.robots(i).pose(2) - sim.robots(i).goalPose(2))^2);
+                                euclidean_distance = sqrt((sim.robots(i).pose(1) - sim.robots(i).goalPose(1))^2 + (sim.robots(i).pose(2) - sim.robots(i).goalPose(2))^2);
 
                                 % Check if the object is within 0.5 meters using an if statement
                                 if euclidean_distance <= 1
-                                    disp('The object is within 0.5 meters');
-                                    sim.ball.V = 0;
                                     [sim.robots(i),Svel,sim.ball] = sim.robots(i).readytoshoot([0,5],sim.ball);
                                     sim.ball.V = Svel;
                                 end
@@ -158,7 +165,16 @@ for idx = 2:numel(tVec)
         [tracker, sim.ball] = tracker.updateBallPos(sim.ball.Pose, scoreLeft, scoreRight,sim.ball);
 
     end
-
+    if tracker.rightgoal == true
+        rightgoal = rightgoal + 1;
+        text(2, 7.5, 'Right goal!', 'Color', 'r', 'FontSize', 20)
+        tracker.rightgoal = false;
+    
+    elseif tracker.leftgoal == true
+        leftgoal = leftgoal+1;
+        text(2, 7.5, 'Left goal!', 'Color', 'r', 'FontSize', 20);
+        tracker.leftgoal = false;
+    end
 
 
     % Figure
@@ -170,7 +186,8 @@ for idx = 2:numel(tVec)
         sim.robots(i).show(idx);
         sim.robots(4).show(idx,true);
         sim.robots(8).show(idx,true);
-        tracker.showScores();
+        text(3, 0.5, num2str(rightgoal), 'FontSize', 24, 'HorizontalAlignment', 'right');
+        text(8, 0.5, num2str(leftgoal), 'FontSize', 24, 'HorizontalAlignment', 'left');
         
     end
     sim.drawpitch();

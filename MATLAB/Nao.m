@@ -559,8 +559,6 @@ classdef Nao
                 d=goalpose-[obj.pose(1), obj.pose(2)];
                 FF=2*obj.Fmax;
                 Svel=sqrt((FF/0.45).*d);
-                disp(d)
-                disp(Svel)
                 Svel = d;
                 ball.orientation = 0;
                 ball.dribblingRobotID = [];
