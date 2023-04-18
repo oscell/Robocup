@@ -130,12 +130,18 @@ for idx = 2:numel(tVec)
                                     sim.ball.V = Svel;
                                 end
                                 sim.robots(i).counter = 1+sim.robots(i).counter;
+                            else
+                            sim.robots(i).counter = 1+sim.robots(i).counter;
+                            sim.robots(i).goalPose = sim.robots(i).position_class.getGoalpose(sim.ball,sim.robots(i).team);
+                            if  mod(sim.robots(i).counter,10) == 0 ||mod(sim.robots(i).counter,20) == 20
+                                sim.robots(i) = sim.robots(i).Make_controller(sim.robots,sim.ball);
+                            end
                             end
 
-                        sim.robots(i) = sim.robots(i).RRT(idx);
+                        
 
                     end
-
+                sim.robots(i) = sim.robots(i).RRT(idx);
 
             end
 
