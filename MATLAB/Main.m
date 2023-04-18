@@ -115,7 +115,7 @@ for idx = 2:numel(tVec)
                         case false
                             if i == sim.ball.dribblingRobotID
                                 
-                                sim.robots(sim.ball.dribblingRobotID).goalPose = [2,4,pi];
+                                sim.robots(sim.ball.dribblingRobotID).goalPose = [2,4.5,pi];
 
                                 if  mod(sim.robots(i).counter,20) == 0 ||mod(sim.robots(i).counter,20) == 20
                                     sim.robots(i) = sim.robots(i).Make_controller(sim.robots,sim.ball);
@@ -144,6 +144,7 @@ for idx = 2:numel(tVec)
                 sim.robots(i) = sim.robots(i).standstill();
             else
                 sim.robots(i) = sim.robots(i).ToPoint(idx,sim.ball.Pose,sim.ball.orientation,sim.ball.V);
+                
             end
         elseif sim.robots(i).position_class.name == "Goalkeeper" && sim.robots(i).isFallen == false
             if sim.robots(i).checkBallBoundary(sim.ball.Pose) == false

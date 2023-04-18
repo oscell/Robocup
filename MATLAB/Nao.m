@@ -222,7 +222,8 @@ classdef Nao
         function obj = ToPoint(obj,idx,trgt_pose,orientation,V)
 
             N = 1; %Gain
-            x_t = trgt_pose; % Position of target
+            x_t = transpose(trgt_pose(1:2,1)); % Position of target
+
             x_m = obj.pose(1:2,1); % Position of target
             phi_t = orientation;
             phi_m = obj.pose(3,1);
