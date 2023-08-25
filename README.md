@@ -12,6 +12,8 @@ Embark on a journey to understanding the world of RoboCup through a simulation, 
 
 :robot: Explore the simulation in action. :robot:
 
+<video src="assets/Documents/Simulation_video.mp4" controls title="Title"></video>
+
 | Start | Occupancy Map |
 |:-------------------:|:--------------:|
 | <img src="assets\Images\Im.png" width="300">  | <img src="assets/Images/Im2.png" width="300"> |
@@ -32,3 +34,4 @@ cd Robotics-team-design
 ```
 
 Run `MATLAB/Main.m`
+
