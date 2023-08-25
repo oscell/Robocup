@@ -4,8 +4,6 @@
 
 This project offers a MATLAB-based simulation of the RoboCup with humanoid robots, particularly focusing on the Kid-size Humanoid Soccer League and utilizing the NAO6 robot design. The simulation serves as a comprehensive tool for analyzing and testing strategies and tactics, aligning with the RoboCup competition's guidelines and regulations. Key features include ball dynamics, shooting, dribbling, passing, and game state determination, as well as path planning techniques like RRT and Target-Interceptor. The simulation's decision-making relies on State flow, with specific conditions dictating court boundaries and robot roles. For more insights, view the full report on simulation validation, visualization, goals metrics, implications, limitations, and future recommendations.
 
-## Overview
-
 |Overview|Nao6|
 |:-:|:-:|
 |<div align="left">Embark on a journey to understanding the world of RoboCup through a simulation, focusing on the Kid-size Humanoid Soccer League. This project provides insights into the robot's kinematics, actuators, and sensing capabilities for ball and fellow robots. The simulation is crafted with the aim to mirror the RoboCup competition, emphasizing ball dynamics, game states, and path planning techniques.</div>|![Nao6](assets/Images/Nao6.png)|
