@@ -381,14 +381,14 @@ classdef Nao
             text(obj.pose(1,1)+obj.radius,obj.pose(2,1)+obj.radius,string(obj.ID))
 
             % draw trajectory
-            plot(obj.poses(1:idx,1),obj.poses(1:idx,2),"Color",obj.colour); 
+            %plot(obj.poses(1:idx,1),obj.poses(1:idx,2),"Color",obj.colour); 
             
             %Draw robot
             obj.circle(obj.pose(1),obj.pose(2),obj.radius);
 
             % Wayoints
             if show_waypoints
-                plot(obj.waypoints(:,1),obj.waypoints(:,2),'Marker','x')
+                %plot(obj.waypoints(:,1),obj.waypoints(:,2),'Marker','x')
             end
 
             % Goal pose
@@ -401,11 +401,11 @@ classdef Nao
 
             %Draw sensors
             %Left
-            left = [cos(obj.pose(3)+obj.fov/2); sin(obj.pose(3)+obj.fov/2)];
-            plot([obj.pose(1,1), obj.pose(1,1)+left(1)*obj.range],[obj.pose(2,1), obj.pose(2,1)+left(2)*obj.range],Color='g',LineWidth=1,LineStyle='--')
+            %left = [cos(obj.pose(3)+obj.fov/2); sin(obj.pose(3)+obj.fov/2)];
+            %plot([obj.pose(1,1), obj.pose(1,1)+left(1)*obj.range],[obj.pose(2,1), obj.pose(2,1)+left(2)*obj.range],Color='g',LineWidth=1,LineStyle='--')
             %Right
-            right = [cos(obj.pose(3)-obj.fov/2); sin(obj.pose(3)-obj.fov/2)];
-            plot([obj.pose(1,1), obj.pose(1,1)+right(1)*obj.range],[obj.pose(2,1), obj.pose(2,1)+right(2)*obj.range],Color='g',LineWidth=1,LineStyle='--')
+            %right = [cos(obj.pose(3)-obj.fov/2); sin(obj.pose(3)-obj.fov/2)];
+            %plot([obj.pose(1,1), obj.pose(1,1)+right(1)*obj.range],[obj.pose(2,1), obj.pose(2,1)+right(2)*obj.range],Color='g',LineWidth=1,LineStyle='--')
             
             
         end
