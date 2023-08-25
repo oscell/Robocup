@@ -26,6 +26,8 @@ Embark on a journey to understanding the world of RoboCup through a simulation, 
 
 - **[Report](https://github.com/oscell/Robotics-team-design/blob/main/assets/Documents/Robocup_team_Report_TEAM_1.pdf)**: The comprehensive document detailing the entire development process, results, and further recommendations.
 
+- **[Presentation](https://github.com/oscell/Robotics-team-design/blob/main/assets/Documents/Robotics%20team%20presentation.pdf)**: These slides summarise the developemnt 
+
 ## Setup & Installation
 
 ```bash
