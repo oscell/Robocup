@@ -6,7 +6,7 @@ This project offers a MATLAB-based simulation of the RoboCup with humanoid robot
 
 |Overview|Nao6|
 |:-:|:-:|
-|<div align="left">Embark on a journey to understanding the world of RoboCup through a simulation, focusing on the Kid-size Humanoid Soccer League. This project provides insights into the robot's kinematics, actuators, and sensing capabilities for ball and fellow robots. The simulation is crafted with the aim to mirror the RoboCup competition, emphasizing ball dynamics, game states, and path planning techniques.</div>|![Nao6](assets/Images/Nao6.png)|
+|<div align="left">Using the Nao6 robot, this explores the RoboCup through a simulation, focusing on the Humanoid Soccer League. This project provides insights into the robot's kinematics, actuators, and sensing capabilities for ball and fellow robots. The simulation is crafted with the aim to mirror the RoboCup competition, emphasizing ball dynamics, game states, and path planning techniques.</div>|![Nao6](assets/Images/Nao6.png)|
 
 <div align="center">
 
